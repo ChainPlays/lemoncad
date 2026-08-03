@@ -6,13 +6,12 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Jouw ingevulde Discord Webhook URL
+// Your configured Discord Webhook URL
 const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1533927070810247461/GYeJqyh2D_gLR6J_CNI8zmWqLDYLULmrhKANvtsk2_YcnzRGx_zO2rjzMhHxlchzG-dy';
 
-// ER:LC Public Key voor veilige verificatie van de game
+// ER:LC Public Key for secure game verification
 const ERLC_PUBLIC_KEY = 'MCowBQYDK2VwAyEAjSICb9pp0kHizGQtdG8ySWsDChfGqi+gyFCttigBNOA=';
 
-// Vang de 'raw body' op zodat ER:LC veilig kan verifiëren
 app.use(express.json({
     verify: (req, res, buf) => {
         req.rawBody = buf;
@@ -23,7 +22,7 @@ app.use(express.static(path.join(__dirname)));
 
 let dispatches = [];
 
-// --- API: OPHALEN MELDINGEN VOOR DE WEBSITE ---
+// --- API: FETCH DISPATCHES FOR THE WEBSITE ---
 app.get('/api/dispatches', (req, res) => {
     res.json(dispatches);
 });
@@ -65,9 +64,9 @@ app.post('/api/erlc/dispatch', async (req, res) => {
 
     const erlcData = req.body;
     
-    const title = erlcData.title || erlcData.data?.title || 'In-Game Melding';
-    const location = erlcData.location || erlcData.data?.location || 'Onbekende locatie';
-    const description = erlcData.description || erlcData.data?.description || 'Geen extra details.';
+    const title = erlcData.title || erlcData.data?.title || 'In-Game Dispatch';
+    const location = erlcData.location || erlcData.data?.location || 'Unknown location';
+    const description = erlcData.description || erlcData.data?.description || 'No additional details provided.';
     
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const newDispatch = {
@@ -81,10 +80,10 @@ app.post('/api/erlc/dispatch', async (req, res) => {
 
     dispatches.unshift(newDispatch);
 
-    // Stuur direct door naar Discord
+    // Forward directly to Discord
     await sendDiscordWebhook(newDispatch);
 
-    console.log('🚨 ER:LC melding binnengekomen en verwerkt:', title);
+    console.log('🚨 ER:LC dispatch received and processed:', title);
     return res.status(200).json({ success: true });
 });
 
@@ -92,11 +91,11 @@ async function sendDiscordWebhook(dispatch) {
     if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.includes('JOUW_DISCORD_WEBHOOK')) return;
 
     const embed = {
-        title: `🚨 IN-GAME MELDING: ${dispatch.title}`,
+        title: `🚨 IN-GAME DISPATCH: ${dispatch.title}`,
         description: dispatch.description,
-        color: 15158332, // Rood
+        color: 15158332, // Red
         fields: [
-            { name: 'Locatie', value: dispatch.location, inline: true },
+            { name: 'Location', value: dispatch.location, inline: true },
         ],
         timestamp: new Date().toISOString()
     };
@@ -108,10 +107,10 @@ async function sendDiscordWebhook(dispatch) {
             body: JSON.stringify({ embeds: [embed] })
         });
     } catch (err) {
-        console.error('Fout bij versturen Discord webhook:', err);
+        console.error('Error sending Discord webhook:', err);
     }
 }
 
 app.listen(PORT, () => {
-    console.log(`LemonCAD server draait succesvol op http://localhost:${PORT}`);
+    console.log(`LemonCAD server running successfully on http://localhost:${PORT}`);
 });
