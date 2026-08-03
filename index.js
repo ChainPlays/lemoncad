@@ -1,11 +1,20 @@
-// Dit zorgt ervoor dat alles in de map 'public' automatisch bereikbaar is
-app.use(express.static(path.join(__dirname, 'public')));
 var express = require('express');
 var path = require('path');
+
+// Maak direct de app aan
 var app = express();
+
+// Controleer voor de zekerheid of app bestaat
+if (!app) {
+    console.error("FATALE FOUT: Express app kon niet worden aangemaakt!");
+    process.exit(1);
+}
 
 // Middleware om JSON-data te lezen
 app.use(express.json());
+
+// Zorg dat bestanden in de 'public' map geladen kunnen worden
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Database in het geheugen
 var db = {
@@ -13,9 +22,9 @@ var db = {
     vehicles: []
 };
 
-// --- 0. Serveer de hoofdpagina ---
+// --- 0. Serveer de hoofdpagina vanuit de 'public' map ---
 app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // --- 1. Register Civilian ---
