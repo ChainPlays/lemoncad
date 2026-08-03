@@ -46,7 +46,7 @@
             color: #fff;
             border-color: #cca200;
         }
-        /* Layout grid exact zoals in je ontwerp */
+        /* Layout grid */
         .grid-container {
             display: flex;
             flex-wrap: wrap;
@@ -161,17 +161,46 @@
             border: none;
             border-radius: 6px;
         }
+
+        /* Meldingen container linksboven in beeld */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 320px;
+        }
+        .toast-notification {
+            background: #fff;
+            border-left: 5px solid #e2a000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            animation: slideInLeft 0.3s ease-out forwards;
+        }
+        .toast-success {
+            border-left-color: #28a745; /* Groenerand voor successen */
+        }
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- Container voor pop-up meldingen linksboven -->
+    <div id="notification-container"></div>
+
     <div class="header-container">
-        <!-- Server Header Branding -->
         <h2>🍋 LEMON'S</h2>
         <div style="font-size: 11px; font-weight: bold; letter-spacing: 2px; color: #7a6e43; margin-top: -12px; margin-bottom: 15px;">RP SERVER</div>
         <h1>Computer-Aided Dispatch (CAD)</h1>
 
-        <!-- Navigatie menu in dezelfde stijl -->
         <div class="navbar">
             <button class="nav-btn active" id="btnReg" onclick="switchTab('registration')">CAD / Registration</button>
             <button class="nav-btn" id="btnDisp" onclick="switchTab('dispatch')">Dispatch / Meldkamer</button>
@@ -182,7 +211,6 @@
     <!-- SECTIE 1: REGISTRATION & LOOKUP -->
     <div id="section-registration" class="page-section active">
         <div class="grid-container">
-            <!-- Linker Kolom: Civilian Database & NCIC Lookup -->
             <div class="card">
                 <h3>👤 Civilian Database</h3>
                 <label>Full Name</label>
@@ -207,7 +235,6 @@
                 <div id="civResult" class="result-box" style="display:none;"></div>
             </div>
 
-            <!-- Rechter Kolom: DMV Vehicle Database & DMV Lookup -->
             <div class="card">
                 <h3>🚗 DMV Vehicle Database</h3>
                 <label>License Plate</label>
@@ -269,6 +296,79 @@
     </div>
 
     <script>
+        // Functie om een geluidje af te spelen via de browser
+        function playNotificationSound(isSuccess = false) {
+            try {
+                var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                var osc = audioCtx.createOscillator();
+                var gain = audioCtx.createGain();
+                osc.type = 'sine';
+                
+                if (isSuccess) {
+                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 toon voor succes
+                } else {
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Hoge alarmtoon
+                }
+
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            } catch (e) {
+                // Browser blokkeert audio soms tot er geklikt is
+            }
+        }
+
+        // Toon visuele pop-up linksboven (Inkomende melding / Dispatch)
+        function showToast(title, location, priority) {
+            playNotificationSound(false);
+            var container = document.getElementById('notification-container');
+            var toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `<strong>🚨 [${priority}] ${title}</strong><br>📍 ${location}<br><span style="font-size:11px; color:#777;">New dispatch call received</span>`;
+            container.appendChild(toast);
+
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 6000);
+        }
+
+        // Toon visuele pop-up linksboven voor succesvolle acties (Registratie / Dispatch aangemaakt)
+        function showSuccessToast(message, subtext) {
+            playNotificationSound(true);
+            var container = document.getElementById('notification-container');
+            var toast = document.createElement('div');
+            toast.className = 'toast-notification toast-success';
+            toast.innerHTML = `<strong>✅ ${message}</strong><br><span style="font-size:11px; color:#555;">${subtext}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 4000);
+        }
+
+        // Automatisch controleren op nieuwe meldingen elke 5 seconden
+        var lastKnownDispatchId = null;
+        async function pollDispatches() {
+            try {
+                var res = await fetch('/api/dispatches');
+                var dispatches = await res.json();
+                if (dispatches.length > 0) {
+                    var latest = dispatches[0];
+                    if (lastKnownDispatchId !== null && latest.id !== lastKnownDispatchId) {
+                        showToast(latest.title, latest.location, latest.priority);
+                    }
+                    lastKnownDispatchId = latest.id;
+                }
+            } catch (e) {
+                console.error('Polling error:', e);
+            }
+        }
+        setInterval(pollDispatches, 5000);
+
         function switchTab(tabName) {
             document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -298,7 +398,7 @@
             });
             var data = await res.json();
             if (res.ok) {
-                alert('Civilian registered successfully!');
+                showSuccessToast('Civilian Registered', name + ' added to database');
                 document.getElementById('civName').value = '';
                 document.getElementById('civDob').value = '';
             } else {
@@ -332,7 +432,7 @@
             });
             var data = await res.json();
             if (res.ok) {
-                alert('Vehicle registered successfully!');
+                showSuccessToast('Vehicle Registered', 'Plate: ' + plate.toUpperCase());
                 document.getElementById('vehPlate').value = '';
                 document.getElementById('vehModel').value = '';
                 document.getElementById('vehOwner').value = '';
@@ -368,7 +468,7 @@
             });
 
             if (res.ok) {
-                alert('Dispatch call sent successfully!');
+                showSuccessToast('Dispatch Created', title + ' has been dispatched.');
                 document.getElementById('dispatchTitle').value = '';
                 document.getElementById('dispatchLocation').value = '';
                 document.getElementById('dispatchDesc').value = '';
