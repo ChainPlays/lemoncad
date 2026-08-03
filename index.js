@@ -21,7 +21,7 @@ var db = {
     vehicles: []
 };
 
-// --- Functie om Discord Webhooks te versturen ---
+// --- Functie om Discord Webhooks te versturen (Engelstalig) ---
 async function sendDiscordWebhook(title, description, fields = []) {
     var webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) return;
@@ -41,7 +41,7 @@ async function sendDiscordWebhook(title, description, fields = []) {
             })
         });
     } catch (error) {
-        console.error('Fout bij versturen Discord webhook:', error);
+        console.error('Error sending Discord webhook:', error);
     }
 }
 
@@ -63,14 +63,14 @@ app.post('/api/civilians', async function(req, res) {
     var newCiv = { name: name, dob: dob, gender: gender || 'Unknown' };
     db.civilians.push(newCiv);
 
-    // Stuur Discord webhook
+    // Stuur Engelstalige Discord webhook
     await sendDiscordWebhook(
-        'Nieuwe Burger Geregistreerd', 
-        'Er is een nieuwe burger toegevoegd aan het systeem.',
+        'New Civilian Registered', 
+        'A new civilian has been added to the system.',
         [
-            { name: 'Naam', value: name, inline: true },
-            { name: 'Geboortedatum', value: dob, inline: true },
-            { name: 'Geslacht', value: newCiv.gender, inline: true }
+            { name: 'Name', value: name, inline: true },
+            { name: 'Date of Birth', value: dob, inline: true },
+            { name: 'Gender', value: newCiv.gender, inline: true }
         ]
     );
 
@@ -90,14 +90,14 @@ app.post('/api/vehicles', async function(req, res) {
     var newVeh = { plate: plate, model: model, owner: owner };
     db.vehicles.push(newVeh);
 
-    // Stuur Discord webhook
+    // Stuur Engelstalige Discord webhook
     await sendDiscordWebhook(
-        'Nieuw Voertuig Geregistreerd', 
-        'Er is een nieuw voertuig toegevoegd aan het systeem.',
+        'New Vehicle Registered', 
+        'A new vehicle has been added to the system.',
         [
-            { name: 'Kenteken', value: plate, inline: true },
+            { name: 'Plate', value: plate, inline: true },
             { name: 'Model', value: model, inline: true },
-            { name: 'Eigenaar', value: owner, inline: true }
+            { name: 'Owner', value: owner, inline: true }
         ]
     );
 
