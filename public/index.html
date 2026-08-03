@@ -74,17 +74,34 @@
             flex-direction: column;
             justify-content: space-between;
         }
+        .logo-container {
+            padding: 20px 20px 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
         .logo-area {
-            margin: 20px;
-            padding: 15px;
-            font-size: 20px;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #252525, #1a1a1a);
+            border: 1px solid #333;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
             font-weight: bold;
             color: #4CAF50;
-            background-color: #252525;
-            border: 1px solid #333;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+        .logo-text {
+            font-size: 15px;
+            font-weight: bold;
+            color: #e0e0e0;
+            letter-spacing: 0.5px;
         }
         .nav-links {
             list-style: none;
@@ -307,7 +324,10 @@
 
     <sidebar>
         <div>
-            <div class="logo-area">LemonCAD</div>
+            <div class="logo-container">
+                <div class="logo-area">LC</div>
+                <div class="logo-text">LemonCAD</div>
+            </div>
             <ul class="nav-links">
                 <li class="active" onclick="switchTab('dispatch', this)">Dispatch</li>
                 <li onclick="switchTab('inbox', this)">Dispatch Inbox</li>
@@ -495,7 +515,6 @@
 
             updateNavVisibility(team);
 
-            // Smooth fade out van het setup scherm
             document.getElementById('setup-overlay').classList.add('hidden');
         }
 
@@ -503,7 +522,6 @@
             document.getElementById('initial-team').value = currentTeam;
             document.getElementById('initial-callsign').value = document.getElementById('display-callsign').innerText === 'N/A' ? '' : document.getElementById('display-callsign').innerText;
             handleInitialTeamChange();
-            // Smooth fade in van het setup scherm
             document.getElementById('setup-overlay').classList.remove('hidden');
         }
 
@@ -672,7 +690,6 @@
 
                 if (dispatches.length > lastDispatchCount && lastDispatchCount !== 0) {
                     const latest = dispatches[0];
-                    // CIV krijgt GEEN meldingen of geluiden
                     if (currentTeam !== 'CIV') {
                         if (latest.isStaffCall && currentTeam === 'Staff') {
                             triggerAlert('🚨 STAFF ATTENTION: Player is requesting assistance!');
@@ -732,7 +749,6 @@
             const popup = document.getElementById('alert-popup');
             if (customText) popup.innerText = customText;
             
-            // Smooth popup tonen
             popup.classList.add('show');
             
             if (alertTimeout) clearTimeout(alertTimeout);
