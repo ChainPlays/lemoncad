@@ -280,6 +280,20 @@
             background-color: #eee5d0;
         }
 
+        /* Lookup Result Boxes */
+        .lookup-result-box {
+            background: #faf8f5;
+            border: 1px solid #e0d8c3;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #444;
+        }
+        .lookup-result-box p {
+            margin-bottom: 8px;
+        }
+
         /* Leaderboard table style */
         .leaderboard-table {
             width: 100%;
@@ -432,7 +446,7 @@
         <!-- 1. VIOLATORS / BOLO'S TAB -->
         <div id="cad" class="tab-content active">
             <div class="grid-2">
-                <!-- Left Column: Civilian Database, Infractions & Lookup -->
+                <!-- Left Column: Civilian Violations Profile (CVP) -->
                 <div>
                     <div class="card">
                         <div class="card-title">👤 Civilian Violations Profile (CVP)</div>
@@ -467,45 +481,27 @@
                         </div>
                         <button class="btn-yellow" onclick="registerCivilianProfile()">Create/Update CVP & Add Points</button>
                     </div>
+                </div>
 
+                <!-- Right Column: NCIC Lookup, DMV Lookup & Leaderboard -->
+                <div>
                     <div class="card">
-                        <div class="card-title">NCIC Lookup</div>
+                        <div class="card-title">🔍 NCIC Lookup</div>
                         <div class="form-group">
                             <label>Search Person</label>
                             <input type="text" id="search-person-input" placeholder="Search by name...">
                         </div>
                         <button class="btn-light" onclick="searchPerson()">Search Person</button>
                     </div>
-                </div>
-
-                <!-- Right Column: DMV Vehicle Database, Lookup & Leaderboard -->
-                <div>
-                    <div class="card">
-                        <div class="card-title">🚗 DMV Vehicle Database</div>
-                        <div class="form-group">
-                            <label>License Plate</label>
-                            <input type="text" id="veh-plate" placeholder="e.g. 83ABC12">
-                        </div>
-                        <div class="form-group">
-                            <label>Vehicle Model</label>
-                            <input type="text" id="veh-model" placeholder="e.g. Vapid Stanier">
-                        </div>
-                        <div class="form-group">
-                            <label>Select Registered Owner</label>
-                            <select id="veh-owner-select">
-                                <option value="">-- Select Registered Civilian First --</option>
-                            </select>
-                        </div>
-                        <button class="btn-yellow" onclick="registerVehicle()">Register Vehicle to Civilian</button>
-                    </div>
 
                     <div class="card">
-                        <div class="card-title">DMV Lookup</div>
+                        <div class="card-title">🚗 DMV Lookup</div>
                         <div class="form-group">
                             <label>Search License Plate</label>
                             <input type="text" id="search-plate-input" placeholder="Search by license plate...">
                         </div>
                         <button class="btn-light" onclick="searchPlate()">Search Plate</button>
+                        <div id="dmv-lookup-result" style="display: none;"></div>
                     </div>
 
                     <div class="card">
@@ -618,7 +614,6 @@
     <script>
         let currentActiveTeam = 'Civilian';
         let registeredCivilians = [];
-        let registeredVehicles = [];
         let alertTimeout = null;
 
         function openTeamModal() {
@@ -709,7 +704,6 @@
                 finalPoints = pointsToAdd;
             }
 
-            updateOwnerDropdown();
             updateCivPointsBadge();
             updateLeaderboard();
 
@@ -792,42 +786,6 @@
             });
         }
 
-        function updateOwnerDropdown() {
-            const select = document.getElementById('veh-owner-select');
-            select.innerHTML = '';
-            if (registeredCivilians.length === 0) {
-                select.innerHTML = '<option value="">-- No civilians registered yet --</option>';
-                return;
-            }
-            registeredCivilians.forEach(civ => {
-                const opt = document.createElement('option');
-                opt.value = civ.name;
-                opt.textContent = `${civ.name} (Plate: ${civ.plate}) - Pts: ${civ.points}`;
-                select.appendChild(opt);
-            });
-        }
-
-        function registerVehicle() {
-            const plate = document.getElementById('veh-plate').value.trim();
-            const model = document.getElementById('veh-model').value.trim();
-            const owner = document.getElementById('veh-owner-select').value;
-
-            if(!plate || !model) {
-                triggerAlert('⚠️ Error: Please fill in both license plate and vehicle model.');
-                return;
-            }
-            if(!owner) {
-                triggerAlert('⚠️ Error: You must select a registered civilian owner.');
-                return;
-            }
-
-            registeredVehicles.push({ plate, model, owner });
-            triggerAlert(`🚗 Vehicle Registered: ${plate} (${model}) assigned to ${owner}!`);
-            
-            document.getElementById('veh-plate').value = '';
-            document.getElementById('veh-model').value = '';
-        }
-
         function searchPerson() {
             const query = document.getElementById('search-person-input').value.trim().toLowerCase();
             if(!query) {
@@ -845,24 +803,74 @@
 
         function searchPlate() {
             const query = document.getElementById('search-plate-input').value.trim().toLowerCase();
+            const resultBox = document.getElementById('dmv-lookup-result');
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = '';
+
             if(!query) {
                 triggerAlert('⚠️ Error: Please enter a license plate to search.');
+                resultBox.style.display = 'none';
                 return;
             }
-            const foundCvp = registeredCivilians.find(c => c.plate.toLowerCase() === query);
-            const foundVeh = registeredVehicles.find(v => v.plate.toLowerCase() === query);
 
-            if(foundCvp || foundVeh) {
-                let ownerName = foundCvp ? foundCvp.name : foundVeh.owner;
-                let ownerInfo = registeredCivilians.find(c => c.name === ownerName);
-                let ownerStatus = ownerInfo && ownerInfo.points >= 4 ? "BOLO Owner 🚨" : "Normal Owner";
-                let modelInfo = foundVeh ? foundVeh.model : "Unknown Model";
-                let pointsInfo = ownerInfo ? ownerInfo.points : 0;
-                
-                triggerAlert(`🔍 DMV Search: Plate ${query.toUpperCase()} | Owner: ${ownerName} | Pts: ${pointsInfo} (${ownerStatus})`);
+            const foundCvp = registeredCivilians.find(c => c.plate.toLowerCase() === query);
+
+            if(!foundCvp) {
+                triggerAlert('🔍 DMV Search: License plate not found in CVP database.');
+                resultBox.innerHTML = `
+                    <p style="color: #d9534f; font-weight: bold; margin-bottom: 8px;">This vehicle is not yet in our CVP database. Want to add the license plate to the registration form for a new CVP?</p>
+                    <button class="btn-yellow" onclick="autofillPlate('${query.toUpperCase()}')">Fill Plate in CVP Form</button>
+                `;
             } else {
-                triggerAlert('🔍 DMV Search: No vehicle or CVP found with that plate.');
+                let ownerStatus = foundCvp.points >= 4 ? "BOLO Owner 🚨" : "Violator";
+                triggerAlert(`🔍 DMV Search: Plate recognized for ${foundCvp.name}!`);
+                resultBox.innerHTML = `
+                    <p style="color: #2e7d32; font-weight: bold; margin-bottom: 6px;">License plate recognized.</p>
+                    <p><strong>Owner:</strong> ${foundCvp.name} | <strong>Points:</strong> ${foundCvp.points} (${ownerStatus})</p>
+                    <div class="form-group" style="margin-top: 10px; margin-bottom: 8px;">
+                        <label style="font-size: 12px;">Add Points to ${foundCvp.name}</label>
+                        <select id="quick-add-points-${foundCvp.plate}" style="font-size: 13px; padding: 6px;">
+                            <option value="1">Traffic Stop (+1 Point)</option>
+                            <option value="2">Robbery / Heist (+2 Points)</option>
+                            <option value="3">Killing another Civilian (+3 Points)</option>
+                            <option value="4">Killing LEO, DOT, Medic, or Firefighter (+4 Points)</option>
+                        </select>
+                    </div>
+                    <button class="btn-yellow" style="padding: 6px; font-size: 13px;" onclick="addPointsDirectly('${foundCvp.plate}')">Add Points</button>
+                `;
             }
+        }
+
+        function autofillPlate(plate) {
+            document.getElementById('civ-plate').value = plate;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            triggerAlert(`✅ Plate ${plate} filled into CVP Registration form.`);
+        }
+
+        function addPointsDirectly(plate) {
+            const selectEl = document.getElementById(`quick-add-points-${plate}`);
+            const pointsToAdd = parseInt(selectEl.value) || 1;
+            const civ = registeredCivilians.find(c => c.plate.toLowerCase() === plate.toLowerCase());
+
+            if (!civ) return;
+
+            let wasAlreadyBolo = civ.points >= 4;
+            civ.points += pointsToAdd;
+            let finalPoints = civ.points;
+
+            updateCivPointsBadge();
+            updateLeaderboard();
+
+            let isNowBolo = finalPoints >= 4;
+
+            if (isNowBolo && !wasAlreadyBolo) {
+                dispatchBoloAlert(civ.name, civ.plate, finalPoints);
+            } else {
+                let statusType = isNowBolo ? "BOLO 🚨" : "Violator";
+                triggerAlert(`✅ Added +${pointsToAdd} pts to ${civ.name}. Total: ${finalPoints} (${statusType})`);
+            }
+
+            searchPlate(); // Refresh DMV lookup card view
         }
 
         async function submitEmergencyCall() {
