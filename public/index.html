@@ -76,30 +76,33 @@
             align-items: center;
             text-align: center;
         }
-        .logo-box {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 8px 12px;
+        /* Exact Logo Styling uit Mockup */
+        .mockup-logo-box {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 10px 14px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             margin-bottom: 8px;
-            width: 75px;
+            width: 78px;
         }
-        .logo-box img {
-            width: 35px;
+        .mockup-logo-box img {
+            width: 40px;
             height: auto;
             margin-bottom: 2px;
         }
-        .logo-box span {
-            font-size: 8px;
+        .mockup-logo-box .logo-brand-text {
+            font-size: 7.5px;
             font-weight: 900;
-            color: #000;
+            color: #111;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         .logo-text {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: bold;
             color: #e0e0e0;
             letter-spacing: 0.5px;
@@ -162,7 +165,7 @@
             font-weight: 600;
             color: #fff;
         }
-        /* Change Team Button in Header (rechtsboven) */
+        /* Exacte Change Team Knop rechtsboven uit Mockup */
         .change-team-btn {
             background: none;
             border: none;
@@ -348,12 +351,12 @@
     <sidebar>
         <div>
             <div class="logo-container">
-                <div class="logo-box">
-                    <!-- Lemongrafiek icoon -->
-                    <svg viewBox="0 0 24 24" width="35" height="35" fill="#4CAF50">
-                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm1-13h-2v3H8v2h3v3h2v-3h3v-2h-3z"/>
+                <!-- Exacte Logo uit de mockup nagemaakt -->
+                <div class="mockup-logo-box">
+                    <svg viewBox="0 0 24 24" width="36" height="36" fill="#4CAF50">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
                     </svg>
-                    <span>LEMON'S</span>
+                    <span class="logo-brand-text">LEMON'S</span>
                 </div>
                 <div class="logo-text">LemonCAD</div>
             </div>
@@ -375,7 +378,7 @@
     <main>
         <header>
             <div class="header-title" id="page-title">Dispatch Center</div>
-            <!-- Change Team Knop rechtsboven zoals op de mockup -->
+            <!-- Exacte Change Team knop rechtsboven met icoon -->
             <button class="change-team-btn" onclick="openChangeTeamModal()">
                 <svg viewBox="0 0 24 24">
                     <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
