@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LemonCAD - ER:LC Dispatch</title>
+    <title>LemonCAD - Dispatch Systeem</title>
     <style>
         * {
             box-sizing: border-box;
@@ -18,49 +18,6 @@
             height: 100vh;
             overflow: hidden;
         }
-        /* Setup / Team Selector Overlay */
-        #setup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(18, 18, 18, 0.9);
-            backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        #setup-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .setup-box {
-            background-color: #1e1e1e;
-            border: 1px solid #2c2c2c;
-            padding: 40px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            text-align: center;
-        }
-        .setup-box h2 {
-            color: #4CAF50;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-        .setup-box p {
-            color: #888;
-            margin-bottom: 25px;
-            font-size: 14px;
-        }
-        /* Sidebar Navigation */
         sidebar {
             width: 250px;
             background-color: #161616;
@@ -93,7 +50,6 @@
             font-size: 14px;
             font-weight: bold;
             color: #e0e0e0;
-            letter-spacing: 0.5px;
         }
         .nav-links {
             list-style: none;
@@ -118,19 +74,6 @@
             border-left: 4px solid #4CAF50;
             font-weight: 600;
         }
-        .user-status-box {
-            padding: 15px 20px;
-            font-size: 13px;
-            color: #bbb;
-            border-top: 1px solid #222;
-        }
-        .user-status-box div {
-            margin-bottom: 3px;
-        }
-        .user-status-box span {
-            color: #4CAF50;
-            font-weight: 600;
-        }
         main {
             flex: 1;
             display: flex;
@@ -153,36 +96,10 @@
             font-weight: 600;
             color: #fff;
         }
-        .change-team-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
-        .change-team-btn:hover {
-            opacity: 0.8;
-        }
-        .change-team-btn svg {
-            width: 24px;
-            height: 24px;
-            fill: #fff;
-        }
         .content-area {
             flex: 1;
             padding: 30px;
             overflow-y: auto;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
         }
         h2 {
             font-size: 20px;
@@ -203,83 +120,14 @@
             border-radius: 4px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        .dispatch-card.staff-card {
-            border-left-color: #3498db;
-            background-color: #1a2332;
-        }
         .dispatch-card h3 {
             color: #ff4d4d;
             margin-bottom: 5px;
-        }
-        .dispatch-card.staff-card h3 {
-            color: #3498db;
         }
         .dispatch-card p {
             margin: 4px 0;
             font-size: 14px;
             color: #bbb;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .form-group.profile-form {
-            max-width: 400px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        .form-group select, .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            background-color: #222;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .form-group textarea {
-            resize: vertical;
-            height: 100px;
-        }
-        .action-btn {
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            width: 100%;
-            transition: background 0.2s;
-        }
-        .action-btn:hover {
-            background-color: #45a049;
-        }
-        .error-msg {
-            color: #ff4d4d;
-            font-size: 12px;
-            margin-top: 5px;
-            display: none;
-            text-align: left;
-        }
-        .inbox-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .secondary-btn {
-            background-color: #222;
-            color: #fff;
-            border: 1px solid #333;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
         }
         #alert-popup {
             position: fixed;
@@ -306,33 +154,7 @@
 </head>
 <body>
 
-    <div id="setup-overlay">
-        <div class="setup-box">
-            <h2>LemonCAD Setup</h2>
-            <p>Please select your team and callsign before entering the dispatch center.</p>
-            
-            <div class="form-group">
-                <label for="initial-team">Select Team:</label>
-                <select id="initial-team" onchange="handleInitialTeamChange()">
-                    <option value="Civilian">Civilian</option>
-                    <option value="Staff">Staff</option>
-                    <option value="Police">Police</option>
-                    <option value="DOT">DOT</option>
-                    <option value="F&R">F&R (Fire & Rescue)</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="initial-callsign-group" style="display: none;">
-                <label for="initial-callsign">In-game Callsign:</label>
-                <input type="text" id="initial-callsign" placeholder="E.g. ABC123" maxlength="6">
-                <div class="error-msg" id="initial-error">Note: Must be 3-6 chars and max 3 letters!</div>
-            </div>
-
-            <button class="action-btn" onclick="completeInitialSetup()" style="margin-top: 10px;">Save & Enter CAD</button>
-        </div>
-    </div>
-
-    <div id="alert-popup">🚨 New Dispatch Alert Received!</div>
+    <div id="alert-popup">🚨 Nieuwe In-Game Melding Ontvangen!</div>
 
     <sidebar>
         <div>
@@ -348,406 +170,78 @@
                 <div class="logo-text">LemonCAD</div>
             </div>
             <ul class="nav-links">
-                <li class="active" onclick="switchTab('dispatch', this)">Dispatch</li>
-                <li onclick="switchTab('inbox', this)">Dispatch Inbox</li>
-                <li onclick="switchTab('civilians', this)">Civilians</li>
-                <li onclick="switchTab('vehicles', this)">Vehicles</li>
-                <li id="nav-civ-call" onclick="switchTab('civ-create', this)" style="display:none;">Create Call (Civilian)</li>
-                <li id="nav-staff-call" onclick="switchTab('staff-create', this)" style="display:none;">Request Staff</li>
+                <li class="active">Dispatch Overzicht</li>
             </ul>
-        </div>
-        <div class="user-status-box">
-            <div>Team: <span id="display-team">Staff</span></div>
-            <div>Callsign: <span id="display-callsign">ABC123</span></div>
         </div>
     </sidebar>
 
     <main>
         <header>
-            <div class="header-title" id="page-title">Dispatch Center</div>
-            <button class="change-team-btn" onclick="openChangeTeamModal()">
-                <svg viewBox="0 0 24 24">
-                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                </svg>
-                Change Team
-            </button>
+            <div class="header-title" id="page-title">Live Dispatch Centrum</div>
         </header>
 
         <div class="content-area">
             <div id="dispatch" class="tab-content active">
-                <h2>Active Emergency Calls</h2>
-                <p style="color: #777; font-size: 13.5px;">Live in-game, civilian & staff dispatches.</p>
+                <h2>Actieve Meldingen</h2>
+                <p style="color: #777; font-size: 13.5px;">Live in-game dispatches vanuit ER:LC.</p>
                 <div class="dispatch-container" id="dispatch-list">
-                    <div style="color: #666; font-style: italic;">No active dispatches...</div>
+                    <div style="color: #666; font-style: italic;">Bezig met laden van meldingen...</div>
                 </div>
-            </div>
-
-            <div id="inbox" class="tab-content">
-                <div class="inbox-header">
-                    <div>
-                        <h2>Dispatch Inbox</h2>
-                        <p style="color: #777; font-size: 13.5px;">Archive of all received dispatches and history.</p>
-                    </div>
-                    <button class="secondary-btn" onclick="clearInbox()">Clear Inbox</button>
-                </div>
-                <div class="dispatch-container" id="inbox-list">
-                    <div style="color: #666; font-style: italic;">Inbox is empty...</div>
-                </div>
-            </div>
-
-            <div id="civ-create" class="tab-content">
-                <h2>Submit New Emergency Call</h2>
-                <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Submit a dispatch request for available units.</p>
-                
-                <div class="form-group profile-form">
-                    <label for="civ-title">Title / Subject:</label>
-                    <input type="text" id="civ-title" placeholder="E.g. Bank Robbery / Accident">
-                </div>
-
-                <div class="form-group profile-form">
-                    <label for="civ-location">Location:</label>
-                    <input type="text" id="civ-location" placeholder="E.g. Main Street, Bank">
-                </div>
-
-                <div class="form-group profile-form">
-                    <label for="civ-unit-1">Required Unit 1:</label>
-                    <select id="civ-unit-1">
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Firefighters">Firefighters</option>
-                    </select>
-                </div>
-
-                <div class="form-group profile-form">
-                    <label for="civ-unit-2">Required Unit 2 (Optional):</label>
-                    <select id="civ-unit-2">
-                        <option value="N/A">N/A</option>
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Firefighters">Firefighters</option>
-                    </select>
-                </div>
-
-                <div class="form-group profile-form">
-                    <label for="civ-unit-3">Required Unit 3 (Optional):</label>
-                    <select id="civ-unit-3">
-                        <option value="N/A">N/A</option>
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Firefighters">Firefighters</option>
-                    </select>
-                </div>
-
-                <div class="form-group profile-form">
-                    <label for="civ-unit-4">Required Unit 4 (Optional):</label>
-                    <select id="civ-unit-4">
-                        <option value="N/A">N/A</option>
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Firefighters">Firefighters</option>
-                    </select>
-                </div>
-
-                <div class="form-group profile-form">
-                    <label for="civ-desc">Description / Details:</label>
-                    <textarea id="civ-desc" placeholder="Provide extra information about the situation..."></textarea>
-                </div>
-
-                <button class="action-btn" style="width: auto;" onclick="submitCivDispatch()">Send Dispatch</button>
-            </div>
-
-            <div id="staff-create" class="tab-content">
-                <h2>Request Staff Member</h2>
-                <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Need in-game assistance from a staff member? Call them here.</p>
-                
-                <div class="form-group profile-form">
-                    <label for="staff-player">Your Player Name:</label>
-                    <input type="text" id="staff-player" placeholder="Your Roblox username">
-                </div>
-
-                <div class="form-group profile-form">
-                    <label for="staff-reason">Reason for Call:</label>
-                    <input type="text" id="staff-reason" placeholder="E.g. RDM, VDM, Question">
-                </div>
-
-                <div class="form-group profile-form">
-                    <label for="staff-desc">Additional Details:</label>
-                    <textarea id="staff-desc" placeholder="Briefly describe what is happening..."></textarea>
-                </div>
-
-                <button class="action-btn" style="width: auto;" onclick="submitStaffCall()">Call Staff</button>
-            </div>
-
-            <div id="civilians" class="tab-content">
-                <h2>Civilian Database</h2>
-                <p style="color: #777; font-size: 13.5px;">Search or register civilian records here.</p>
-            </div>
-
-            <div id="vehicles" class="tab-content">
-                <h2>Vehicle Database</h2>
-                <p style="color: #777; font-size: 13.5px;">Check license plates and vehicle information here.</p>
             </div>
         </div>
     </main>
 
+    <!-- Audio element voor de meldingsgeluiden -->
     <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
     <script>
-        let currentTeam = 'Staff';
+        let lastDispatchCount = 0;
         let alertTimeout = null;
 
-        function handleInitialTeamChange() {
-            const team = document.getElementById('initial-team').value;
-            const callsignGroup = document.getElementById('initial-callsign-group');
-            if (team === 'Civilian') {
-                callsignGroup.style.display = 'none';
-                document.getElementById('initial-error').style.display = 'none';
-            } else {
-                callsignGroup.style.display = 'block';
-            }
-        }
-
-        function completeInitialSetup() {
-            const team = document.getElementById('initial-team').value;
-            const callsignInput = document.getElementById('initial-callsign').value.trim();
-            const errorDiv = document.getElementById('initial-error');
-
-            if (team !== 'Civilian') {
-                const letterCount = (callsignInput.match(/[a-zA-Z]/g) || []).length;
-                if (callsignInput.length < 3 || callsignInput.length > 6 || letterCount > 3) {
-                    errorDiv.style.display = 'block';
-                    return;
-                } else {
-                    errorDiv.style.display = 'none';
-                }
-            } else {
-                errorDiv.style.display = 'none';
-            }
-
-            currentTeam = team;
-            document.getElementById('display-team').innerText = team;
-            document.getElementById('display-callsign').innerText = (team === 'Civilian') ? 'N/A' : callsignInput;
-
-            updateNavVisibility(team);
-            document.getElementById('setup-overlay').classList.add('hidden');
-        }
-
-        function openChangeTeamModal() {
-            document.getElementById('initial-team').value = currentTeam;
-            const currentCallsignDisplay = document.getElementById('display-callsign').innerText;
-            document.getElementById('initial-callsign').value = (currentCallsignDisplay === 'N/A') ? '' : currentCallsignDisplay;
-            handleInitialTeamChange();
-            document.getElementById('setup-overlay').classList.remove('hidden');
-        }
-
-        function updateNavVisibility(team) {
-            const civNavLi = document.getElementById('nav-civ-call');
-            const staffNavLi = document.getElementById('nav-staff-call');
-
-            if (team === 'Civilian') {
-                civNavLi.style.display = 'block';
-                staffNavLi.style.display = 'block';
-            } else if (team === 'Staff') {
-                civNavLi.style.display = 'none';
-                staffNavLi.style.display = 'none';
-            } else {
-                civNavLi.style.display = 'none';
-                staffNavLi.style.display = 'block';
-            }
-        }
-
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            if (element) element.classList.add('active');
-
-            const titles = {
-                'dispatch': 'Dispatch Center',
-                'inbox': 'Dispatch Inbox',
-                'civ-create': 'Submit Emergency Call',
-                'staff-create': 'Request Staff Member',
-                'civilians': 'Civilian Database',
-                'vehicles': 'Vehicle Database'
-            };
-            document.getElementById('page-title').innerText = titles[tabId];
-        }
-
-        function getStoredDispatches() {
-            const data = localStorage.getItem('lemoncad_dispatches');
-            return data ? JSON.parse(data) : [];
-        }
-
-        function saveDispatches(dispatches) {
-            localStorage.setItem('lemoncad_dispatches', JSON.stringify(dispatches));
-        }
-
-        function submitCivDispatch() {
-            const title = document.getElementById('civ-title').value.trim();
-            const location = document.getElementById('civ-location').value.trim();
-            
-            let units = [];
-            const u1 = document.getElementById('civ-unit-1').value;
-            const u2 = document.getElementById('civ-unit-2').value;
-            const u3 = document.getElementById('civ-unit-3').value;
-            const u4 = document.getElementById('civ-unit-4').value;
-
-            if (u1 && u1 !== 'N/A') units.push(u1);
-            if (u2 && u2 !== 'N/A') units.push(u2);
-            if (u3 && u3 !== 'N/A') units.push(u3);
-            if (u4 && u4 !== 'N/A') units.push(u4);
-
-            const unitString = units.length > 0 ? units.join(', ') : 'General / Unknown';
-            const description = document.getElementById('civ-desc').value.trim();
-
-            if (!title || !location) {
-                alert('Please fill in at least a title and location.');
-                return;
-            }
-
-            const newDispatch = {
-                id: Date.now(),
-                title: title,
-                location: location,
-                description: description || 'No details provided.',
-                priority: 'Emergency',
-                requiredUnit: unitString,
-                isStaffCall: false,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-            };
-
-            let dispatches = getStoredDispatches();
-            dispatches.unshift(newDispatch);
-            saveDispatches(dispatches);
-
-            alert('Dispatch successfully sent to the dispatch center!');
-            document.getElementById('civ-title').value = '';
-            document.getElementById('civ-location').value = '';
-            document.getElementById('civ-desc').value = '';
-            switchTab('dispatch', document.querySelector('.nav-links li'));
-            fetchDispatches();
-        }
-
-        function submitStaffCall() {
-            const player = document.getElementById('staff-player').value.trim();
-            const reason = document.getElementById('staff-reason').value.trim();
-            const description = document.getElementById('staff-desc').value.trim();
-
-            if (!player || !reason) {
-                alert('Please enter your player name and reason.');
-                return;
-            }
-
-            const newDispatch = {
-                id: Date.now(),
-                title: `STAFF CALL: ${reason}`,
-                location: `Player: ${player}`,
-                description: description || 'No additional details.',
-                priority: 'Emergency',
-                requiredUnit: 'Staff',
-                isStaffCall: true,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-            };
-
-            let dispatches = getStoredDispatches();
-            dispatches.unshift(newDispatch);
-            saveDispatches(dispatches);
-
-            alert('Staff has been successfully requested!');
-            document.getElementById('staff-player').value = '';
-            document.getElementById('staff-reason').value = '';
-            document.getElementById('staff-desc').value = '';
-            switchTab('dispatch', document.querySelector('.nav-links li'));
-            fetchDispatches();
-        }
-
-        let lastDispatchCount = 0;
-
-        function fetchDispatches() {
+        async function fetchDispatches() {
             try {
-                const dispatches = getStoredDispatches();
+                const response = await fetch('/api/dispatches');
+                const dispatches = await response.json();
                 const listContainer = document.getElementById('dispatch-list');
-                const inboxContainer = document.getElementById('inbox-list');
-                
+
                 if (dispatches.length === 0) {
-                    listContainer.innerHTML = '<div style="color: #666; font-style: italic;">No active dispatches...</div>';
-                    inboxContainer.innerHTML = '<div style="color: #666; font-style: italic;">Inbox is empty...</div>';
+                    listContainer.innerHTML = '<div style="color: #666; font-style: italic;">Geen actieve meldingen...</div>';
                     lastDispatchCount = 0;
                     return;
                 }
 
+                // Als er nieuwe dispatches bijkomen, speel geluid af entoon popup
                 if (dispatches.length > lastDispatchCount && lastDispatchCount !== 0) {
-                    const latest = dispatches[0];
-                    if (currentTeam !== 'Civilian') {
-                        if (latest.isStaffCall) {
-                            if (currentTeam === 'Staff') {
-                                triggerAlert('🚨 STAFF ATTENTION: Player is requesting assistance!');
-                            }
-                        } else {
-                            const unitsNeeded = latest.requiredUnit || '';
-                            if (unitsNeeded.includes(currentTeam) || (currentTeam === 'F&R' && (unitsNeeded.includes('Firefighters') || unitsNeeded.includes('Ambulance')))) {
-                                triggerAlert('🚨 New Dispatch Alert for ' + currentTeam + ': ' + latest.title);
-                            }
-                        }
-                    }
+                    triggerAlert();
                 }
                 lastDispatchCount = dispatches.length;
 
                 listContainer.innerHTML = '';
                 dispatches.forEach(d => {
-                    const unitNeeded = d.requiredUnit || 'General / Unknown';
-                    const isStaff = d.isStaffCall;
                     const card = document.createElement('div');
-                    card.className = isStaff ? 'dispatch-card staff-card' : 'dispatch-card';
+                    card.className = 'dispatch-card';
                     card.innerHTML = `
-                        <h3>${isStaff ? '🛠️ ' : '🚨 '}${d.title}</h3>
-                        <p><strong>Location / Player:</strong> ${d.location}</p>
-                        <p><strong>Required Unit:</strong> <span style="color: ${isStaff ? '#3498db' : '#4CAF50'}; font-weight: bold;">${unitNeeded}</span></p>
+                        <h3>🚨 ${d.title}</h3>
+                        <p><strong>Locatie:</strong> ${d.location}</p>
                         <p><strong>Details:</strong> ${d.description}</p>
-                        <p><strong>Time:</strong> ${d.time}</p>
+                        <p><strong>Tijd:</strong> ${d.time}</p>
                     `;
                     listContainer.appendChild(card);
                 });
 
-                inboxContainer.innerHTML = '';
-                dispatches.forEach(d => {
-                    const unitNeeded = d.requiredUnit || 'General / Unknown';
-                    const isStaff = d.isStaffCall;
-                    const card = document.createElement('div');
-                    card.className = isStaff ? 'dispatch-card staff-card' : 'dispatch-card';
-                    card.style.borderLeftColor = isStaff ? '#3498db' : '#4CAF50';
-                    card.innerHTML = `
-                        <h3 style="color: ${isStaff ? '#3498db' : '#4CAF50'};">${isStaff ? '📩 [STAFF] ' : '📩 '}${d.title}</h3>
-                        <p><strong>Location / Player:</strong> ${d.location}</p>
-                        <p><strong>Required Unit:</strong> <span style="font-weight: bold;">${unitNeeded}</span></p>
-                        <p><strong>Details:</strong> ${d.description}</p>
-                        <p><strong>Received at:</strong> ${d.time}</p>
-                    `;
-                    inboxContainer.appendChild(card);
-                });
-
             } catch (err) {
-                console.error('Error fetching dispatches:', err);
+                console.error('Fout bij ophalen dispatches:', err);
             }
         }
 
-        function clearInbox() {
-            localStorage.removeItem('lemoncad_dispatches');
-            fetchDispatches();
-        }
-
-        function triggerAlert(customText) {
+        function triggerAlert() {
             const sound = document.getElementById('alert-sound');
-            sound.play().catch(e => console.log('Audio autoplay blocked by browser:', e));
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Autoplay geblokkeerd door browser:', e));
+            }
 
             const popup = document.getElementById('alert-popup');
-            if (customText) popup.innerText = customText;
-            
             popup.classList.add('show');
             
             if (alertTimeout) clearTimeout(alertTimeout);
@@ -756,6 +250,7 @@
             }, 5000);
         }
 
+        // Elke 3 seconden vernieuwen
         setInterval(fetchDispatches, 3000);
         fetchDispatches();
     </script>
