@@ -89,10 +89,9 @@
             margin-bottom: 8px;
             width: 78px;
         }
-        .mockup-logo-box img {
-            width: 40px;
-            height: auto;
-            margin-bottom: 2px;
+        .mockup-logo-box svg {
+            width: 32px;
+            height: 32px;
         }
         .mockup-logo-box .logo-brand-text {
             font-size: 7.5px;
@@ -336,9 +335,9 @@
                 </select>
             </div>
 
-            <div class="form-group" id="initial-callsign-group">
+            <div class="form-group" id="initial-callsign-group" style="display: none;">
                 <label for="initial-callsign">In-game Callsign:</label>
-                <input type="text" id="initial-callsign" placeholder="E.g. STF8" maxlength="6" value="STF8">
+                <input type="text" id="initial-callsign" placeholder="E.g. STF8" maxlength="6">
                 <div class="error-msg" id="initial-error">Note: Must be 3-6 chars and max 3 letters!</div>
             </div>
 
@@ -351,9 +350,8 @@
     <sidebar>
         <div>
             <div class="logo-container">
-                <!-- Exacte Logo uit de mockup nagemaakt -->
                 <div class="mockup-logo-box">
-                    <svg viewBox="0 0 24 24" width="36" height="36" fill="#4CAF50">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="#4CAF50">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
                     </svg>
                     <span class="logo-brand-text">LEMON'S</span>
@@ -378,7 +376,6 @@
     <main>
         <header>
             <div class="header-title" id="page-title">Dispatch Center</div>
-            <!-- Exacte Change Team knop rechtsboven met icoon -->
             <button class="change-team-btn" onclick="openChangeTeamModal()">
                 <svg viewBox="0 0 24 24">
                     <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
@@ -493,6 +490,7 @@
             const callsignGroup = document.getElementById('initial-callsign-group');
             if (team === 'CIV') {
                 callsignGroup.style.display = 'none';
+                document.getElementById('initial-error').style.display = 'none';
             } else {
                 callsignGroup.style.display = 'block';
             }
@@ -511,6 +509,8 @@
                 } else {
                     errorDiv.style.display = 'none';
                 }
+            } else {
+                errorDiv.style.display = 'none';
             }
 
             currentTeam = team;
@@ -523,7 +523,8 @@
 
         function openChangeTeamModal() {
             document.getElementById('initial-team').value = currentTeam;
-            document.getElementById('initial-callsign').value = document.getElementById('display-callsign').innerText === 'N/A' ? '' : document.getElementById('display-callsign').innerText;
+            const currentCallsignDisplay = document.getElementById('display-callsign').innerText;
+            document.getElementById('initial-callsign').value = (currentCallsignDisplay === 'N/A') ? '' : currentCallsignDisplay;
             handleInitialTeamChange();
             document.getElementById('setup-overlay').classList.remove('hidden');
         }
