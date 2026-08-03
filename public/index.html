@@ -18,7 +18,7 @@
             height: 100vh;
             overflow: hidden;
         }
-        /* Welkomst / Setup Overlay Scherm */
+        /* Setup / Team Selector Overlay */
         #setup-overlay {
             position: fixed;
             top: 0;
@@ -76,32 +76,27 @@
             align-items: center;
             text-align: center;
         }
-        /* Exact Logo Styling uit Mockup */
+        /* Logo Styling */
         .mockup-logo-box {
             background-color: #ffffff;
             border-radius: 12px;
-            padding: 10px 14px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             margin-bottom: 8px;
-            width: 78px;
+            width: 85px;
+            height: 85px;
         }
-        .mockup-logo-box svg {
-            width: 32px;
-            height: 32px;
-        }
-        .mockup-logo-box .logo-brand-text {
-            font-size: 7.5px;
-            font-weight: 900;
-            color: #111;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+        .mockup-logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
         .logo-text {
-            font-size: 13.5px;
+            font-size: 14px;
             font-weight: bold;
             color: #e0e0e0;
             letter-spacing: 0.5px;
@@ -129,7 +124,7 @@
             border-left: 4px solid #4CAF50;
             font-weight: 600;
         }
-        /* User Status Box */
+        /* User Status Box at bottom of sidebar */
         .user-status-box {
             padding: 15px 20px;
             font-size: 13px;
@@ -143,7 +138,7 @@
             color: #4CAF50;
             font-weight: 600;
         }
-        /* Main Content */
+        /* Main Content Area */
         main {
             flex: 1;
             display: flex;
@@ -164,7 +159,7 @@
             font-weight: 600;
             color: #fff;
         }
-        /* Exacte Change Team Knop rechtsboven uit Mockup */
+        /* Change Team Button Styling */
         .change-team-btn {
             background: none;
             border: none;
@@ -172,7 +167,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 14px;
             font-weight: 500;
             transition: opacity 0.2s;
@@ -181,8 +176,8 @@
             opacity: 0.8;
         }
         .change-team-btn svg {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             fill: #fff;
         }
         .content-area {
@@ -318,7 +313,7 @@
 </head>
 <body>
 
-    <!-- WELKOM / TEAM SELECTOR OVERLAY -->
+    <!-- SETUP OVERLAY SCHERM -->
     <div id="setup-overlay">
         <div class="setup-box">
             <h2>LemonCAD Setup</h2>
@@ -337,7 +332,8 @@
 
             <div class="form-group" id="initial-callsign-group" style="display: none;">
                 <label for="initial-callsign">In-game Callsign:</label>
-                <input type="text" id="initial-callsign" placeholder="E.g. STF8" maxlength="6">
+                <!-- Aangepast voorbeeld naar ABC123 -->
+                <input type="text" id="initial-callsign" placeholder="E.g. ABC123" maxlength="6">
                 <div class="error-msg" id="initial-error">Note: Must be 3-6 chars and max 3 letters!</div>
             </div>
 
@@ -351,10 +347,12 @@
         <div>
             <div class="logo-container">
                 <div class="mockup-logo-box">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="#4CAF50">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
+                    <svg viewBox="0 0 100 100" width="100" height="100">
+                        <text x="50%" y="32" font-size="16" font-weight="900" fill="#111" text-anchor="middle" font-family="Arial">LEMON'S</text>
+                        <path d="M35 48 C35 38 65 38 65 48 C65 62 50 72 50 72 C50 72 35 62 35 48 Z" fill="#FFC107"/>
+                        <circle cx="50" cy="52" r="3" fill="#FFF"/>
+                        <text x="50%" y="86" font-size="11" font-weight="bold" fill="#333" text-anchor="middle" font-family="Arial">LemonCAD</text>
                     </svg>
-                    <span class="logo-brand-text">LEMON'S</span>
                 </div>
                 <div class="logo-text">LemonCAD</div>
             </div>
@@ -369,7 +367,7 @@
         </div>
         <div class="user-status-box">
             <div>Team: <span id="display-team">Staff</span></div>
-            <div>Callsign: <span id="display-callsign">STF8</span></div>
+            <div>Callsign: <span id="display-callsign">ABC123</span></div>
         </div>
     </sidebar>
 
