@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LemonCAD - Dispatch Systeem</title>
+    <title>LemonCAD - Dispatch System</title>
     <style>
         * {
             box-sizing: border-box;
@@ -154,7 +154,7 @@
 </head>
 <body>
 
-    <div id="alert-popup">🚨 Nieuwe In-Game Melding Ontvangen!</div>
+    <div id="alert-popup">🚨 New In-Game Dispatch Received!</div>
 
     <sidebar>
         <div>
@@ -170,28 +170,27 @@
                 <div class="logo-text">LemonCAD</div>
             </div>
             <ul class="nav-links">
-                <li class="active">Dispatch Overzicht</li>
+                <li class="active">Dispatch Overview</li>
             </ul>
         </div>
     </sidebar>
 
     <main>
         <header>
-            <div class="header-title" id="page-title">Live Dispatch Centrum</div>
+            <div class="header-title" id="page-title">Live Dispatch Center</div>
         </header>
 
         <div class="content-area">
             <div id="dispatch" class="tab-content active">
-                <h2>Actieve Meldingen</h2>
-                <p style="color: #777; font-size: 13.5px;">Live in-game dispatches vanuit ER:LC.</p>
+                <h2>Active Dispatches</h2>
+                <p style="color: #777; font-size: 13.5px;">Live in-game dispatches from ER:LC.</p>
                 <div class="dispatch-container" id="dispatch-list">
-                    <div style="color: #666; font-style: italic;">Bezig met laden van meldingen...</div>
+                    <div style="color: #666; font-style: italic;">Loading dispatches...</div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Audio element voor de meldingsgeluiden -->
     <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
     <script>
@@ -205,12 +204,11 @@
                 const listContainer = document.getElementById('dispatch-list');
 
                 if (dispatches.length === 0) {
-                    listContainer.innerHTML = '<div style="color: #666; font-style: italic;">Geen actieve meldingen...</div>';
+                    listContainer.innerHTML = '<div style="color: #666; font-style: italic;">No active dispatches...</div>';
                     lastDispatchCount = 0;
                     return;
                 }
 
-                // Als er nieuwe dispatches bijkomen, speel geluid af entoon popup
                 if (dispatches.length > lastDispatchCount && lastDispatchCount !== 0) {
                     triggerAlert();
                 }
@@ -222,15 +220,15 @@
                     card.className = 'dispatch-card';
                     card.innerHTML = `
                         <h3>🚨 ${d.title}</h3>
-                        <p><strong>Locatie:</strong> ${d.location}</p>
+                        <p><strong>Location:</strong> ${d.location}</p>
                         <p><strong>Details:</strong> ${d.description}</p>
-                        <p><strong>Tijd:</strong> ${d.time}</p>
+                        <p><strong>Time:</strong> ${d.time}</p>
                     `;
                     listContainer.appendChild(card);
                 });
 
             } catch (err) {
-                console.error('Fout bij ophalen dispatches:', err);
+                console.error('Error fetching dispatches:', err);
             }
         }
 
@@ -238,7 +236,7 @@
             const sound = document.getElementById('alert-sound');
             if (sound) {
                 sound.currentTime = 0;
-                sound.play().catch(e => console.log('Autoplay geblokkeerd door browser:', e));
+                sound.play().catch(e => console.log('Autoplay blocked by browser:', e));
             }
 
             const popup = document.getElementById('alert-popup');
@@ -250,7 +248,6 @@
             }, 5000);
         }
 
-        // Elke 3 seconden vernieuwen
         setInterval(fetchDispatches, 3000);
         fetchDispatches();
     </script>
