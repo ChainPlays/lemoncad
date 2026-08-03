@@ -1,7 +1,4 @@
 const express = require('express');
-const path = require('path');
-const app = express(); // <-- Deze moet HELEMAAL bovenaan staan, vóór alle routes!
-const express = require('express');
 const app = express();
 
 // Middleware om JSON te lezen
