@@ -7,88 +7,157 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: #faf8f5;
+            color: #444;
             margin: 0;
             padding: 20px;
         }
-        h1, h2 {
-            color: #2c3e50;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .header-container {
+            text-align: center;
             margin-bottom: 20px;
         }
-        /* Navigatie menu bovenin */
+        h1 {
+            color: #5d532a;
+            font-size: 24px;
+            margin: 10px 0 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        /* Navigatie menu */
         .navbar {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
         .nav-btn {
-            background-color: #7f8c8d;
-            color: white;
-            border: none;
+            background-color: #e5dfd3;
+            color: #5d532a;
+            border: 1px solid #dcd3be;
             padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 14px;
+            transition: all 0.2s;
         }
-        .nav-btn.active {
-            background-color: #2980b9;
+        .nav-btn.active, .nav-btn:hover {
+            background-color: #e2a000;
+            color: #fff;
+            border-color: #cca200;
         }
-        .nav-btn:hover {
-            background-color: #34495e;
+        /* Layout grid exact zoals in je ontwerp */
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
         }
-        /* Secties wisselen */
+        .card {
+            background: #fff;
+            border: 1px solid #e8e1d5;
+            border-radius: 10px;
+            padding: 20px;
+            width: 420px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            box-sizing: border-box;
+        }
+        .full-width-card {
+            background: #fff;
+            border: 1px solid #e8e1d5;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 864px;
+            margin: 0 auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            box-sizing: border-box;
+        }
         .page-section {
             display: none;
         }
         .page-section.active {
             display: block;
         }
-        input, select, button {
+        h3 {
+            color: #5d532a;
+            font-size: 15px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #f0ebe1;
+            padding-bottom: 8px;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: #6b6038;
+            margin-bottom: 5px;
+        }
+        input, select, textarea {
             width: 100%;
             padding: 10px;
-            margin: 8px 0;
-            display: inline-block;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #dcd3be;
+            border-radius: 6px;
             box-sizing: border-box;
+            font-size: 14px;
+            background-color: #fff;
+            color: #333;
         }
-        .action-btn {
-            background-color: #3498db;
+        input::placeholder {
+            color: #aaa;
+        }
+        .btn-primary {
+            background-color: #e2a000;
             color: white;
             border: none;
+            padding: 11px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
             cursor: pointer;
+            margin-bottom: 5px;
         }
-        .action-btn:hover {
-            background-color: #2980b9;
+        .btn-primary:hover {
+            background-color: #cc8f00;
+        }
+        .btn-secondary {
+            background-color: #f4efe4;
+            color: #5d532a;
+            border: 1px solid #e2d8c3;
+            padding: 11px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        .btn-secondary:hover {
+            background-color: #e9e2d3;
         }
         .result-box {
-            background: #f9f9f9;
-            border: 1px dashed #f39c12;
-            padding: 15px;
-            border-radius: 5px;
+            background: #faf8f5;
+            border: 1px dashed #dcd3be;
+            padding: 12px;
+            border-radius: 6px;
             margin-top: 10px;
+            font-size: 13px;
         }
         .dispatch-card {
-            background: #ffeaa7;
-            border-left: 5px solid #d63031;
-            padding: 10px;
+            background: #fff8e8;
+            border-left: 4px solid #e2a000;
+            padding: 12px;
             margin-top: 10px;
             border-radius: 4px;
+            font-size: 13px;
         }
-        /* Iframe voor de interactieve map */
         .map-frame {
             width: 100%;
-            height: 650px;
+            height: 600px;
             border: none;
             border-radius: 6px;
         }
@@ -96,11 +165,13 @@
 </head>
 <body>
 
-    <div class="container" style="text-align: center;">
-        <h1>LemonCAD System</h1>
-        <p>Emergency Response: Liberty County Dispatch & CAD</p>
-        
-        <!-- Bovenste navigatie-knopjes -->
+    <div class="header-container">
+        <!-- Server Header Branding -->
+        <h2>🍋 LEMON'S</h2>
+        <div style="font-size: 11px; font-weight: bold; letter-spacing: 2px; color: #7a6e43; margin-top: -12px; margin-bottom: 15px;">RP SERVER</div>
+        <h1>Computer-Aided Dispatch (CAD)</h1>
+
+        <!-- Navigatie menu in dezelfde stijl -->
         <div class="navbar">
             <button class="nav-btn active" id="btnReg" onclick="switchTab('registration')">CAD / Registration</button>
             <button class="nav-btn" id="btnDisp" onclick="switchTab('dispatch')">Dispatch / Meldkamer</button>
@@ -108,97 +179,113 @@
         </div>
     </div>
 
-    <!-- SECTIE 1: REGISTRATION & SEARCH -->
+    <!-- SECTIE 1: REGISTRATION & LOOKUP -->
     <div id="section-registration" class="page-section active">
-        <!-- Burger Zoeken / Registreren -->
-        <div class="container">
-            <h2>Civilian Management</h2>
-            <h3>Register Civilian</h3>
-            <input type="text" id="civName" placeholder="Full Name">
-            <input type="date" id="civDob">
-            <select id="civGender">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Unknown">Other</option>
-            </select>
-            <button class="action-btn" onclick="registerCivilian()">Register Civilian</button>
+        <div class="grid-container">
+            <!-- Linker Kolom: Civilian Database & NCIC Lookup -->
+            <div class="card">
+                <h3>👤 Civilian Database</h3>
+                <label>Full Name</label>
+                <input type="text" id="civName" placeholder="e.g. John Doe">
+                
+                <label>Date of Birth</label>
+                <input type="date" id="civDob">
+                
+                <label>Gender</label>
+                <select id="civGender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Unknown">Other</option>
+                </select>
+                
+                <button class="btn-primary" onclick="registerCivilian()">Register Civilian</button>
 
-            <h3>Search Civilian</h3>
-            <input type="text" id="searchCivName" placeholder="Search by name...">
-            <button class="action-btn" onclick="searchCivilian()">Search</button>
-            <div id="civResult" class="result-box" style="display:none;"></div>
-        </div>
+                <h3 style="margin-top: 25px;">NCIC Lookup</h3>
+                <label>Search Person</label>
+                <input type="text" id="searchCivName" placeholder="Search by name...">
+                <button class="btn-secondary" onclick="searchCivilian()">Search Person</button>
+                <div id="civResult" class="result-box" style="display:none;"></div>
+            </div>
 
-        <!-- Voertuig Zoeken / Registreren -->
-        <div class="container">
-            <h2>Vehicle Management</h2>
-            <h3>Register Vehicle</h3>
-            <input type="text" id="vehPlate" placeholder="License Plate">
-            <input type="text" id="vehModel" placeholder="Vehicle Model">
-            <input type="text" id="vehOwner" placeholder="Owner Name">
-            <button class="action-btn" onclick="registerVehicle()">Register Vehicle</button>
+            <!-- Rechter Kolom: DMV Vehicle Database & DMV Lookup -->
+            <div class="card">
+                <h3>🚗 DMV Vehicle Database</h3>
+                <label>License Plate</label>
+                <input type="text" id="vehPlate" placeholder="e.g. 83ABC12">
+                
+                <label>Vehicle Model</label>
+                <input type="text" id="vehModel" placeholder="e.g. Vapid Stanier">
+                
+                <label>Owner Name</label>
+                <input type="text" id="vehOwner" placeholder="Owner's full name">
+                
+                <button class="btn-primary" onclick="registerVehicle()">Register Vehicle</button>
 
-            <h3>Search Vehicle</h3>
-            <input type="text" id="searchVehPlate" placeholder="Search by plate...">
-            <button class="action-btn" onclick="searchVehicle()">Search</button>
-            <div id="vehResult" class="result-box" style="display:none;"></div>
+                <h3 style="margin-top: 25px;">DMV Lookup</h3>
+                <label>Search License Plate</label>
+                <input type="text" id="searchVehPlate" placeholder="Search by license plate...">
+                <button class="btn-secondary" onclick="searchVehicle()">Search Plate</button>
+                <div id="vehResult" class="result-box" style="display:none;"></div>
+            </div>
         </div>
     </div>
 
     <!-- SECTIE 2: DISPATCH / MELDKAMER -->
     <div id="section-dispatch" class="page-section">
-        <div class="container">
-            <h2>🚨 Dispatch / Meldkamer</h2>
-            <h3>Create New Call</h3>
-            <input type="text" id="dispatchTitle" placeholder="Incident Title (e.g., Bank Robbery)">
-            <input type="text" id="dispatchLocation" placeholder="Location (e.g., Main Street)">
+        <div class="full-width-card">
+            <h3>🚨 Dispatch / Meldkamer</h3>
+            
+            <label>Incident Title</label>
+            <input type="text" id="dispatchTitle" placeholder="e.g. Bank Robbery / Traffic Accident">
+            
+            <label>Location</label>
+            <input type="text" id="dispatchLocation" placeholder="e.g. Main Street / Highway 1">
+            
+            <label>Priority</label>
             <select id="dispatchPriority">
                 <option value="Normal">Normal Priority</option>
                 <option value="High">High Priority</option>
                 <option value="Emergency">🚨 EMERGENCY (Code 3)</option>
             </select>
-            <input type="text" id="dispatchDesc" placeholder="Description details...">
-            <button class="action-btn" onclick="createDispatch()">Dispatch Call</button>
+            
+            <label>Description Details</label>
+            <textarea id="dispatchDesc" placeholder="Enter call details..." rows="3"></textarea>
+            
+            <button class="btn-primary" onclick="createDispatch()">Dispatch Call</button>
 
-            <h3>Active Dispatches</h3>
-            <button class="action-btn" onclick="loadDispatches()">Refresh Calls</button>
+            <h3 style="margin-top: 25px;">Active Dispatches</h3>
+            <button class="btn-secondary" onclick="loadDispatches()" style="margin-bottom: 15px;">Refresh Calls</button>
             <div id="dispatchList"></div>
         </div>
     </div>
 
     <!-- SECTIE 3: INTERACTIVE MAP -->
     <div id="section-map" class="page-section">
-        <div class="container" style="max-width: 1000px;">
-            <h2>🗺️ Liberty County Interactive Map</h2>
-            <p>Live interactive map provided by ER:LC Hub.</p>
-            <!-- De iframe laadt de interactieve map direct in je CAD -->
+        <div class="full-width-card">
+            <h3>🗺️ Liberty County Interactive Map</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Live interactive map provided by ER:LC Hub.</p>
             <iframe class="map-frame" src="https://erlc-hub.pages.dev/" allowfullscreen></iframe>
         </div>
     </div>
 
     <script>
-        // --- Tabblad Wissel Functie ---
         function switchTab(tabName) {
-            // Verberg alle secties
             document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
-            // Maak alle knoppen inactief
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
-            // Activeer de juiste sectie en knop
             if (tabName === 'registration') {
                 document.getElementById('section-registration').classList.add('active');
                 document.getElementById('btnReg').classList.add('active');
             } else if (tabName === 'dispatch') {
                 document.getElementById('section-dispatch').classList.add('active');
                 document.getElementById('btnDisp').classList.add('active');
-                loadDispatches(); // Laad direct de meldingen als je naar dispatch gaat
+                loadDispatches();
             } else if (tabName === 'map') {
                 document.getElementById('section-map').classList.add('active');
                 document.getElementById('btnMap').classList.add('active');
             }
         }
 
-        // --- Burger Registreren ---
         async function registerCivilian() {
             var name = document.getElementById('civName').value;
             var dob = document.getElementById('civDob').value;
@@ -212,12 +299,13 @@
             var data = await res.json();
             if (res.ok) {
                 alert('Civilian registered successfully!');
+                document.getElementById('civName').value = '';
+                document.getElementById('civDob').value = '';
             } else {
                 alert('Error: ' + data.error);
             }
         }
 
-        // --- Burger Zoeken ---
         async function searchCivilian() {
             var name = document.getElementById('searchCivName').value;
             var res = await fetch('/api/civilians/search?name=' + encodeURIComponent(name));
@@ -232,7 +320,6 @@
             }
         }
 
-        // --- Voertuig Registreren ---
         async function registerVehicle() {
             var plate = document.getElementById('vehPlate').value;
             var model = document.getElementById('vehModel').value;
@@ -246,12 +333,14 @@
             var data = await res.json();
             if (res.ok) {
                 alert('Vehicle registered successfully!');
+                document.getElementById('vehPlate').value = '';
+                document.getElementById('vehModel').value = '';
+                document.getElementById('vehOwner').value = '';
             } else {
                 alert('Error: ' + data.error);
             }
         }
 
-        // --- Voertuig Zoeken ---
         async function searchVehicle() {
             var plate = document.getElementById('searchVehPlate').value;
             var res = await fetch('/api/vehicles/search?plate=' + encodeURIComponent(plate));
@@ -266,7 +355,6 @@
             }
         }
 
-        // --- Dispatch Aanmaken ---
         async function createDispatch() {
             var title = document.getElementById('dispatchTitle').value;
             var location = document.getElementById('dispatchLocation').value;
@@ -280,7 +368,7 @@
             });
 
             if (res.ok) {
-                alert('Dispatch call sent!');
+                alert('Dispatch call sent successfully!');
                 document.getElementById('dispatchTitle').value = '';
                 document.getElementById('dispatchLocation').value = '';
                 document.getElementById('dispatchDesc').value = '';
@@ -290,7 +378,6 @@
             }
         }
 
-        // --- Dispatches Ophalen & Tonen ---
         async function loadDispatches() {
             var res = await fetch('/api/dispatches');
             var dispatches = await res.json();
@@ -298,7 +385,7 @@
             listDiv.innerHTML = '';
 
             if (dispatches.length === 0) {
-                listDiv.innerHTML = '<p><i>No active dispatch calls.</i></p>';
+                listDiv.innerHTML = '<p style="font-size:13px; color:#777;"><i>No active dispatch calls.</i></p>';
                 return;
             }
 
