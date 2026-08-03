@@ -1,3 +1,9 @@
+const path = require('path');
+
+// --- 0. Serveer je HTML hoofdpagina ---
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 const express = require('express');
 const app = express();
 
