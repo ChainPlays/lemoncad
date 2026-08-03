@@ -455,8 +455,15 @@
                             <input type="text" id="civ-name" placeholder="e.g. John Doe">
                         </div>
                         <div class="form-group">
-                            <label>Date of Birth</label>
-                            <input type="date" id="civ-dob">
+                            <label>Age</label>
+                            <select id="civ-age">
+                                <option value="Toddler">Toddler</option>
+                                <option value="Kid">Kid</option>
+                                <option value="Teen">Teen</option>
+                                <option value="Young Adult">Young Adult</option>
+                                <option value="Adult" selected>Adult</option>
+                                <option value="Elder">Elder</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Gender</label>
@@ -680,13 +687,13 @@
 
         function registerCivilianProfile() {
             const name = document.getElementById('civ-name').value.trim();
-            const dob = document.getElementById('civ-dob').value;
+            const age = document.getElementById('civ-age').value;
             const gender = document.getElementById('civ-gender').value;
             const plate = document.getElementById('civ-plate').value.trim();
             const pointsToAdd = parseInt(document.getElementById('civ-violation-type').value) || 1;
 
-            if(!name || !dob || !plate) {
-                triggerAlert('⚠️ Error: Please enter full name, date of birth, and license plate.');
+            if(!name || !plate) {
+                triggerAlert('⚠️ Error: Please enter full name and license plate.');
                 return;
             }
 
@@ -697,9 +704,10 @@
             if (existingCiv) {
                 existingCiv.points += pointsToAdd;
                 existingCiv.plate = plate;
+                existingCiv.age = age;
                 finalPoints = existingCiv.points;
             } else {
-                existingCiv = { name, dob, gender, plate, points: pointsToAdd };
+                existingCiv = { name, age, gender, plate, points: pointsToAdd };
                 registeredCivilians.push(existingCiv);
                 finalPoints = pointsToAdd;
             }
@@ -717,7 +725,6 @@
             }
             
             document.getElementById('civ-name').value = '';
-            document.getElementById('civ-dob').value = '';
             document.getElementById('civ-plate').value = '';
         }
 
@@ -798,7 +805,7 @@
             const found = registeredCivilians.find(c => c.name.toLowerCase().includes(query));
             if(found) {
                 let status = found.points >= 4 ? "BOLO 🚨 (HIGH PRIORITY)" : "Violator";
-                triggerAlert(`🔍 Found CVP: ${found.name} | Plate: ${found.plate} | Points: ${found.points} (${status})`);
+                triggerAlert(`🔍 Found CVP: ${found.name} (${found.age}) | Plate: ${found.plate} | Points: ${found.points} (${status})`);
             } else {
                 triggerAlert('🔍 CVP Search: No profile found with that name.');
             }
@@ -833,7 +840,7 @@
                 triggerAlert(`🔍 DMV Search: License plate recognized.`);
                 resultBox.innerHTML = `
                     <p style="color: #2e7d32; font-weight: bold; margin-bottom: 6px;">License plate recognized.</p>
-                    <p><strong>Owner:</strong> ${foundCvp.name} | <strong>Points:</strong> ${foundCvp.points} (${ownerStatus})</p>
+                    <p><strong>Owner:</strong> ${foundCvp.name} (${foundCvp.age}) | <strong>Points:</strong> ${foundCvp.points} (${ownerStatus})</p>
                     <div class="form-group" style="margin-top: 10px; margin-bottom: 8px;">
                         <label style="font-size: 12px;">Add Points to ${foundCvp.name}</label>
                         <select id="quick-add-points-${foundCvp.plate}" style="font-size: 13px; padding: 6px;">
