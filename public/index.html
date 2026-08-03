@@ -681,17 +681,36 @@
         function adjustHeight(type, amount) {
             if (type === 'feet') {
                 currentFeet += amount;
-                if (currentFeet < 4) currentFeet = 4;
+                if (currentFeet < 2) currentFeet = 2; // Minimaal 2 feet (voor toddlers)
                 if (currentFeet > 7) currentFeet = 7;
+                
+                // Als we op 2' komen, kunnen inches niet onder 0 komen
+                if (currentFeet === 2 && currentInches < 0) {
+                    currentInches = 0;
+                }
+
+                // Als we op 7' komen en inches zijn groter dan 0, automatisch naar 0 zetten
+                if (currentFeet === 7) {
+                    currentInches = 0;
+                    document.getElementById('height-inches').innerText = currentInches;
+                }
                 document.getElementById('height-feet').innerText = currentFeet;
             } else if (type === 'inches') {
+                // Als we al op 7' zitten en proberen inches te verhogen, blokkeren/op 0 houden
+                if (currentFeet === 7 && amount > 0) {
+                    currentInches = 0;
+                    document.getElementById('height-inches').innerText = currentInches;
+                    return;
+                }
+
                 currentInches += amount;
                 if (currentInches < 0) {
                     currentInches = 11;
-                    if (currentFeet > 4) {
+                    if (currentFeet > 2) { // Minimale grens is nu 2 feet
                         currentFeet--;
                         document.getElementById('height-feet').innerText = currentFeet;
                     } else {
+                        currentFeet = 2;
                         currentInches = 0;
                     }
                 } else if (currentInches > 11) {
@@ -699,10 +718,18 @@
                     if (currentFeet < 7) {
                         currentFeet++;
                         document.getElementById('height-feet').innerText = currentFeet;
+                        if (currentFeet === 7) {
+                            currentInches = 0;
+                        }
                     } else {
-                        currentInches = 11;
+                        currentInches = 0;
                     }
                 }
+
+                if (currentFeet === 7) {
+                    currentInches = 0;
+                }
+
                 document.getElementById('height-inches').innerText = currentInches;
             }
         }
@@ -896,7 +923,6 @@
                 triggerAlert('🔍 CVP Search: No profile found with that name.');
             }
 
-            // Reset search field
             searchInput.value = '';
         }
 
@@ -940,7 +966,6 @@
                 `;
             }
 
-            // Reset search field
             searchInput.value = '';
         }
 
@@ -948,7 +973,6 @@
             document.getElementById('civ-plate').value = plate;
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // DMV result box verbergen en resetten
             const resultBox = document.getElementById('dmv-lookup-result');
             resultBox.style.display = 'none';
             resultBox.innerHTML = '';
@@ -979,7 +1003,6 @@
                 triggerAlert(`✅ Added +${pointsToAdd} pts to ${civ.name}. Total: ${finalPoints} (${statusType})`);
             }
 
-            // DMV result box verbergen en resetten
             const resultBox = document.getElementById('dmv-lookup-result');
             resultBox.style.display = 'none';
             resultBox.innerHTML = '';
