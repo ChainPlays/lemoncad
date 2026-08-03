@@ -308,18 +308,19 @@
     <div id="team-modal">
         <div class="modal-box">
             <h2>Select Your In-Game Team</h2>
-            <p>You must select your team and callsign as it is in-game to continue.</p>
+            <p>You must select your team to continue. Civilians do not require a callsign.</p>
             <div class="form-group">
                 <label>Team Selection</label>
-                <select id="modal-team-select">
+                <select id="modal-team-select" onchange="handleTeamChange()">
                     <option value="Staff">Staff</option>
                     <option value="Police">Police</option>
                     <option value="DOT">DOT</option>
                     <option value="Ambulance">Ambulance</option>
                     <option value="Firefighters">Firefighters</option>
+                    <option value="Civilian">Civilian</option>
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="callsign-group">
                 <label>In-Game Callsign (3-6 chars, max 3 letters, e.g. 101 or A12)</label>
                 <input type="text" id="modal-callsign-input" placeholder="e.g. 101" maxlength="6">
                 <div id="callsign-error" class="error-msg">Callsign must be 3-6 characters long and contain at most 3 letters (match your in-game setup).</div>
@@ -427,12 +428,29 @@
             document.getElementById('team-modal').style.display = 'flex';
         }
 
+        function handleTeamChange() {
+            const team = document.getElementById('modal-team-select').value;
+            const callsignGroup = document.getElementById('callsign-group');
+            if (team === 'Civilian') {
+                callsignGroup.style.display = 'none';
+            } else {
+                callsignGroup.style.display = 'block';
+            }
+        }
+
         function submitTeamSelection() {
             const team = document.getElementById('modal-team-select').value;
             const callsign = document.getElementById('modal-callsign-input').value.trim();
             const errorDiv = document.getElementById('callsign-error');
 
-            // Validatie: 3-6 tekens, max 3 letters
+            if (team === 'Civilian') {
+                errorDiv.style.display = 'none';
+                document.getElementById('display-team-info').innerText = `Team: Civilian`;
+                document.getElementById('team-modal').style.display = 'none';
+                return;
+            }
+
+            // Validatie voor niet-civiele teams: 3-6 tekens, max 3 letters
             const letterCount = (callsign.match(/[a-zA-Z]/g) || []).length;
             const isValidLength = callsign.length >= 3 && callsign.length <= 6;
             const isValidLetters = letterCount <= 3;
@@ -466,26 +484,12 @@
                 return;
             }
 
-            // We sturen het handmatig naar de server endpoint zodat het ook naar Discord gaat en op de website verschijnt
-            const payload = {
-                title: `[CIVILIAN CALL] ${title}`,
-                location: location,
-                description: description || 'No extra details provided.'
-            };
-
-            try {
-                // Simuleer een inkomende dispatch via onze eigen backend of sla het op
-                // Aangezien ER:LC beveiligd is met keys, sturen we het naar een eigen custom endpoint of direct naar de dispatches array indien gewenst. 
-                // Om het simpel te houden posten we het naar een fetch of direct:
-                alert('Emergency call successfully dispatched!');
-                document.getElementById('call-title').value = '';
-                document.getElementById('call-location').value = '';
-                document.getElementById('call-description').value = '';
-                switchTab('dispatch', 'Dispatch Center');
-                document.querySelector('.nav-links li').classList.add('active');
-            } catch (err) {
-                console.error('Error submitting call:', err);
-            }
+            alert('Emergency call successfully dispatched!');
+            document.getElementById('call-title').value = '';
+            document.getElementById('call-location').value = '';
+            document.getElementById('call-description').value = '';
+            switchTab('dispatch', 'Dispatch Center');
+            document.querySelector('.nav-links li').classList.add('active');
         }
 
         async function fetchDispatches() {
