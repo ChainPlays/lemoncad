@@ -1,48 +1,68 @@
 const express = require('express');
 const app = express();
 
-// Middleware om JSON-data in verzoeken te kunnen lezen
+// Middleware om JSON te lezen
 app.use(express.json());
 
-// Voorbeeld database (array in het geheugen)
+// Database in het geheugen
 let db = {
-    civilians: []
+    civilians: [],
+    vehicles: []
 };
 
-// Functie om eventueel data op te slaan (pas aan naar jouw eigen database-logica indien nodig)
-function saveDB() {
-    console.log("Database bijgewerkt. Aantal burgers:", db.civilians.length);
-}
-
-// --- --- Register Civilian --- ---
-// Zorg dat je frontend formulier zijn data naar deze URL (/api/civilians) stuurt!
-app.post('/api/civilians', async (req, res) => {
-    const { fullName, dob, gender } = req.body;
+// --- 1. Register Civilian (Matches HTML: /api/civilians) ---
+app.post('/api/civilians', (req, res) => {
+    const { name, dob, gender } = req.body;
     
-    if (!fullName || !dob) {
+    if (!name || !dob) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const newCiv = {
-        id: Date.now().toString(),
-        fullName,
-        dob,
-        gender: gender || 'Unknown',
-    };
-
+    const newCiv = { name, dob, gender: gender || 'Unknown' };
     db.civilians.push(newCiv);
-    saveDB();
 
     return res.status(200).json({ success: true, civilian: newCiv });
 });
 
-// Extra route om te testen of de server online is en burgers kan opzoeken
-app.get('/api/civilians/search', (req, res) => {
-    res.json(db.civilians);
+// --- 2. Register Vehicle (Matches HTML: /api/vehicles) ---
+app.post('/api/vehicles', (req, res) => {
+    const { plate, model, owner } = req.body;
+    
+    if (!plate || !model || !owner) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const newVeh = { plate, model, owner };
+    db.vehicles.push(newVeh);
+
+    return res.status(200).json({ success: true, vehicle: newVeh });
 });
 
-// --- --- Start de Server --- ---
-// Dit is cruciaal zodat Render weet waar hij naar moet luisteren
+// --- 3. Search Civilian (Matches HTML: /api/civilians/search?name=...) ---
+app.get('/api/civilians/search', (req, res) => {
+    const searchName = req.query.name ? req.query.name.toLowerCase() : '';
+    const civilian = db.civilians.find(c => c.name.toLowerCase().includes(searchName));
+
+    if (civilian) {
+        return res.json(civilian);
+    } else {
+        return res.status(404).json({ error: 'Not found' });
+    }
+});
+
+// --- 4. Search Vehicle (Matches HTML: /api/vehicles/search?plate=...) ---
+app.get('/api/vehicles/search', (req, res) => {
+    const searchPlate = req.query.plate ? req.query.plate.toLowerCase() : '';
+    const vehicle = db.vehicles.find(v => v.plate.toLowerCase() === searchPlate);
+
+    if (vehicle) {
+        return res.json(vehicle);
+    } else {
+        return res.status(404).json({ error: 'Not found' });
+    }
+});
+
+// --- Start Server ---
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`🚀 LemonCAD Server draait op poort ${PORT}`);
