@@ -402,12 +402,12 @@
         </div>
     </div>
 
-    <div id="alert-popup">🚨 New 911 Emergency Dispatch / BOLO Alert Received!</div>
+    <div id="alert-popup">🚨 System Notification</div>
 
     <!-- Header & Branding -->
     <header>
         <div class="header-top-left">
-            <div class="civ-points-badge" id="civ-points-display">BOLO Points: 0 | Status: Violator</div>
+            <div class="civ-points-badge" id="civ-points-display">CVP Points: 0 | Status: Violator</div>
         </div>
         <div class="header-top-right">
             <div class="current-team-badge" id="display-team-info">Team: Civilian</div>
@@ -435,7 +435,7 @@
                 <!-- Left Column: Civilian Database, Infractions & Lookup -->
                 <div>
                     <div class="card">
-                        <div class="card-title">👤 Civilian Database & Infractions</div>
+                        <div class="card-title">👤 Civilian Violations Profile (CVP)</div>
                         <div class="form-group">
                             <label>Full Name</label>
                             <input type="text" id="civ-name" placeholder="e.g. John Doe">
@@ -453,6 +453,10 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label>Vehicle License Plate (Required for CVP)</label>
+                            <input type="text" id="civ-plate" placeholder="e.g. 83ABC12">
+                        </div>
+                        <div class="form-group">
                             <label>Violation / Offense Type</label>
                             <select id="civ-violation-type">
                                 <option value="1">Traffic Stop (1 Point)</option>
@@ -461,7 +465,7 @@
                                 <option value="4">Killing LEO, DOT, Medic, or Firefighter (4 Points)</option>
                             </select>
                         </div>
-                        <button class="btn-yellow" onclick="registerCivilian()">Register / Add Offense Points</button>
+                        <button class="btn-yellow" onclick="registerCivilianProfile()">Create/Update CVP & Add Points</button>
                     </div>
 
                     <div class="card">
@@ -511,13 +515,14 @@
                                 <thead>
                                     <tr>
                                         <th>Name</th>
+                                        <th>Plate</th>
                                         <th>Points</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="leaderboard-body">
                                     <tr>
-                                        <td colspan="3" style="text-align: center; color: #777;">No records found.</td>
+                                        <td colspan="4" style="text-align: center; color: #777;">No records found.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -678,14 +683,15 @@
             if(element) element.classList.add('active');
         }
 
-        function registerCivilian() {
+        function registerCivilianProfile() {
             const name = document.getElementById('civ-name').value.trim();
             const dob = document.getElementById('civ-dob').value;
             const gender = document.getElementById('civ-gender').value;
+            const plate = document.getElementById('civ-plate').value.trim();
             const pointsToAdd = parseInt(document.getElementById('civ-violation-type').value) || 1;
 
-            if(!name || !dob) {
-                alert('Please enter both full name and date of birth.');
+            if(!name || !dob || !plate) {
+                triggerAlert('⚠️ Error: Please enter full name, date of birth, and license plate.');
                 return;
             }
 
@@ -695,9 +701,10 @@
 
             if (existingCiv) {
                 existingCiv.points += pointsToAdd;
+                existingCiv.plate = plate;
                 finalPoints = existingCiv.points;
             } else {
-                existingCiv = { name, dob, gender, points: pointsToAdd };
+                existingCiv = { name, dob, gender, plate, points: pointsToAdd };
                 registeredCivilians.push(existingCiv);
                 finalPoints = pointsToAdd;
             }
@@ -709,21 +716,22 @@
             let isNowBolo = finalPoints >= 4;
 
             if (isNowBolo && !wasAlreadyBolo) {
-                dispatchBoloAlert(name, finalPoints);
+                dispatchBoloAlert(name, plate, finalPoints);
+            } else {
+                let statusType = isNowBolo ? "BOLO 🚨" : "Violator";
+                triggerAlert(`✅ CVP Updated: +${pointsToAdd} pts for ${name}. Total: ${finalPoints} (${statusType})`);
             }
-
-            let statusType = isNowBolo ? "BOLO 🚨" : "Violator";
-            alert(`Civilian processed! Added ${pointsToAdd} points. Total Points: ${finalPoints} | Status: ${statusType}`);
             
             document.getElementById('civ-name').value = '';
             document.getElementById('civ-dob').value = '';
+            document.getElementById('civ-plate').value = '';
         }
 
-        function dispatchBoloAlert(civName, points) {
+        function dispatchBoloAlert(civName, plate, points) {
             const newDispatch = {
-                title: `[BOLO ALERT] ${civName} reached ${points} points!`,
+                title: `[BOLO ALERT] ${civName} (Plate: ${plate}) reached ${points} points!`,
                 location: 'Citywide / Active Pursuit',
-                description: `Civilian ${civName} has accumulated ${points} infraction points and is officially designated as a BOLO. All police units exercise caution.`,
+                description: `Civilian ${civName} driving plate ${plate} has accumulated ${points} infraction points and is officially designated as a BOLO. All police units exercise caution.`,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 services: ['Police']
             };
@@ -744,9 +752,7 @@
             `;
             listContainer.prepend(card);
 
-            if (currentActiveTeam === 'Police' || currentActiveTeam === 'Staff' || currentActiveTeam === 'Civilian') {
-                triggerAlert('🚨 BOLO ALERT: ' + civName + ' is now a BOLO!');
-            }
+            triggerAlert('🚨 BOLO ALERT: ' + civName + ' (' + plate + ') is now a BOLO!');
         }
 
         function updateCivPointsBadge() {
@@ -754,9 +760,9 @@
             if (registeredCivilians.length > 0) {
                 const latestCiv = registeredCivilians[registeredCivilians.length - 1];
                 let status = latestCiv.points >= 4 ? "BOLO" : "Violator";
-                badge.innerText = `BOLO Points: ${latestCiv.points} | Status: ${status}`;
+                badge.innerText = `CVP Points: ${latestCiv.points} | Status: ${status}`;
             } else {
-                badge.innerText = `BOLO Points: 0 | Status: Violator`;
+                badge.innerText = `CVP Points: 0 | Status: Violator`;
             }
         }
 
@@ -765,7 +771,7 @@
             tbody.innerHTML = '';
 
             if (registeredCivilians.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #777;">No records found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #777;">No records found.</td></tr>`;
                 return;
             }
 
@@ -778,6 +784,7 @@
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${civ.name}</strong></td>
+                    <td><code>${civ.plate}</code></td>
                     <td>${civ.points}</td>
                     <td>${badgeHtml}</td>
                 `;
@@ -795,7 +802,7 @@
             registeredCivilians.forEach(civ => {
                 const opt = document.createElement('option');
                 opt.value = civ.name;
-                opt.textContent = `${civ.name} (DOB: ${civ.dob}) - Pts: ${civ.points}`;
+                opt.textContent = `${civ.name} (Plate: ${civ.plate}) - Pts: ${civ.points}`;
                 select.appendChild(opt);
             });
         }
@@ -806,16 +813,16 @@
             const owner = document.getElementById('veh-owner-select').value;
 
             if(!plate || !model) {
-                alert('Please fill in both license plate and vehicle model.');
+                triggerAlert('⚠️ Error: Please fill in both license plate and vehicle model.');
                 return;
             }
             if(!owner) {
-                alert('You must select a registered civilian owner for this vehicle.');
+                triggerAlert('⚠️ Error: You must select a registered civilian owner.');
                 return;
             }
 
             registeredVehicles.push({ plate, model, owner });
-            alert(`Vehicle ${plate} (${model}) successfully registered to ${owner}!`);
+            triggerAlert(`🚗 Vehicle Registered: ${plate} (${model}) assigned to ${owner}!`);
             
             document.getElementById('veh-plate').value = '';
             document.getElementById('veh-model').value = '';
@@ -824,31 +831,37 @@
         function searchPerson() {
             const query = document.getElementById('search-person-input').value.trim().toLowerCase();
             if(!query) {
-                alert('Please enter a name to search.');
+                triggerAlert('⚠️ Error: Please enter a name to search.');
                 return;
             }
             const found = registeredCivilians.find(c => c.name.toLowerCase().includes(query));
             if(found) {
                 let status = found.points >= 4 ? "BOLO 🚨 (HIGH PRIORITY)" : "Violator";
-                alert(`Found Person:\nName: ${found.name}\nDOB: ${found.dob}\nGender: ${found.gender}\nPoints: ${found.points}\nStatus: ${status}`);
+                triggerAlert(`🔍 Found CVP: ${found.name} | Plate: ${found.plate} | Points: ${found.points} (${status})`);
             } else {
-                alert('No person found with that name in the system.');
+                triggerAlert('🔍 NCIC Search: No profile found with that name.');
             }
         }
 
         function searchPlate() {
             const query = document.getElementById('search-plate-input').value.trim().toLowerCase();
             if(!query) {
-                alert('Please enter a license plate to search.');
+                triggerAlert('⚠️ Error: Please enter a license plate to search.');
                 return;
             }
-            const found = registeredVehicles.find(v => v.plate.toLowerCase() === query);
-            if(found) {
-                const ownerInfo = registeredCivilians.find(c => c.name === found.owner);
+            const foundCvp = registeredCivilians.find(c => c.plate.toLowerCase() === query);
+            const foundVeh = registeredVehicles.find(v => v.plate.toLowerCase() === query);
+
+            if(foundCvp || foundVeh) {
+                let ownerName = foundCvp ? foundCvp.name : foundVeh.owner;
+                let ownerInfo = registeredCivilians.find(c => c.name === ownerName);
                 let ownerStatus = ownerInfo && ownerInfo.points >= 4 ? "BOLO Owner 🚨" : "Normal Owner";
-                alert(`Found Vehicle:\nPlate: ${found.plate}\nModel: ${found.model}\nOwner: ${found.owner} (${ownerStatus})`);
+                let modelInfo = foundVeh ? foundVeh.model : "Unknown Model";
+                let pointsInfo = ownerInfo ? ownerInfo.points : 0;
+                
+                triggerAlert(`🔍 DMV Search: Plate ${query.toUpperCase()} | Owner: ${ownerName} | Pts: ${pointsInfo} (${ownerStatus})`);
             } else {
-                alert('No vehicle found with that license plate.');
+                triggerAlert('🔍 DMV Search: No vehicle or CVP found with that plate.');
             }
         }
 
@@ -863,7 +876,7 @@
             const s4 = document.getElementById('service-4').value;
 
             if (!title || !location) {
-                alert('Please enter at least a title and location for the 911 emergency call.');
+                triggerAlert('⚠️ Error: Please enter a title and location for the 911 call.');
                 return;
             }
 
@@ -893,11 +906,8 @@
             `;
             listContainer.prepend(card);
 
-            if (targetServices.includes(currentActiveTeam) || currentActiveTeam === 'Staff') {
-                triggerAlert('🚨 New 911 Emergency Dispatch Received!');
-            }
-
-            alert('911 Emergency call successfully dispatched to selected services!');
+            triggerAlert('🚨 New 911 Emergency Dispatch Sent Successfully!');
+            
             document.getElementById('call-title').value = '';
             document.getElementById('call-location').value = '';
             document.getElementById('call-description').value = '';
