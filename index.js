@@ -1,108 +1,85 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const fetch = require('node-fetch'); // Of ingebouwd in modernere Node.js versies
+const crypto = require('crypto');
+const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Discord Webhook URL voor meldingen
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1399127814886658098/95yG92Q5X_Nq28U3x6o_s0f9K-78aZ4v6l12kL82vN90m3k12l78z0v3k92l12kL82vN'; // Vervang eventueel met jouw webhook
+// Vul hier je eigen Discord Webhook in
+const DISCORD_WEBHOOK_URL = 'JOUW_DISCORD_WEBHOOK_URL_HIER';
 
-app.use(bodyParser.json());
+// ER:LC Public Key voor veilige verificatie van de game
+const ERLC_PUBLIC_KEY = 'MCowBQYDK2VwAyEAjSICb9pp0kHizGQtdG8ySWsDChfGqi+gyFCttigBNOA=';
+
+// Cruciaal: We vangen de 'raw body' op zodat ER:LC veilig kan verifiëren zonder extra bots
+app.use(express.json({
+    verify: (req, res, buf) => {
+        req.rawBody = buf;
+    }
+}));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Tijdelijke geheugen-databases
-let civilians = [];
-let vehicles = [];
 let dispatches = [];
 
-// --- API: BURGERS (CIVILIANS) ---
-app.post('/api/civilians', (req, res) => {
-    const { name, dob, gender } = req.body;
-    if (!name || !dob) {
-        return res.status(400).json({ error: 'Name and Date of Birth are required.' });
-    }
-    const newCiv = { name, dob, gender, id: Date.now() };
-    civilians.push(newCiv);
-    res.json({ success: true, civilian: newCiv });
-});
-
-app.get('/api/civilians/search', (req, res) => {
-    const nameQuery = (req.query.name || '').toLowerCase();
-    const found = civilians.find(c => c.name.toLowerCase().includes(nameQuery));
-    if (found) {
-        res.json(found);
-    } else {
-        res.status(404).json({ error: 'Civilian not found.' });
-    }
-});
-
-// --- API: VOERTUIGEN (VEHICLES) ---
-app.post('/api/vehicles', (req, res) => {
-    const { plate, model, owner } = req.body;
-    if (!plate || !model) {
-        return res.status(400).json({ error: 'Plate and model are required.' });
-    }
-    const newVeh = { plate: plate.toUpperCase(), model, owner, id: Date.now() };
-    vehicles.push(newVeh);
-    res.json({ success: true, vehicle: newVeh });
-});
-
-app.get('/api/vehicles/search', (req, res) => {
-    const plateQuery = (req.query.plate || '').toUpperCase();
-    const found = vehicles.find(v => v.plate === plateQuery);
-    if (found) {
-        res.json(found);
-    } else {
-        res.status(404).json({ error: 'Vehicle not found.' });
-    }
-});
-
-// --- API: DISPATCHES (MELDINGEN) ---
+// --- API: OPHALEN MELDINGEN VOOR DE WEBSITE ---
 app.get('/api/dispatches', (req, res) => {
     res.json(dispatches);
 });
 
-app.post('/api/dispatches', async (req, res) => {
-    const { title, location, description, priority } = req.body;
-    if (!title || !location) {
-        return res.status(400).json({ error: 'Title and location are required.' });
-    }
-
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const newDispatch = {
-        id: Date.now(),
-        title,
-        location,
-        description: description || 'No details provided.',
-        priority: priority || 'Normal',
-        time: timeString
-    };
-
-    dispatches.unshift.apply(dispatches, [newDispatch]); // Zet nieuwe melding bovenaan
-
-    // Stuur automatisch door naar Discord
-    await sendDiscordWebhook(newDispatch);
-
-    res.json({ success: true, dispatch: newDispatch });
-});
-
-// --- API: ER:LC EXTERNE KOPPELING (SONORAN STIJL) ---
-// Dit is het punt waar jouw ER:LC bot/script data naartoe stuurt!
+// --- API: ER:LC EVENT WEBHOOK (GRATIS & DIRECT UIT DE GAME) ---
 app.post('/api/erlc/dispatch', async (req, res) => {
-    const { title, location, description, priority } = req.body;
-    if (!title || !location) {
-        return res.status(400).json({ error: 'Title and location are required.' });
+    const signature = req.headers['x-signature-ed25519'];
+    const timestamp = req.headers['x-signature-timestamp'];
+
+    if (!signature || !timestamp) {
+        return res.status(401).json({ error: 'Missing signature headers' });
     }
 
+    try {
+        // Valideer de beveiliging van ER:LC
+        const sigBuffer = Buffer.from(signature, 'hex');
+        const pubKeyBuffer = Buffer.from(ERLC_PUBLIC_KEY, 'base64');
+        const message = Buffer.concat([
+            Buffer.from(timestamp, 'utf-8'),
+            req.rawBody
+        ]);
+
+        const isValid = crypto.verify(null, message, {
+            key: crypto.createPublicKey({
+                key: pubKeyBuffer,
+                format: 'der',
+                type: 'spki'
+            }),
+            format: 'der',
+            type: 'ed25519'
+        }, sigBuffer);
+
+        if (!isValid) {
+            return res.status(401).json({ error: 'Invalid signature' });
+        }
+    } catch (err) {
+        console.error('Signature verification error:', err);
+        return res.status(400).json({ error: 'Invalid request' });
+    }
+
+    // Verwerk de in-game ER:LC data
+    const erlcData = req.body;
+    
+    // Kijk of het een emergency call of in-game melding is
+    const title = erlcData.title || erlcData.data?.title || 'In-Game Melding';
+    const location = erlcData.location || erlcData.data?.location || 'Onbekende locatie';
+    const description = erlcData.description || erlcData.data?.description || 'Geen extra details.';
+    
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const newDispatch = {
         id: Date.now(),
-        title,
-        location,
-        description: description || 'Automatic ER:LC in-game dispatch call.',
-        priority: priority || 'Emergency',
+        title: title,
+        location: location,
+        description: description,
+        priority: 'Emergency',
         time: timeString
     };
 
@@ -111,26 +88,19 @@ app.post('/api/erlc/dispatch', async (req, res) => {
     // Stuur direct door naar Discord
     await sendDiscordWebhook(newDispatch);
 
-    console.log('🚨 In-game ER:LC dispatch received and broadcasted:', title);
-    res.json({ success: true, message: 'Dispatch received and broadcasted successfully.', dispatch: newDispatch });
+    console.log('🚨 ER:LC melding binnengekomen en verwerkt:', title);
+    return res.status(200).json({ success: true });
 });
 
-// Functie om Discord Webhook te versturen
-async function sendDispatchToLemonCAD(title, location, description, priority) {
-    // Interne helper of voor externe aanroepen indien nodig
-}
-
 async function sendDiscordWebhook(dispatch) {
-    if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.includes('jouw_webhook')) return;
+    if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.includes('JOUW_DISCORD_WEBHOOK')) return;
 
     const embed = {
-        title: `🚨 NEW DISPATCH CALL: ${dispatch.title}`,
+        title: `🚨 IN-GAME MELDING: ${dispatch.title}`,
         description: dispatch.description,
-        color: dispatch.priority === 'Emergency' ? 15158332 : 16761035, // Rood bij Emergency, anders geel
+        color: 15158332, // Rood
         fields: [
-            { name: 'Location', value: dispatch.location, inline: true },
-            { name: 'Priority', value: dispatch.priority, inline: true },
-            { name: 'Time', value: dispatch.time, inline: true }
+            { name: 'Locatie', value: dispatch.location, inline: true },
         ],
         timestamp: new Date().toISOString()
     };
@@ -142,10 +112,10 @@ async function sendDiscordWebhook(dispatch) {
             body: JSON.stringify({ embeds: [embed] })
         });
     } catch (err) {
-        console.error('Failed to send Discord webhook:', err);
+        console.error('Fout bij versturen Discord webhook:', err);
     }
 }
 
 app.listen(PORT, () => {
-    console.log(`LemonCAD server is running on port ${PORT}`);
+    console.log(`LemonCAD draait op poort ${PORT}`);
 });
