@@ -1,10 +1,9 @@
 var express = require('express');
 var path = require('path');
 
-// Maak direct de app aan
+// Maak de app aan
 var app = express();
 
-// Controleer voor de zekerheid of app bestaat
 if (!app) {
     console.error("FATALE FOUT: Express app kon niet worden aangemaakt!");
     process.exit(1);
@@ -22,13 +21,37 @@ var db = {
     vehicles: []
 };
 
+// --- Functie om Discord Webhooks te versturen ---
+async function sendDiscordWebhook(title, description, fields = []) {
+    var webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) return;
+
+    try {
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                embeds: [{
+                    title: title,
+                    description: description,
+                    color: 3447003, // Blauwe kleur
+                    fields: fields,
+                    timestamp: new Date().toISOString()
+                }]
+            })
+        });
+    } catch (error) {
+        console.error('Fout bij versturen Discord webhook:', error);
+    }
+}
+
 // --- 0. Serveer de hoofdpagina vanuit de 'public' map ---
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // --- 1. Register Civilian ---
-app.post('/api/civilians', function(req, res) {
+app.post('/api/civilians', async function(req, res) {
     var name = req.body.name;
     var dob = req.body.dob;
     var gender = req.body.gender;
@@ -40,11 +63,22 @@ app.post('/api/civilians', function(req, res) {
     var newCiv = { name: name, dob: dob, gender: gender || 'Unknown' };
     db.civilians.push(newCiv);
 
+    // Stuur Discord webhook
+    await sendDiscordWebhook(
+        'Nieuwe Burger Geregistreerd', 
+        'Er is een nieuwe burger toegevoegd aan het systeem.',
+        [
+            { name: 'Naam', value: name, inline: true },
+            { name: 'Geboortedatum', value: dob, inline: true },
+            { name: 'Geslacht', value: newCiv.gender, inline: true }
+        ]
+    );
+
     return res.status(200).json({ success: true, civilian: newCiv });
 });
 
 // --- 2. Register Vehicle ---
-app.post('/api/vehicles', function(req, res) {
+app.post('/api/vehicles', async function(req, res) {
     var plate = req.body.plate;
     var model = req.body.model;
     var owner = req.body.owner;
@@ -55,6 +89,17 @@ app.post('/api/vehicles', function(req, res) {
 
     var newVeh = { plate: plate, model: model, owner: owner };
     db.vehicles.push(newVeh);
+
+    // Stuur Discord webhook
+    await sendDiscordWebhook(
+        'Nieuw Voertuig Geregistreerd', 
+        'Er is een nieuw voertuig toegevoegd aan het systeem.',
+        [
+            { name: 'Kenteken', value: plate, inline: true },
+            { name: 'Model', value: model, inline: true },
+            { name: 'Eigenaar', value: owner, inline: true }
+        ]
+    );
 
     return res.status(200).json({ success: true, vehicle: newVeh });
 });
