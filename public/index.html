@@ -280,6 +280,44 @@
             background-color: #eee5d0;
         }
 
+        /* Mockup Height Selector Styling */
+        .height-picker-container {
+            display: flex;
+            background: #faf8f5;
+            border: 1px solid #e0d8c3;
+            border-radius: 6px;
+            padding: 15px;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+        }
+        .height-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+        .height-arrow {
+            background: none;
+            border: none;
+            font-size: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            color: #333;
+            padding: 4px 10px;
+            transition: color 0.15s;
+        }
+        .height-arrow:hover {
+            color: #d4a017;
+        }
+        .height-value-display {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #222;
+            padding: 4px 0;
+        }
+
         /* Lookup Result Boxes */
         .lookup-result-box {
             background: #faf8f5;
@@ -466,6 +504,21 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label>Height</label>
+                            <div class="height-picker-container">
+                                <div class="height-column">
+                                    <button type="button" class="height-arrow" onclick="adjustHeight('feet', 1)">&#9650;</button>
+                                    <div class="height-value-display"><span id="height-feet">5</span>'</div>
+                                    <button type="button" class="height-arrow" onclick="adjustHeight('feet', -1)">&#9660;</button>
+                                </div>
+                                <div class="height-column">
+                                    <button type="button" class="height-arrow" onclick="adjustHeight('inches', 1)">&#9650;</button>
+                                    <div class="height-value-display"><span id="height-inches">7</span>"</div>
+                                    <button type="button" class="height-arrow" onclick="adjustHeight('inches', -1)">&#9660;</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label>Gender</label>
                             <select id="civ-gender">
                                 <option value="Male">Male</option>
@@ -622,6 +675,37 @@
         let currentActiveTeam = 'Civilian';
         let registeredCivilians = [];
         let alertTimeout = null;
+        let currentFeet = 5;
+        let currentInches = 7;
+
+        function adjustHeight(type, amount) {
+            if (type === 'feet') {
+                currentFeet += amount;
+                if (currentFeet < 4) currentFeet = 4;
+                if (currentFeet > 7) currentFeet = 7;
+                document.getElementById('height-feet').innerText = currentFeet;
+            } else if (type === 'inches') {
+                currentInches += amount;
+                if (currentInches < 0) {
+                    currentInches = 11;
+                    if (currentFeet > 4) {
+                        currentFeet--;
+                        document.getElementById('height-feet').innerText = currentFeet;
+                    } else {
+                        currentInches = 0;
+                    }
+                } else if (currentInches > 11) {
+                    currentInches = 0;
+                    if (currentFeet < 7) {
+                        currentFeet++;
+                        document.getElementById('height-feet').innerText = currentFeet;
+                    } else {
+                        currentInches = 11;
+                    }
+                }
+                document.getElementById('height-inches').innerText = currentInches;
+            }
+        }
 
         function openTeamModal() {
             document.getElementById('team-modal').style.display = 'flex';
@@ -688,6 +772,7 @@
         function registerCivilianProfile() {
             const name = document.getElementById('civ-name').value.trim();
             const age = document.getElementById('civ-age').value;
+            const height = `${currentFeet}'${currentInches}"`;
             const gender = document.getElementById('civ-gender').value;
             const plate = document.getElementById('civ-plate').value.trim();
             const pointsToAdd = parseInt(document.getElementById('civ-violation-type').value) || 1;
@@ -705,9 +790,10 @@
                 existingCiv.points += pointsToAdd;
                 existingCiv.plate = plate;
                 existingCiv.age = age;
+                existingCiv.height = height;
                 finalPoints = existingCiv.points;
             } else {
-                existingCiv = { name, age, gender, plate, points: pointsToAdd };
+                existingCiv = { name, age, height, gender, plate, points: pointsToAdd };
                 registeredCivilians.push(existingCiv);
                 finalPoints = pointsToAdd;
             }
@@ -805,7 +891,7 @@
             const found = registeredCivilians.find(c => c.name.toLowerCase().includes(query));
             if(found) {
                 let status = found.points >= 4 ? "BOLO 🚨 (HIGH PRIORITY)" : "Violator";
-                triggerAlert(`🔍 Found CVP: ${found.name} (${found.age}) | Plate: ${found.plate} | Points: ${found.points} (${status})`);
+                triggerAlert(`🔍 Found CVP: ${found.name} (${found.age}, ${found.height}) | Plate: ${found.plate} | Points: ${found.points} (${status})`);
             } else {
                 triggerAlert('🔍 CVP Search: No profile found with that name.');
             }
@@ -840,7 +926,7 @@
                 triggerAlert(`🔍 DMV Search: License plate recognized.`);
                 resultBox.innerHTML = `
                     <p style="color: #2e7d32; font-weight: bold; margin-bottom: 6px;">License plate recognized.</p>
-                    <p><strong>Owner:</strong> ${foundCvp.name} (${foundCvp.age}) | <strong>Points:</strong> ${foundCvp.points} (${ownerStatus})</p>
+                    <p><strong>Owner:</strong> ${foundCvp.name} (${foundCvp.age}, ${foundCvp.height}) | <strong>Points:</strong> ${foundCvp.points} (${ownerStatus})</p>
                     <div class="form-group" style="margin-top: 10px; margin-bottom: 8px;">
                         <label style="font-size: 12px;">Add Points to ${foundCvp.name}</label>
                         <select id="quick-add-points-${foundCvp.plate}" style="font-size: 13px; padding: 6px;">
