@@ -15,10 +15,11 @@ app.use(express.json());
 // Zorg dat bestanden in de 'public' map geladen kunnen worden
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database in het geheugen
+// Database in het geheugen (nu inclusief dispatches)
 var db = {
     civilians: [],
-    vehicles: []
+    vehicles: [],
+    dispatches: []
 };
 
 // --- Functie om Discord Webhooks te versturen (Engelstalig) ---
@@ -34,7 +35,7 @@ async function sendDiscordWebhook(title, description, fields = []) {
                 embeds: [{
                     title: title,
                     description: description,
-                    color: 3447003, // Blauwe kleur
+                    color: 15158332, // Rode/oranje kleur voor dispatch meldingen
                     fields: fields,
                     timestamp: new Date().toISOString()
                 }]
@@ -63,7 +64,6 @@ app.post('/api/civilians', async function(req, res) {
     var newCiv = { name: name, dob: dob, gender: gender || 'Unknown' };
     db.civilians.push(newCiv);
 
-    // Stuur Engelstalige Discord webhook
     await sendDiscordWebhook(
         'New Civilian Registered', 
         'A new civilian has been added to the system.',
@@ -90,7 +90,6 @@ app.post('/api/vehicles', async function(req, res) {
     var newVeh = { plate: plate, model: model, owner: owner };
     db.vehicles.push(newVeh);
 
-    // Stuur Engelstalige Discord webhook
     await sendDiscordWebhook(
         'New Vehicle Registered', 
         'A new vehicle has been added to the system.',
@@ -130,6 +129,47 @@ app.get('/api/vehicles/search', function(req, res) {
     } else {
         return res.status(404).json({ error: 'Not found' });
     }
+});
+
+// --- 5. Dispatch: Create new call ---
+app.post('/api/dispatches', async function(req, res) {
+    var title = req.body.title;
+    var location = req.body.location;
+    var description = req.body.description;
+    var priority = req.body.priority;
+
+    if (!title || !location) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    var newDispatch = {
+        id: Date.now(),
+        title: title,
+        location: location,
+        description: description || 'No description provided',
+        priority: priority || 'Normal',
+        time: new Date().toLocaleTimeString()
+    };
+
+    db.dispatches.unshift(newDispatch); // Zet de nieuwste bovenaan
+
+    // Stuur Discord webhook voor de melding
+    await sendDiscordWebhook(
+        '🚨 NEW DISPATCH CALL: ' + title,
+        description || 'A new emergency call has been dispatched.',
+        [
+            { name: 'Location', value: location, inline: true },
+            { name: 'Priority', value: priority || 'Normal', inline: true },
+            { name: 'Time', value: newDispatch.time, inline: true }
+        ]
+    );
+
+    return res.status(200).json({ success: true, dispatch: newDispatch });
+});
+
+// --- 6. Dispatch: Get all active calls ---
+app.get('/api/dispatches', function(req, res) {
+    return res.json(db.dispatches);
 });
 
 // --- Start Server ---
