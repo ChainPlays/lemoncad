@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const path = require('path');
 const crypto = require('crypto');
 const fetch = require('node-fetch');
@@ -13,14 +12,14 @@ const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/153392707081024746
 // ER:LC Public Key voor veilige verificatie van de game
 const ERLC_PUBLIC_KEY = 'MCowBQYDK2VwAyEAjSICb9pp0kHizGQtdG8ySWsDChfGqi+gyFCttigBNOA=';
 
-// Cruciaal: We vangen de 'raw body' op zodat ER:LC veilig kan verifiëren zonder extra bots
+// Vang de 'raw body' op zodat ER:LC veilig kan verifiëren
 app.use(express.json({
     verify: (req, res, buf) => {
         req.rawBody = buf;
     }
 }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname)));
 
 let dispatches = [];
 
@@ -29,7 +28,7 @@ app.get('/api/dispatches', (req, res) => {
     res.json(dispatches);
 });
 
-// --- API: ER:LC EVENT WEBHOOK (GRATIS & DIRECT UIT DE GAME) ---
+// --- API: ER:LC EVENT WEBHOOK ---
 app.post('/api/erlc/dispatch', async (req, res) => {
     const signature = req.headers['x-signature-ed25519'];
     const timestamp = req.headers['x-signature-timestamp'];
@@ -39,7 +38,6 @@ app.post('/api/erlc/dispatch', async (req, res) => {
     }
 
     try {
-        // Valideer de beveiliging van ER:LC
         const sigBuffer = Buffer.from(signature, 'hex');
         const pubKeyBuffer = Buffer.from(ERLC_PUBLIC_KEY, 'base64');
         const message = Buffer.concat([
@@ -65,10 +63,8 @@ app.post('/api/erlc/dispatch', async (req, res) => {
         return res.status(400).json({ error: 'Invalid request' });
     }
 
-    // Verwerk de in-game ER:LC data
     const erlcData = req.body;
     
-    // Kijk of het een emergency call of in-game melding is
     const title = erlcData.title || erlcData.data?.title || 'In-Game Melding';
     const location = erlcData.location || erlcData.data?.location || 'Onbekende locatie';
     const description = erlcData.description || erlcData.data?.description || 'Geen extra details.';
@@ -117,5 +113,5 @@ async function sendDiscordWebhook(dispatch) {
 }
 
 app.listen(PORT, () => {
-    console.log(`LemonCAD draait op poort ${PORT}`);
+    console.log(`LemonCAD server draait succesvol op http://localhost:${PORT}`);
 });
