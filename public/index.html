@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LemonCAD - Dispatch Center</title>
+    <title>LemonCAD - Computer-Aided Dispatch (CAD)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,12 +12,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #fcfbfa;
+            color: #333333;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
         }
+
         /* Team Modal Overlay */
         #team-modal {
             position: fixed;
@@ -25,28 +27,28 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.75);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2000;
         }
         .modal-box {
-            background-color: #1a1a1a;
-            border: 1px solid #333;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
             padding: 30px;
             border-radius: 8px;
             width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
         .modal-box h2 {
             margin-bottom: 8px;
-            color: #fff;
+            color: #222;
             font-size: 20px;
         }
         .modal-box p {
             font-size: 13px;
-            color: #888;
+            color: #666;
             margin-bottom: 20px;
         }
         .form-group {
@@ -55,27 +57,27 @@
         .form-group label {
             display: block;
             font-size: 13px;
-            color: #bbb;
+            color: #444;
             margin-bottom: 5px;
-            font-weight: 500;
+            font-weight: 600;
         }
-        .form-group select, .form-group input {
+        .form-group select, .form-group input, .form-group textarea {
             width: 100%;
             padding: 10px;
-            background-color: #222;
-            border: 1px solid #333;
-            color: #fff;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            color: #333;
             border-radius: 4px;
             font-size: 14px;
         }
-        .form-group input:focus, .form-group select:focus {
-            border-color: #4CAF50;
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #d4a017;
             outline: none;
         }
         .modal-btn {
             width: 100%;
             padding: 12px;
-            background-color: #4CAF50;
+            background-color: #d4a017;
             color: white;
             border: none;
             border-radius: 4px;
@@ -85,200 +87,218 @@
             transition: background 0.2s;
         }
         .modal-btn:hover {
-            background-color: #45a049;
+            background-color: #b8860b;
         }
         .error-msg {
-            color: #ff4d4d;
+            color: #d9534f;
             font-size: 12px;
             margin-top: 5px;
             display: none;
         }
 
-        /* App Layout */
-        sidebar {
-            width: 240px;
-            background-color: #121212;
-            border-right: 1px solid #222;
-            display: flex;
-            flex-direction: column;
-        }
-        .logo-container {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            border-bottom: 1px solid #1a1a1a;
-        }
-        .mockup-logo-box {
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            margin-bottom: 8px;
-            width: 75px;
-            height: 75px;
-        }
-        .logo-text {
-            font-size: 13px;
-            font-weight: bold;
-            color: #e0e0e0;
-        }
-        .nav-links {
-            list-style: none;
-            padding: 10px 0;
-        }
-        .nav-links li {
-            padding: 14px 20px;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-weight: 500;
-            font-size: 14px;
-            color: #888;
-        }
-        .nav-links li:hover {
-            color: #fff;
-            background-color: #161616;
-        }
-        .nav-links li.active {
-            background-color: #181818;
-            color: #4CAF50;
-            border-left: 4px solid #4CAF50;
-            font-weight: 600;
-        }
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #181818;
-            overflow: hidden;
-        }
+        /* Top Header & Branding */
         header {
-            height: 60px;
-            min-height: 60px;
-            background-color: #181818;
-            border-bottom: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .header-top-right {
+            position: absolute;
+            top: 0;
+            right: 10px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-        }
-        .header-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #fff;
-        }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
         .current-team-badge {
             font-size: 12px;
-            background: #222;
-            padding: 5px 10px;
+            background: #fff;
+            padding: 6px 12px;
             border-radius: 4px;
-            color: #4CAF50;
-            border: 1px solid #333;
+            color: #d4a017;
+            border: 1px solid #e0e0e0;
+            font-weight: 600;
         }
         .change-team-btn {
-            background: transparent;
-            border: none;
-            color: #ccc;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.2s;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s;
         }
         .change-team-btn:hover {
-            color: #fff;
+            background: #e4e4e4;
         }
-        .content-area {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
+        .logo-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            margin-bottom: 4px;
         }
+        .brand-title {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #222;
+        }
+        .brand-subtitle {
+            font-size: 11px;
+            color: #777;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .main-heading {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .nav-tab {
+            padding: 10px 20px;
+            background-color: #eaeaea;
+            border: 1px solid #dcdcdc;
+            color: #444;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-tab:hover {
+            background-color: #dfdfdf;
+        }
+        .nav-tab.active {
+            background-color: #d4a017;
+            color: white;
+            border-color: #b8860b;
+        }
+
+        /* Content Sections */
         .tab-content {
             display: none;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
         }
         .tab-content.active {
             display: block;
         }
-        h2 {
-            font-size: 20px;
-            margin-bottom: 4px;
-            color: #fff;
-            font-weight: 600;
+
+        /* Special style to make map span wider */
+        .tab-content.map-container-wrapper {
+            max-width: 1200px;
         }
-        .subtitle {
-            color: #777;
-            font-size: 13.5px;
-            margin-bottom: 20px;
+
+        /* Grid Layout for CAD / Registration */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
         }
-        .dispatch-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .dispatch-card {
-            background-color: #222;
-            border-left: 5px solid #ff4d4d;
-            padding: 15px 20px;
-            border-radius: 4px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .dispatch-card h3 {
-            color: #ff4d4d;
-            margin-bottom: 5px;
-        }
-        .dispatch-card p {
-            margin: 4px 0;
-            font-size: 14px;
-            color: #bbb;
-        }
-        /* Form for Emergency Caller (911) */
-        .caller-form {
-            background-color: #222;
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
             padding: 20px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            max-width: 600px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
-        .caller-form input, .caller-form textarea, .caller-form select {
+        .card-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-yellow {
             width: 100%;
             padding: 10px;
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 4px;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-        .caller-form textarea {
-            resize: vertical;
-            height: 90px;
-        }
-        .submit-call-btn {
-            background-color: #ff4d4d;
+            background-color: #d4a017;
             color: white;
             border: none;
-            padding: 10px 20px;
             border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
             transition: background 0.2s;
+            margin-top: 5px;
         }
-        .submit-call-btn:hover {
-            background-color: #e04343;
+        .btn-yellow:hover {
+            background-color: #b8860b;
         }
+        .btn-light {
+            width: 100%;
+            padding: 10px;
+            background-color: #f7f4ec;
+            color: #444;
+            border: 1px solid #e0d8c3;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 5px;
+        }
+        .btn-light:hover {
+            background-color: #eee5d0;
+        }
+
+        /* Dispatch & Caller specific styling */
+        .section-header-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 5px;
+        }
+        .section-subtitle {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .dispatch-card {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid #d9534f;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+        .dispatch-card h3 {
+            color: #d9534f;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        .dispatch-card p {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .caller-form-box {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 650px;
+        }
+
         #alert-popup {
             position: fixed;
             top: 20px;
@@ -287,7 +307,7 @@
             color: white;
             padding: 15px 25px;
             border-radius: 6px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             font-weight: bold;
             z-index: 3000;
             opacity: 0;
@@ -323,7 +343,7 @@
             <div class="form-group" id="callsign-group">
                 <label>In-Game Callsign (3-6 chars, max 3 letters, e.g. 101 or A12)</label>
                 <input type="text" id="modal-callsign-input" placeholder="e.g. 101" maxlength="6">
-                <div id="callsign-error" class="error-msg">Callsign must be 3-6 characters long and contain at most 3 letters (match your in-game setup).</div>
+                <div id="callsign-error" class="error-msg">Callsign must be 3-6 characters long and contain at most 3 letters.</div>
             </div>
             <button class="modal-btn" onclick="submitTeamSelection()">Join CAD</button>
         </div>
@@ -331,131 +351,180 @@
 
     <div id="alert-popup">🚨 New 911 Emergency Dispatch Received!</div>
 
-    <sidebar>
-        <div class="logo-container">
-            <div class="mockup-logo-box">
-                <svg viewBox="0 0 100 100" width="100" height="100">
-                    <text x="50%" y="32" font-size="16" font-weight="900" fill="#111" text-anchor="middle" font-family="Arial">LEMON'S</text>
-                    <path d="M35 48 C35 38 65 38 65 48 C65 62 50 72 50 72 C50 72 35 62 35 48 Z" fill="#FFC107"/>
-                    <circle cx="50" cy="52" r="3" fill="#FFF"/>
-                    <text x="50%" y="86" font-size="11" font-weight="bold" fill="#333" text-anchor="middle" font-family="Arial">LemonCAD</text>
-                </svg>
-            </div>
-            <div class="logo-text">LemonCAD</div>
+    <!-- Header & Branding -->
+    <header>
+        <div class="header-top-right">
+            <div class="current-team-badge" id="display-team-info">Team: Police | 101</div>
+            <button class="change-team-btn" onclick="openTeamModal()">Change Team</button>
         </div>
-        <ul class="nav-links">
-            <li class="active" onclick="switchTab('dispatch', 'Dispatch Center')">Dispatch</li>
-            <li onclick="switchTab('inbox', 'Dispatch Inbox')">Dispatch Inbox</li>
-            <li onclick="switchTab('caller', '911 Emergency Caller')">Emergency Caller (911)</li>
-            <li onclick="switchTab('civilians', 'Civilian Management')">Civilians</li>
-            <li onclick="switchTab('vehicles', 'Vehicle Database')">Vehicles</li>
-        </ul>
-    </sidebar>
+        <img src="https://img.icons8.com/color/48/lemon.png" alt="Lemon Logo" class="logo-img">
+        <div class="brand-title">LEMON'S</div>
+        <div class="brand-subtitle">RP SERVER</div>
+        <div class="main-heading">Computer-Aided Dispatch (CAD)</div>
 
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('cad', this)">CAD / Registration</div>
+            <div class="nav-tab" onclick="switchTab('dispatch', this)">Dispatch / Meldkamer</div>
+            <div class="nav-tab" onclick="switchTab('caller', this)">Emergency Caller (911)</div>
+            <div class="nav-tab" onclick="switchTab('inbox', this)">Dispatch Inbox</div>
+            <div class="nav-tab" onclick="switchTab('map', this)">Interactive Map</div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
     <main>
-        <header>
-            <div class="header-title" id="page-title">Dispatch Center</div>
-            <div class="header-right">
-                <div class="current-team-badge" id="display-team-info">Team: Police | 101</div>
-                <button class="change-team-btn" onclick="openTeamModal()">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                    Change Team
-                </button>
-            </div>
-        </header>
+        <!-- 1. CAD / REGISTRATION TAB -->
+        <div id="cad" class="tab-content active">
+            <div class="grid-2">
+                <!-- Left Column: Civilian Database & NCIC -->
+                <div>
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div class="card-title">👤 Civilian Database</div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="civ-name" placeholder="e.g. John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="civ-dob">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="civ-gender">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <button class="btn-yellow" onclick="registerCivilian()">Register Civilian</button>
+                    </div>
 
-        <div class="content-area">
-            <!-- DISPATCH TAB -->
-            <div id="dispatch" class="tab-content active">
-                <h2>Active Emergency Calls</h2>
-                <div class="subtitle">Live in-game, civilian & staff dispatches.</div>
-                <div class="dispatch-container" id="dispatch-list">
-                    <div style="color: #666; font-style: italic;">No active dispatches...</div>
+                    <div class="card">
+                        <div class="card-title">NCIC Lookup</div>
+                        <div class="form-group">
+                            <label>Search Person</label>
+                            <input type="text" id="search-person-input" placeholder="Search by name...">
+                        </div>
+                        <button class="btn-light" onclick="searchPerson()">Search Person</button>
+                    </div>
+                </div>
+
+                <!-- Right Column: DMV Vehicle Database & Lookup -->
+                <div>
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div class="card-title">🚗 DMV Vehicle Database</div>
+                        <div class="form-group">
+                            <label>License Plate</label>
+                            <input type="text" id="veh-plate" placeholder="e.g. 83ABC12">
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicle Model</label>
+                            <input type="text" id="veh-model" placeholder="e.g. Vapid Stanier">
+                        </div>
+                        <div class="form-group">
+                            <label>Owner Name</label>
+                            <input type="text" id="veh-owner" placeholder="Owner's full name">
+                        </div>
+                        <button class="btn-yellow" onclick="registerVehicle()">Register Vehicle</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">DMV Lookup</div>
+                        <div class="form-group">
+                            <label>Search License Plate</label>
+                            <input type="text" id="search-plate-input" placeholder="Search by license plate...">
+                        </div>
+                        <button class="btn-light" onclick="searchPlate()">Search Plate</button>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- DISPATCH INBOX TAB -->
-            <div id="inbox" class="tab-content">
-                <h2>Dispatch Inbox</h2>
-                <div class="subtitle">History and logs of previous dispatches.</div>
-                <div style="color: #666; font-style: italic;">No archived dispatches found.</div>
+        <!-- 2. DISPATCH / MELDKAMER TAB -->
+        <div id="dispatch" class="tab-content">
+            <div class="section-header-title">Active Emergency Calls</div>
+            <div class="section-subtitle">Live in-game, civilian & staff dispatches.</div>
+            <div class="dispatch-container" id="dispatch-list">
+                <div style="color: #666; font-style: italic;">No active dispatches...</div>
             </div>
+        </div>
 
-            <!-- 911 EMERGENCY CALLER TAB -->
-            <div id="caller" class="tab-content">
-                <h2>911 Emergency Caller</h2>
-                <div class="subtitle">Submit an emergency call and dispatch specific services.</div>
-                <div class="caller-form">
-                    <div class="form-group">
-                        <label>Incident / Emergency Title</label>
-                        <input type="text" id="call-title" placeholder="e.g. Bank Robbery / Medical Emergency">
-                    </div>
-                    <div class="form-group">
-                        <label>Location</label>
-                        <input type="text" id="call-location" placeholder="e.g. Main Street, Downtown">
-                    </div>
-                    <div class="form-group">
-                        <label>Description & Details</label>
-                        <textarea id="call-description" placeholder="Describe the emergency details..."></textarea>
-                    </div>
-
-                    <!-- 4 Dropdown selectievelden voor teams -->
-                    <div class="form-group">
-                        <label>Dispatch Service 1 (Required)</label>
-                        <select id="service-1">
-                            <option value="Police">Police</option>
-                            <option value="DOT">DOT</option>
-                            <option value="Ambulance">Ambulance</option>
-                            <option value="Firefighters">Firefighters</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Dispatch Service 2 (Optional)</label>
-                        <select id="service-2">
-                            <option value="N/A">N/A</option>
-                            <option value="Police">Police</option>
-                            <option value="DOT">DOT</option>
-                            <option value="Ambulance">Ambulance</option>
-                            <option value="Firefighters">Firefighters</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Dispatch Service 3 (Optional)</label>
-                        <select id="service-3">
-                            <option value="N/A">N/A</option>
-                            <option value="Police">Police</option>
-                            <option value="DOT">DOT</option>
-                            <option value="Ambulance">Ambulance</option>
-                            <option value="Firefighters">Firefighters</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Dispatch Service 4 (Optional)</label>
-                        <select id="service-4">
-                            <option value="N/A">N/A</option>
-                            <option value="Police">Police</option>
-                            <option value="DOT">DOT</option>
-                            <option value="Ambulance">Ambulance</option>
-                            <option value="Firefighters">Firefighters</option>
-                        </select>
-                    </div>
-
-                    <button class="submit-call-btn" onclick="submitEmergencyCall()">Send 911 Call</button>
+        <!-- 3. EMERGENCY CALLER (911) TAB -->
+        <div id="caller" class="tab-content">
+            <div class="section-header-title">911 Emergency Caller</div>
+            <div class="section-subtitle">Submit an emergency call and dispatch specific services.</div>
+            <div class="caller-form-box">
+                <div class="form-group">
+                    <label>Incident / Emergency Title</label>
+                    <input type="text" id="call-title" placeholder="e.g. Bank Robbery / Medical Emergency">
                 </div>
-            </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="call-location" placeholder="e.g. Main Street, Downtown">
+                </div>
+                <div class="form-group">
+                    <label>Description & Details</label>
+                    <textarea id="call-description" placeholder="Describe the emergency details..."></textarea>
+                </div>
 
-            <!-- CIVILIANS TAB -->
-            <div id="civilians" class="tab-content">
-                <h2>Civilian Management</h2>
-                <div class="subtitle">Manage civilian profiles, warrants, and licenses.</div>
-                <div style="color: #666; font-style: italic;">No civilian records loaded.</div>
-            </div>
+                <div class="form-group">
+                    <label>Dispatch Service 1 (Required)</label>
+                    <select id="service-1">
+                        <option value="Police">Police</option>
+                        <option value="DOT">DOT</option>
+                        <option value="Ambulance">Ambulance</option>
+                        <option value="Firefighters">Firefighters</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dispatch Service 2 (Optional)</label>
+                    <select id="service-2">
+                        <option value="N/A">N/A</option>
+                        <option value="Police">Police</option>
+                        <option value="DOT">DOT</option>
+                        <option value="Ambulance">Ambulance</option>
+                        <option value="Firefighters">Firefighters</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dispatch Service 3 (Optional)</label>
+                    <select id="service-3">
+                        <option value="N/A">N/A</option>
+                        <option value="Police">Police</option>
+                        <option value="DOT">DOT</option>
+                        <option value="Ambulance">Ambulance</option>
+                        <option value="Firefighters">Firefighters</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dispatch Service 4 (Optional)</label>
+                    <select id="service-4">
+                        <option value="N/A">N/A</option>
+                        <option value="Police">Police</option>
+                        <option value="DOT">DOT</option>
+                        <option value="Ambulance">Ambulance</option>
+                        <option value="Firefighters">Firefighters</option>
+                    </select>
+                </div>
 
-            <!-- VEHICLES TAB -->
-            <div id="vehicles" class="tab-content">
-                <h2>Vehicle Database</h2>
-                <div class="subtitle">Search registered vehicles and insurance status.</div>
-                <div style="color: #666; font-style: italic;">No vehicle records loaded.</div>
+                <button class="btn-yellow" onclick="submitEmergencyCall()">Send 911 Call</button>
+            </div>
+        </div>
+
+        <!-- 4. DISPATCH INBOX TAB -->
+        <div id="inbox" class="tab-content">
+            <div class="section-header-title">Dispatch Inbox</div>
+            <div class="section-subtitle">History and logs of previous dispatches.</div>
+            <div style="color: #666; font-style: italic;">No archived dispatches found.</div>
+        </div>
+
+        <!-- 5. INTERACTIVE MAP TAB -->
+        <div id="map" class="tab-content map-container-wrapper">
+            <div class="section-header-title">Interactive Map</div>
+            <div class="section-subtitle">Live ER:LC GPS tracking and locations (Powered by erlc-hub.pages.dev).</div>
+            <div class="card" style="padding: 0; overflow: hidden; height: 700px; background: #fff;">
+                <iframe src="https://erlc-hub.pages.dev" style="width: 100%; height: 100%; border: none;" title="ER:LC Interactive Map"></iframe>
             </div>
         </div>
     </main>
@@ -509,13 +578,52 @@
             document.getElementById('team-modal').style.display = 'none';
         }
 
-        function switchTab(tabId, titleText) {
+        function switchTab(tabId, element) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             
             document.getElementById(tabId).classList.add('active');
-            document.getElementById('page-title').innerText = titleText;
-            event.currentTarget.classList.add('active');
+            element.classList.add('active');
+        }
+
+        function registerCivilian() {
+            const name = document.getElementById('civ-name').value.trim();
+            if(!name) {
+                alert('Please enter a full name for the civilian.');
+                return;
+            }
+            alert('Civilian registered successfully!');
+            document.getElementById('civ-name').value = '';
+        }
+
+        function registerVehicle() {
+            const plate = document.getElementById('veh-plate').value.trim();
+            if(!plate) {
+                alert('Please enter a license plate.');
+                return;
+            }
+            alert('Vehicle registered successfully!');
+            document.getElementById('veh-plate').value = '';
+            document.getElementById('veh-model').value = '';
+            document.getElementById('veh-owner').value = '';
+        }
+
+        function searchPerson() {
+            const query = document.getElementById('search-person-input').value.trim();
+            if(!query) {
+                alert('Please enter a name to search.');
+                return;
+            }
+            alert('Searching database for: ' + query);
+        }
+
+        function searchPlate() {
+            const query = document.getElementById('search-plate-input').value.trim();
+            if(!query) {
+                alert('Please enter a license plate to search.');
+                return;
+            }
+            alert('Searching DMV database for plate: ' + query);
         }
 
         async function submitEmergencyCall() {
@@ -533,10 +641,8 @@
                 return;
             }
 
-            // Verzamel alle opgeroepen diensten (exclusief N/A)
             const targetServices = [s1, s2, s3, s4].filter(s => s !== 'N/A');
 
-            // Maak de dispatch aan
             const newDispatch = {
                 title: `[911 CALL] ${title}`,
                 location: location,
@@ -545,43 +651,36 @@
                 services: targetServices
             };
 
-            try {
-                // Hier sturen we het naar de server (of slaan het op)
-                // We kunnen het lokaal pushen of via een fetch aanroepen als je een backend endpoint hebt:
-                // await fetch('/api/dispatches', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(newDispatch) });
-
-                // Lokaal toevoegen voor directe weergave in deze demo:
-                const listContainer = document.getElementById('dispatch-list');
-                if (listContainer.innerHTML.includes('No active dispatches')) {
-                    listContainer.innerHTML = '';
-                }
-
-                const card = document.createElement('div');
-                card.className = 'dispatch-card';
-                card.innerHTML = `
-                    <h3>🚨 ${newDispatch.title}</h3>
-                    <p><strong>Location:</strong> ${newDispatch.location}</p>
-                    <p><strong>Details:</strong> ${newDispatch.description}</p>
-                    <p><strong>Dispatched Services:</strong> ${targetServices.join(', ')}</p>
-                    <p><strong>Time:</strong> ${newDispatch.time}</p>
-                `;
-                listContainer.prepend(card);
-
-                // Check of de huidige speler tot een van de opgeroepen teams behoort, zo ja -> speel geluid af!
-                if (targetServices.includes(currentActiveTeam) || currentActiveTeam === 'Staff') {
-                    triggerAlert();
-                }
-
-                alert('911 Emergency call successfully dispatched to selected services!');
-                document.getElementById('call-title').value = '';
-                document.getElementById('call-location').value = '';
-                document.getElementById('call-description').value = '';
-                
-                switchTab('dispatch', 'Dispatch Center');
-                document.querySelector('.nav-links li').classList.add('active');
-            } catch (err) {
-                console.error('Error submitting call:', err);
+            const listContainer = document.getElementById('dispatch-list');
+            if (listContainer.innerHTML.includes('No active dispatches')) {
+                listContainer.innerHTML = '';
             }
+
+            const card = document.createElement('div');
+            card.className = 'dispatch-card';
+            card.innerHTML = `
+                <h3>🚨 ${newDispatch.title}</h3>
+                <p><strong>Location:</strong> ${newDispatch.location}</p>
+                <p><strong>Details:</strong> ${newDispatch.description}</p>
+                <p><strong>Dispatched Services:</strong> ${targetServices.join(', ')}</p>
+                <p><strong>Time:</strong> ${newDispatch.time}</p>
+            `;
+            listContainer.prepend(card);
+
+            if (targetServices.includes(currentActiveTeam) || currentActiveTeam === 'Staff') {
+                triggerAlert();
+            }
+
+            alert('911 Emergency call successfully dispatched to selected services!');
+            document.getElementById('call-title').value = '';
+            document.getElementById('call-location').value = '';
+            document.getElementById('call-description').value = '';
+            
+            // Switch to dispatch tab
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('dispatch').classList.add('active');
+            document.querySelectorAll('.nav-tab')[1].classList.add('active');
         }
 
         function triggerAlert() {
