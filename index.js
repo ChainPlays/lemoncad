@@ -18,7 +18,8 @@ app.use(express.json({
     }
 }));
 
-app.use(express.static(path.join(__dirname)));
+// Gecorrigeerd zodat de server correct kijkt naar de 'public' map waar je index.html in staat
+app.use(express.static(path.join(__dirname, 'public')));
 
 let dispatches = [];
 
