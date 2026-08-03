@@ -5,7 +5,7 @@ var path = require('path');
 var app = express();
 
 if (!app) {
-    console.error("FATALE FOUT: Express app kon niet worden aangemaakt!");
+    console.error("FATAL ERROR: Express app could not be initialized!");
     process.exit(1);
 }
 
@@ -15,7 +15,7 @@ app.use(express.json());
 // Zorg dat bestanden in de 'public' map geladen kunnen worden
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database in het geheugen (nu inclusief dispatches)
+// Database in het geheugen
 var db = {
     civilians: [],
     vehicles: [],
@@ -35,7 +35,7 @@ async function sendDiscordWebhook(title, description, fields = []) {
                 embeds: [{
                     title: title,
                     description: description,
-                    color: 15158332, // Rode/oranje kleur voor dispatch meldingen
+                    color: 15158332, // Oranje/Rode kleur voor meldingen
                     fields: fields,
                     timestamp: new Date().toISOString()
                 }]
@@ -113,7 +113,7 @@ app.get('/api/civilians/search', function(req, res) {
     if (civilian) {
         return res.json(civilian);
     } else {
-        return res.status(404).json({ error: 'Not found' });
+        return res.status(404).json({ error: 'Civilian not found' });
     }
 });
 
@@ -127,11 +127,11 @@ app.get('/api/vehicles/search', function(req, res) {
     if (vehicle) {
         return res.json(vehicle);
     } else {
-        return res.status(404).json({ error: 'Not found' });
+        return res.status(404).json({ error: 'Vehicle not found' });
     }
 });
 
-// --- 5. Dispatch: Create new call ---
+// --- 5. Dispatch: Create new call (Website / Internal) ---
 app.post('/api/dispatches', async function(req, res) {
     var title = req.body.title;
     var location = req.body.location;
@@ -151,9 +151,8 @@ app.post('/api/dispatches', async function(req, res) {
         time: new Date().toLocaleTimeString()
     };
 
-    db.dispatches.unshift(newDispatch); // Zet de nieuwste bovenaan
+    db.dispatches.unshift(newDispatch);
 
-    // Stuur Discord webhook voor de melding
     await sendDiscordWebhook(
         '🚨 NEW DISPATCH CALL: ' + title,
         description || 'A new emergency call has been dispatched.',
@@ -167,7 +166,44 @@ app.post('/api/dispatches', async function(req, res) {
     return res.status(200).json({ success: true, dispatch: newDispatch });
 });
 
-// --- 6. Dispatch: Get all active calls ---
+// --- 6. ER:LC Inbound Integration (Voor je toekomstige ER:LC Bot / API koppeling) ---
+app.post('/api/erlc/dispatch', async function(req, res) {
+    // Je kunt hier optioneel een API-key check toevoegen via headers (bijv. req.headers['authorization'])
+    var title = req.body.title;
+    var location = req.body.location;
+    var description = req.body.description;
+    var priority = req.body.priority || 'Emergency';
+
+    if (!title || !location) {
+        return res.status(400).json({ error: 'Missing required ER:LC dispatch fields' });
+    }
+
+    var newDispatch = {
+        id: Date.now(),
+        title: title,
+        location: location,
+        description: description || 'In-game automated dispatch call',
+        priority: priority,
+        time: new Date().toLocaleTimeString()
+    };
+
+    db.dispatches.unshift(newDispatch);
+
+    // Stuur direct door naar Discord als in-game melding
+    await sendDiscordWebhook(
+        '🎮 IN-GAME ER:LC DISPATCH: ' + title,
+        description,
+        [
+            { name: 'Location', value: location, inline: true },
+            { name: 'Priority', value: priority, inline: true },
+            { name: 'Source', value: 'ER:LC Server', inline: true }
+        ]
+    );
+
+    return res.status(200).json({ success: true, message: 'ER:LC dispatch received successfully', dispatch: newDispatch });
+});
+
+// --- 7. Dispatch: Get all active calls ---
 app.get('/api/dispatches', function(req, res) {
     return res.json(db.dispatches);
 });
@@ -175,5 +211,5 @@ app.get('/api/dispatches', function(req, res) {
 // --- Start Server ---
 var PORT = process.env.PORT || 10000;
 app.listen(PORT, function() {
-    console.log('LemonCAD Server draait op poort ' + PORT);
+    console.log('LemonCAD Server is running on port ' + PORT);
 });
