@@ -68,33 +68,33 @@
         /* Sidebar Navigation */
         sidebar {
             width: 250px;
-            background-color: #1e1e1e;
-            border-right: 1px solid #2c2c2c;
+            background-color: #161616;
+            border-right: 1px solid #222;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
         .logo-container {
-            padding: 25px 20px 15px 20px;
+            padding: 25px 20px 20px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
         }
         .logo-area {
-            width: 60px;
-            height: 60px;
-            background-color: #222;
-            border: 1px solid #333;
+            width: 55px;
+            height: 55px;
+            background-color: #1c1c1c;
+            border: 1px solid #2c2c2c;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #4CAF50;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            margin-bottom: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
         }
         .logo-text {
             font-size: 14px;
@@ -108,29 +108,31 @@
             flex: 1;
         }
         .nav-links li {
-            padding: 14px 20px;
+            padding: 13px 20px;
             cursor: pointer;
             transition: background 0.2s;
-            font-weight: 600;
-            font-size: 14px;
-            color: #ddd;
+            font-weight: 500;
+            font-size: 13.5px;
+            color: #bbb;
         }
         .nav-links li:hover {
-            background-color: #252525;
+            background-color: #1c1c1c;
+            color: #fff;
         }
         .nav-links li.active {
-            background-color: #2a2a2a;
+            background-color: #222;
             color: #4CAF50;
             border-left: 4px solid #4CAF50;
+            font-weight: 600;
         }
-        /* User Status Box (Aangepast naar Mockup) */
+        /* User Status Box (Exact zoals in Canva mockup) */
         .user-status-box {
-            padding: 20px;
+            padding: 15px 20px;
             font-size: 13px;
             color: #bbb;
         }
         .user-status-box div {
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .user-status-box span {
             color: #4CAF50;
@@ -146,14 +148,14 @@
         header {
             height: 60px;
             background-color: #181818;
-            border-bottom: 1px solid #2c2c2c;
+            border-bottom: 1px solid #222;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 30px;
         }
         .header-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: #fff;
         }
@@ -175,16 +177,17 @@
         }
         /* Typography Content */
         h2 {
-            font-size: 22px;
-            margin-bottom: 5px;
+            font-size: 20px;
+            margin-bottom: 4px;
             color: #fff;
+            font-weight: 600;
         }
         /* Dispatch List */
         .dispatch-container {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         .dispatch-card {
             background-color: #222;
@@ -265,9 +268,9 @@
             margin-bottom: 20px;
         }
         .secondary-btn {
-            background-color: #2a2a2a;
+            background-color: #222;
             color: #fff;
-            border: 1px solid #444;
+            border: 1px solid #333;
             padding: 8px 15px;
             border-radius: 4px;
             cursor: pointer;
@@ -275,7 +278,7 @@
             transition: background 0.2s;
         }
         .secondary-btn:hover {
-            background-color: #333;
+            background-color: #2a2a2a;
         }
         /* Smooth Alert Popup */
         #alert-popup {
@@ -346,24 +349,22 @@
             <ul class="nav-links">
                 <li class="active" onclick="switchTab('dispatch', this)">Dispatch</li>
                 <li onclick="switchTab('inbox', this)">Dispatch Inbox</li>
-                <li id="nav-civ-call" onclick="switchTab('civ-create', this)">Create Call (CIV)</li>
-                <li id="nav-staff-call" onclick="switchTab('staff-create', this)">Request Staff</li>
                 <li onclick="switchTab('profile', this)">Team & Callsign</li>
                 <li onclick="switchTab('civilians', this)">Civilians</li>
                 <li onclick="switchTab('vehicles', this)">Vehicles</li>
+                <li id="nav-civ-call" onclick="switchTab('civ-create', this)" style="display:none;">Create Call (CIV)</li>
+                <li id="nav-staff-call" onclick="switchTab('staff-create', this)" style="display:none;">Request Staff</li>
             </ul>
         </div>
         <div class="user-status-box">
-            <div>Team: <span id="display-team">CIV</span></div>
-            <div>Callsign: <span id="display-callsign">N/A</span></div>
+            <div>Team: <span id="display-team">Staff</span></div>
+            <div>Callsign: <span id="display-callsign">STF8</span></div>
         </div>
     </sidebar>
 
     <main>
         <header>
             <div class="header-title" id="page-title">Dispatch Center</div>
-            <!-- De functionaliteit om van team te wisselen is behouden, 
-                 maar past beter bij de cleane look van je mockup -->
             <div class="header-right">
                 <button class="secondary-btn" onclick="openChangeTeamModal()">Change Team</button>
             </div>
@@ -373,7 +374,7 @@
             <!-- TAB: DISPATCH -->
             <div id="dispatch" class="tab-content active">
                 <h2>Active Emergency Calls</h2>
-                <p style="color: #777; font-size: 14px;">Live in-game, civilian & staff dispatches.</p>
+                <p style="color: #777; font-size: 13.5px;">Live in-game, civilian & staff dispatches.</p>
                 <div class="dispatch-container" id="dispatch-list">
                     <div style="color: #666; font-style: italic;">No active dispatches...</div>
                 </div>
@@ -384,7 +385,7 @@
                 <div class="inbox-header">
                     <div>
                         <h2>Dispatch Inbox</h2>
-                        <p style="color: #777; font-size: 14px;">Archive of all received dispatches and history.</p>
+                        <p style="color: #777; font-size: 13.5px;">Archive of all received dispatches and history.</p>
                     </div>
                     <button class="secondary-btn" onclick="clearInbox()">Clear Inbox</button>
                 </div>
@@ -396,7 +397,7 @@
             <!-- TAB: CIV CREATE DISPATCH -->
             <div id="civ-create" class="tab-content">
                 <h2>Submit New Emergency Call</h2>
-                <p style="color: #777; font-size: 14px; margin-bottom: 20px;">Submit a dispatch request for available units.</p>
+                <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Submit a dispatch request for available units.</p>
                 
                 <div class="form-group profile-form">
                     <label for="civ-title">Title / Subject:</label>
@@ -430,7 +431,7 @@
             <!-- TAB: STAFF CALL -->
             <div id="staff-create" class="tab-content">
                 <h2>Request Staff Member</h2>
-                <p style="color: #777; font-size: 14px; margin-bottom: 20px;">Need in-game assistance from a staff member? Call them here.</p>
+                <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Need in-game assistance from a staff member? Call them here.</p>
                 
                 <div class="form-group profile-form">
                     <label for="staff-player">Your Player Name:</label>
@@ -453,7 +454,7 @@
             <!-- TAB: PROFILE -->
             <div id="profile" class="tab-content">
                 <h2>Team & Callsign Settings</h2>
-                <p style="color: #777; font-size: 14px; margin-bottom: 20px;">Select your department and set your in-game callsign.</p>
+                <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Select your department and set your in-game callsign.</p>
                 
                 <div class="form-group profile-form">
                     <label for="team-select">Select Team:</label>
@@ -479,13 +480,13 @@
             <!-- TAB: CIVILIANS -->
             <div id="civilians" class="tab-content">
                 <h2>Civilian Database</h2>
-                <p style="color: #777; font-size: 14px;">Search or register civilian records here.</p>
+                <p style="color: #777; font-size: 13.5px;">Search or register civilian records here.</p>
             </div>
 
             <!-- TAB: VEHICLES -->
             <div id="vehicles" class="tab-content">
                 <h2>Vehicle Database</h2>
-                <p style="color: #777; font-size: 14px;">Check license plates and vehicle information here.</p>
+                <p style="color: #777; font-size: 13.5px;">Check license plates and vehicle information here.</p>
             </div>
         </div>
     </main>
@@ -493,7 +494,7 @@
     <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
     <script>
-        let currentTeam = 'CIV';
+        let currentTeam = 'Staff';
         let alertTimeout = null;
 
         function handleInitialTeamChange() {
