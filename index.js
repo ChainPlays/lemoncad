@@ -7,8 +7,8 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Vul hier je eigen Discord Webhook in
-const DISCORD_WEBHOOK_URL = 'JOUW_DISCORD_WEBHOOK_URL_HIER';
+// Jouw ingevulde Discord Webhook URL
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1533927070810247461/GYeJqyh2D_gLR6J_CNI8zmWqLDYLULmrhKANvtsk2_YcnzRGx_zO2rjzMhHxlchzG-dy';
 
 // ER:LC Public Key voor veilige verificatie van de game
 const ERLC_PUBLIC_KEY = 'MCowBQYDK2VwAyEAjSICb9pp0kHizGQtdG8ySWsDChfGqi+gyFCttigBNOA=';
