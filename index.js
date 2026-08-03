@@ -1,3 +1,5 @@
+// Dit zorgt ervoor dat alles in de map 'public' automatisch bereikbaar is
+app.use(express.static(path.join(__dirname, 'public')));
 var express = require('express');
 var path = require('path');
 var app = express();
