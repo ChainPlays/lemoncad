@@ -18,7 +18,7 @@
             height: 100vh;
             overflow: hidden;
         }
-        /* Welkomst / Setup Overlay Scherm met Smooth Fade */
+        /* Welkomst / Setup Overlay Scherm */
         #setup-overlay {
             position: fixed;
             top: 0;
@@ -49,11 +49,6 @@
             max-width: 450px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             text-align: center;
-            transform: translateY(0);
-            transition: transform 0.3s ease;
-        }
-        #setup-overlay.hidden .setup-box {
-            transform: translateY(-20px);
         }
         .setup-box h2 {
             color: #4CAF50;
@@ -75,40 +70,47 @@
             justify-content: space-between;
         }
         .logo-container {
-            padding: 25px 20px 20px 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
         }
-        .logo-area {
-            width: 55px;
-            height: 55px;
-            background-color: #1c1c1c;
-            border: 1px solid #2c2c2c;
-            border-radius: 12px;
+        .logo-box {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 8px 12px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: #4CAF50;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            width: 75px;
+        }
+        .logo-box img {
+            width: 35px;
+            height: auto;
+            margin-bottom: 2px;
+        }
+        .logo-box span {
+            font-size: 8px;
+            font-weight: 900;
+            color: #000;
+            letter-spacing: 0.5px;
         }
         .logo-text {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #e0e0e0;
             letter-spacing: 0.5px;
         }
         .nav-links {
             list-style: none;
-            padding: 10px 0;
+            padding: 5px 0;
             flex: 1;
         }
         .nav-links li {
-            padding: 13px 20px;
+            padding: 12px 20px;
             cursor: pointer;
             transition: background 0.2s;
             font-weight: 500;
@@ -125,11 +127,12 @@
             border-left: 4px solid #4CAF50;
             font-weight: 600;
         }
-        /* User Status Box (Exact zoals in Canva mockup) */
+        /* User Status Box */
         .user-status-box {
             padding: 15px 20px;
             font-size: 13px;
             color: #bbb;
+            border-top: 1px solid #222;
         }
         .user-status-box div {
             margin-bottom: 3px;
@@ -159,10 +162,26 @@
             font-weight: 600;
             color: #fff;
         }
-        .header-right {
+        /* Change Team Button in Header (rechtsboven) */
+        .change-team-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        .change-team-btn:hover {
+            opacity: 0.8;
+        }
+        .change-team-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #fff;
         }
         .content-area {
             flex: 1;
@@ -175,14 +194,12 @@
         .tab-content.active {
             display: block;
         }
-        /* Typography Content */
         h2 {
             font-size: 20px;
             margin-bottom: 4px;
             color: #fff;
             font-weight: 600;
         }
-        /* Dispatch List */
         .dispatch-container {
             display: flex;
             flex-direction: column;
@@ -195,7 +212,6 @@
             padding: 15px 20px;
             border-radius: 4px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            animation: fadeIn 0.3s ease-in-out;
         }
         .dispatch-card.staff-card {
             border-left-color: #3498db;
@@ -213,7 +229,6 @@
             font-size: 14px;
             color: #bbb;
         }
-        /* Forms */
         .form-group {
             margin-bottom: 20px;
             text-align: left;
@@ -275,12 +290,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 13px;
-            transition: background 0.2s;
         }
-        .secondary-btn:hover {
-            background-color: #2a2a2a;
-        }
-        /* Smooth Alert Popup */
         #alert-popup {
             position: fixed;
             top: 20px;
@@ -301,10 +311,6 @@
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -327,10 +333,9 @@
                 </select>
             </div>
 
-            <div class="form-group" id="initial-callsign-group" style="display: none;">
+            <div class="form-group" id="initial-callsign-group">
                 <label for="initial-callsign">In-game Callsign:</label>
-                <p style="font-size: 11px; color: #888; margin-bottom: 6px;">3 to 6 characters, max 3 letters.</p>
-                <input type="text" id="initial-callsign" placeholder="E.g. 1A2 or 123" maxlength="6">
+                <input type="text" id="initial-callsign" placeholder="E.g. STF8" maxlength="6" value="STF8">
                 <div class="error-msg" id="initial-error">Note: Must be 3-6 chars and max 3 letters!</div>
             </div>
 
@@ -343,13 +348,18 @@
     <sidebar>
         <div>
             <div class="logo-container">
-                <div class="logo-area">LC</div>
+                <div class="logo-box">
+                    <!-- Lemongrafiek icoon -->
+                    <svg viewBox="0 0 24 24" width="35" height="35" fill="#4CAF50">
+                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm1-13h-2v3H8v2h3v3h2v-3h3v-2h-3z"/>
+                    </svg>
+                    <span>LEMON'S</span>
+                </div>
                 <div class="logo-text">LemonCAD</div>
             </div>
             <ul class="nav-links">
                 <li class="active" onclick="switchTab('dispatch', this)">Dispatch</li>
                 <li onclick="switchTab('inbox', this)">Dispatch Inbox</li>
-                <li onclick="switchTab('profile', this)">Team & Callsign</li>
                 <li onclick="switchTab('civilians', this)">Civilians</li>
                 <li onclick="switchTab('vehicles', this)">Vehicles</li>
                 <li id="nav-civ-call" onclick="switchTab('civ-create', this)" style="display:none;">Create Call (CIV)</li>
@@ -365,9 +375,13 @@
     <main>
         <header>
             <div class="header-title" id="page-title">Dispatch Center</div>
-            <div class="header-right">
-                <button class="secondary-btn" onclick="openChangeTeamModal()">Change Team</button>
-            </div>
+            <!-- Change Team Knop rechtsboven zoals op de mockup -->
+            <button class="change-team-btn" onclick="openChangeTeamModal()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                Change Team
+            </button>
         </header>
 
         <div class="content-area">
@@ -451,32 +465,6 @@
                 <button class="action-btn" style="width: auto;" onclick="submitStaffCall()">Call Staff</button>
             </div>
 
-            <!-- TAB: PROFILE -->
-            <div id="profile" class="tab-content">
-                <h2>Team & Callsign Settings</h2>
-                <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Select your department and set your in-game callsign.</p>
-                
-                <div class="form-group profile-form">
-                    <label for="team-select">Select Team:</label>
-                    <select id="team-select" onchange="handleTeamChange()">
-                        <option value="CIV">CIV (Civilian)</option>
-                        <option value="Staff">Staff</option>
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="F&R">F&R (Fire & Rescue)</option>
-                    </select>
-                </div>
-
-                <div class="form-group profile-form" id="callsign-group" style="display: none;">
-                    <label for="callsign-input">In-game Callsign:</label>
-                    <p style="font-size: 12px; color: #888; margin-bottom: 6px;">Must match in-game exactly. 3 to 6 characters long, max 3 letters.</p>
-                    <input type="text" id="callsign-input" placeholder="E.g. 1A2 or 123" maxlength="6">
-                    <div class="error-msg" id="callsign-error">Note: Must be 3 to 6 characters long and contain at most 3 letters!</div>
-                </div>
-
-                <button class="action-btn" style="width: auto;" onclick="saveProfile()">Save Settings</button>
-            </div>
-
             <!-- TAB: CIVILIANS -->
             <div id="civilians" class="tab-content">
                 <h2>Civilian Database</h2>
@@ -526,12 +514,7 @@
             document.getElementById('display-team').innerText = team;
             document.getElementById('display-callsign').innerText = (team === 'CIV') ? 'N/A' : callsignInput;
 
-            document.getElementById('team-select').value = team;
-            document.getElementById('callsign-input').value = callsignInput;
-            handleTeamChange();
-
             updateNavVisibility(team);
-
             document.getElementById('setup-overlay').classList.add('hidden');
         }
 
@@ -570,49 +553,10 @@
                 'inbox': 'Dispatch Inbox',
                 'civ-create': 'Submit Emergency Call',
                 'staff-create': 'Request Staff Member',
-                'profile': 'Team & Callsign Settings',
                 'civilians': 'Civilian Database',
                 'vehicles': 'Vehicle Database'
             };
             document.getElementById('page-title').innerText = titles[tabId];
-        }
-
-        function handleTeamChange() {
-            const team = document.getElementById('team-select').value;
-            const callsignGroup = document.getElementById('callsign-group');
-            
-            if (team === 'CIV') {
-                callsignGroup.style.display = 'none';
-            } else {
-                callsignGroup.style.display = 'block';
-            }
-        }
-
-        function saveProfile() {
-            const team = document.getElementById('team-select').value;
-            const callsignInput = document.getElementById('callsign-input').value.trim();
-            const errorDiv = document.getElementById('callsign-error');
-
-            if (team !== 'CIV') {
-                const letterCount = (callsignInput.match(/[a-zA-Z]/g) || []).length;
-                if (callsignInput.length < 3 || callsignInput.length > 6 || letterCount > 3) {
-                    errorDiv.style.display = 'block';
-                    return;
-                } else {
-                    errorDiv.style.display = 'none';
-                }
-            } else {
-                errorDiv.style.display = 'none';
-            }
-
-            currentTeam = team;
-            document.getElementById('display-team').innerText = team;
-            document.getElementById('display-callsign').innerText = (team === 'CIV') ? 'N/A' : callsignInput;
-
-            updateNavVisibility(team);
-
-            alert('Your team and callsign have been saved successfully!');
-            switchTab('dispatch', document.querySelector('.nav-links li'));
         }
 
         async function submitCivDispatch() {
