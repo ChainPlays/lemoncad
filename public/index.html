@@ -483,10 +483,10 @@
                     </div>
                 </div>
 
-                <!-- Right Column: NCIC Lookup, DMV Lookup & Leaderboard -->
+                <!-- Right Column: CVP Lookup, DMV Lookup & Leaderboard -->
                 <div>
                     <div class="card">
-                        <div class="card-title">🔍 NCIC Lookup</div>
+                        <div class="card-title">🔍 CVP Lookup</div>
                         <div class="form-group">
                             <label>Search Person</label>
                             <input type="text" id="search-person-input" placeholder="Search by name...">
@@ -787,22 +787,29 @@
         }
 
         function searchPerson() {
-            const query = document.getElementById('search-person-input').value.trim().toLowerCase();
+            const searchInput = document.getElementById('search-person-input');
+            const query = searchInput.value.trim().toLowerCase();
+            
             if(!query) {
                 triggerAlert('⚠️ Error: Please enter a name to search.');
                 return;
             }
+
             const found = registeredCivilians.find(c => c.name.toLowerCase().includes(query));
             if(found) {
                 let status = found.points >= 4 ? "BOLO 🚨 (HIGH PRIORITY)" : "Violator";
                 triggerAlert(`🔍 Found CVP: ${found.name} | Plate: ${found.plate} | Points: ${found.points} (${status})`);
             } else {
-                triggerAlert('🔍 NCIC Search: No profile found with that name.');
+                triggerAlert('🔍 CVP Search: No profile found with that name.');
             }
+
+            // Reset search field
+            searchInput.value = '';
         }
 
         function searchPlate() {
-            const query = document.getElementById('search-plate-input').value.trim().toLowerCase();
+            const searchInput = document.getElementById('search-plate-input');
+            const query = searchInput.value.trim().toLowerCase();
             const resultBox = document.getElementById('dmv-lookup-result');
             resultBox.style.display = 'block';
             resultBox.innerHTML = '';
@@ -823,7 +830,7 @@
                 `;
             } else {
                 let ownerStatus = foundCvp.points >= 4 ? "BOLO Owner 🚨" : "Violator";
-                triggerAlert(`🔍 DMV Search: Plate recognized for ${foundCvp.name}!`);
+                triggerAlert(`🔍 DMV Search: License plate recognized.`);
                 resultBox.innerHTML = `
                     <p style="color: #2e7d32; font-weight: bold; margin-bottom: 6px;">License plate recognized.</p>
                     <p><strong>Owner:</strong> ${foundCvp.name} | <strong>Points:</strong> ${foundCvp.points} (${ownerStatus})</p>
@@ -839,11 +846,20 @@
                     <button class="btn-yellow" style="padding: 6px; font-size: 13px;" onclick="addPointsDirectly('${foundCvp.plate}')">Add Points</button>
                 `;
             }
+
+            // Reset search field
+            searchInput.value = '';
         }
 
         function autofillPlate(plate) {
             document.getElementById('civ-plate').value = plate;
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // DMV result box verbergen en resetten
+            const resultBox = document.getElementById('dmv-lookup-result');
+            resultBox.style.display = 'none';
+            resultBox.innerHTML = '';
+
             triggerAlert(`✅ Plate ${plate} filled into CVP Registration form.`);
         }
 
@@ -870,7 +886,10 @@
                 triggerAlert(`✅ Added +${pointsToAdd} pts to ${civ.name}. Total: ${finalPoints} (${statusType})`);
             }
 
-            searchPlate(); // Refresh DMV lookup card view
+            // DMV result box verbergen en resetten
+            const resultBox = document.getElementById('dmv-lookup-result');
+            resultBox.style.display = 'none';
+            resultBox.innerHTML = '';
         }
 
         async function submitEmergencyCall() {
