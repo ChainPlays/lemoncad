@@ -90,11 +90,6 @@
             width: 85px;
             height: 85px;
         }
-        .mockup-logo-box img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
         .logo-text {
             font-size: 14px;
             font-weight: bold;
@@ -144,9 +139,11 @@
             display: flex;
             flex-direction: column;
             background-color: #181818;
+            overflow: hidden;
         }
         header {
             height: 60px;
+            min-height: 60px;
             background-color: #181818;
             border-bottom: 1px solid #222;
             display: flex;
@@ -322,7 +319,7 @@
             <div class="form-group">
                 <label for="initial-team">Select Team:</label>
                 <select id="initial-team" onchange="handleInitialTeamChange()">
-                    <option value="CIV">CIV (Civilian)</option>
+                    <option value="Civilian">Civilian</option>
                     <option value="Staff">Staff</option>
                     <option value="Police">Police</option>
                     <option value="DOT">DOT</option>
@@ -332,7 +329,6 @@
 
             <div class="form-group" id="initial-callsign-group" style="display: none;">
                 <label for="initial-callsign">In-game Callsign:</label>
-                <!-- Aangepast voorbeeld naar ABC123 -->
                 <input type="text" id="initial-callsign" placeholder="E.g. ABC123" maxlength="6">
                 <div class="error-msg" id="initial-error">Note: Must be 3-6 chars and max 3 letters!</div>
             </div>
@@ -361,7 +357,7 @@
                 <li onclick="switchTab('inbox', this)">Dispatch Inbox</li>
                 <li onclick="switchTab('civilians', this)">Civilians</li>
                 <li onclick="switchTab('vehicles', this)">Vehicles</li>
-                <li id="nav-civ-call" onclick="switchTab('civ-create', this)" style="display:none;">Create Call (CIV)</li>
+                <li id="nav-civ-call" onclick="switchTab('civ-create', this)" style="display:none;">Create Call (Civilian)</li>
                 <li id="nav-staff-call" onclick="switchTab('staff-create', this)" style="display:none;">Request Staff</li>
             </ul>
         </div>
@@ -406,7 +402,7 @@
                 </div>
             </div>
 
-            <!-- TAB: CIV CREATE DISPATCH -->
+            <!-- TAB: CIVILIAN CREATE DISPATCH -->
             <div id="civ-create" class="tab-content">
                 <h2>Submit New Emergency Call</h2>
                 <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Submit a dispatch request for available units.</p>
@@ -486,7 +482,7 @@
         function handleInitialTeamChange() {
             const team = document.getElementById('initial-team').value;
             const callsignGroup = document.getElementById('initial-callsign-group');
-            if (team === 'CIV') {
+            if (team === 'Civilian') {
                 callsignGroup.style.display = 'none';
                 document.getElementById('initial-error').style.display = 'none';
             } else {
@@ -499,7 +495,7 @@
             const callsignInput = document.getElementById('initial-callsign').value.trim();
             const errorDiv = document.getElementById('initial-error');
 
-            if (team !== 'CIV') {
+            if (team !== 'Civilian') {
                 const letterCount = (callsignInput.match(/[a-zA-Z]/g) || []).length;
                 if (callsignInput.length < 3 || callsignInput.length > 6 || letterCount > 3) {
                     errorDiv.style.display = 'block';
@@ -513,7 +509,7 @@
 
             currentTeam = team;
             document.getElementById('display-team').innerText = team;
-            document.getElementById('display-callsign').innerText = (team === 'CIV') ? 'N/A' : callsignInput;
+            document.getElementById('display-callsign').innerText = (team === 'Civilian') ? 'N/A' : callsignInput;
 
             updateNavVisibility(team);
             document.getElementById('setup-overlay').classList.add('hidden');
@@ -531,7 +527,7 @@
             const civNavLi = document.getElementById('nav-civ-call');
             const staffNavLi = document.getElementById('nav-staff-call');
 
-            if (team === 'CIV') {
+            if (team === 'Civilian') {
                 civNavLi.style.display = 'block';
                 staffNavLi.style.display = 'block';
             } else if (team === 'Staff') {
@@ -653,7 +649,7 @@
 
                 if (dispatches.length > lastDispatchCount && lastDispatchCount !== 0) {
                     const latest = dispatches[0];
-                    if (currentTeam !== 'CIV') {
+                    if (currentTeam !== 'Civilian') {
                         if (latest.isStaffCall && currentTeam === 'Staff') {
                             triggerAlert('🚨 STAFF ATTENTION: Player is requesting assistance!');
                         } else if (!latest.isStaffCall) {
