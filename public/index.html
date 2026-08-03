@@ -1,191 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LemonCAD - ER:LC System</title>
+    <title>LemonCAD - ER:LC Meldkamer</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #faf8f5;
-            color: #444;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .header-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        h1 {
-            color: #5d532a;
-            font-size: 24px;
-            margin: 10px 0 20px 0;
-            text-align: center;
-            font-weight: bold;
-        }
-        /* Navigatie menu */
-        .navbar {
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
+            height: 100vh;
+            overflow: hidden;
         }
-        .nav-btn {
-            background-color: #e5dfd3;
-            color: #5d532a;
-            border: 1px solid #dcd3be;
-            padding: 10px 20px;
-            border-radius: 6px;
+        /* Sidebar Navigatie */
+        sidebar {
+            width: 250px;
+            background-color: #1e1e1e;
+            border-right: 1px solid #2c2c2c;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .logo-area {
+            padding: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #4CAF50;
+            border-bottom: 1px solid #2c2c2c;
+            text-align: center;
+        }
+        .nav-links {
+            list-style: none;
+            padding: 20px 0;
+            flex: 1;
+        }
+        .nav-links li {
+            padding: 12px 20px;
             cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+        .nav-links li:hover, .nav-links li.active {
+            background-color: #2a2a2a;
+            color: #4CAF50;
+            border-left: 4px solid #4CAF50;
+        }
+        .user-status-box {
+            padding: 15px;
+            background-color: #161616;
+            border-top: 1px solid #2c2c2c;
+            font-size: 13px;
+        }
+        .user-status-box span {
+            color: #4CAF50;
             font-weight: bold;
-            font-size: 14px;
-            transition: all 0.2s;
         }
-        .nav-btn.active, .nav-btn:hover {
-            background-color: #e2a000;
-            color: #fff;
-            border-color: #cca200;
-        }
-        /* Layout grid */
-        .grid-container {
+        /* Hoofdinhoud */
+        main {
+            flex: 1;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            max-width: 900px;
-            margin: 0 auto;
+            flex-direction: column;
+            background-color: #181818;
         }
-        .card {
-            background: #fff;
-            border: 1px solid #e8e1d5;
-            border-radius: 10px;
-            padding: 20px;
-            width: 420px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            box-sizing: border-box;
+        header {
+            height: 60px;
+            background-color: #1e1e1e;
+            border-bottom: 1px solid #2c2c2c;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
         }
-        .full-width-card {
-            background: #fff;
-            border: 1px solid #e8e1d5;
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 864px;
-            margin: 0 auto;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            box-sizing: border-box;
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
         }
-        .page-section {
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        .tab-content {
             display: none;
         }
-        .page-section.active {
+        .tab-content.active {
             display: block;
         }
-        h3 {
-            color: #5d532a;
-            font-size: 15px;
-            margin-top: 0;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #f0ebe1;
-            padding-bottom: 8px;
-        }
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: bold;
-            color: #6b6038;
-            margin-bottom: 5px;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #dcd3be;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 14px;
-            background-color: #fff;
-            color: #333;
-        }
-        input::placeholder {
-            color: #aaa;
-        }
-        .btn-primary {
-            background-color: #e2a000;
-            color: white;
-            border: none;
-            padding: 11px;
-            width: 100%;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-bottom: 5px;
-        }
-        .btn-primary:hover {
-            background-color: #cc8f00;
-        }
-        .btn-secondary {
-            background-color: #f4efe4;
-            color: #5d532a;
-            border: 1px solid #e2d8c3;
-            padding: 11px;
-            width: 100%;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-bottom: 5px;
-        }
-        .btn-secondary:hover {
-            background-color: #e9e2d3;
-        }
-        .result-box {
-            background: #faf8f5;
-            border: 1px dashed #dcd3be;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 13px;
+        /* Meldingen lijst */
+        .dispatch-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         .dispatch-card {
-            background: #fff8e8;
-            border-left: 4px solid #e2a000;
-            padding: 12px;
-            margin-top: 10px;
+            background-color: #222;
+            border-left: 5px solid #ff4d4d;
+            padding: 15px 20px;
             border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .dispatch-card.staff-card {
+            border-left-color: #3498db;
+            background-color: #1a2332;
+        }
+        .dispatch-card h3 {
+            color: #ff4d4d;
+            margin-bottom: 5px;
+        }
+        .dispatch-card.staff-card h3 {
+            color: #3498db;
+        }
+        .dispatch-card p {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #bbb;
+        }
+        /* Formulieren */
+        .form-group {
+            margin-bottom: 20px;
+            max-width: 400px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-group select, .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #222;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        .action-btn {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .action-btn:hover {
+            background-color: #45a049;
+        }
+        .error-msg {
+            color: #ff4d4d;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .inbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .secondary-btn {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
             font-size: 13px;
         }
-        .map-frame {
-            width: 100%;
-            height: 600px;
-            border: none;
-            border-radius: 6px;
+        .secondary-btn:hover {
+            background-color: #444;
         }
-
-        /* Meldingen container linksboven in beeld */
-        #notification-container {
+        #alert-popup {
             position: fixed;
             top: 20px;
             left: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 320px;
-        }
-        .toast-notification {
-            background: #fff;
-            border-left: 5px solid #e2a000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 14px;
+            background-color: #d9534f;
+            color: white;
+            padding: 15px 25px;
             border-radius: 6px;
-            font-size: 13px;
-            animation: slideInLeft 0.3s ease-out forwards;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            font-weight: bold;
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
         }
-        .toast-success {
-            border-left-color: #28a745; /* Groenerand voor successen */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes slideInLeft {
+        @keyframes slideIn {
             from { transform: translateX(-100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
@@ -193,312 +208,387 @@
 </head>
 <body>
 
-    <!-- Container voor pop-up meldingen linksboven -->
-    <div id="notification-container"></div>
+    <div id="alert-popup">🚨 Nieuwe Melding Ontvangen!</div>
 
-    <div class="header-container">
-        <h2>🍋 LEMON'S</h2>
-        <div style="font-size: 11px; font-weight: bold; letter-spacing: 2px; color: #7a6e43; margin-top: -12px; margin-bottom: 15px;">RP SERVER</div>
-        <h1>Computer-Aided Dispatch (CAD)</h1>
-
-        <div class="navbar">
-            <button class="nav-btn active" id="btnReg" onclick="switchTab('registration')">CAD / Registration</button>
-            <button class="nav-btn" id="btnDisp" onclick="switchTab('dispatch')">Dispatch / Meldkamer</button>
-            <button class="nav-btn" id="btnMap" onclick="switchTab('map')">Interactive Map</button>
+    <sidebar>
+        <div>
+            <div class="logo-area">LemonCAD</div>
+            <ul class="nav-links">
+                <li class="active" onclick="switchTab('dispatch', this)">Dispatch</li>
+                <li onclick="switchTab('inbox', this)">Meldingeninbox</li>
+                <li id="nav-civ-call" onclick="switchTab('civ-create', this)">Melding Aanmaken (CIV)</li>
+                <li id="nav-staff-call" onclick="switchTab('staff-create', this)">Staff Oproepen</li>
+                <li onclick="switchTab('profile', this)">Team & Callsign</li>
+                <li onclick="switchTab('civilians', this)">Burgers</li>
+                <li onclick="switchTab('vehicles', this)">Voertuigen</li>
+            </ul>
         </div>
-    </div>
+        <div class="user-status-box">
+            <div>Team: <span id="display-team">CIV</span></div>
+            <div>Callsign: <span id="display-callsign">N.v.t.</span></div>
+        </div>
+    </sidebar>
 
-    <!-- SECTIE 1: REGISTRATION & LOOKUP -->
-    <div id="section-registration" class="page-section active">
-        <div class="grid-container">
-            <div class="card">
-                <h3>👤 Civilian Database</h3>
-                <label>Full Name</label>
-                <input type="text" id="civName" placeholder="e.g. John Doe">
-                
-                <label>Date of Birth</label>
-                <input type="date" id="civDob">
-                
-                <label>Gender</label>
-                <select id="civGender">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Unknown">Other</option>
-                </select>
-                
-                <button class="btn-primary" onclick="registerCivilian()">Register Civilian</button>
+    <main>
+        <header>
+            <div class="header-title" id="page-title">Meldkamer Dispatch</div>
+            <div style="font-size: 14px; color: #888;">Status: <span style="color: #4CAF50;">● Live verbonden</span></div>
+        </header>
 
-                <h3 style="margin-top: 25px;">NCIC Lookup</h3>
-                <label>Search Person</label>
-                <input type="text" id="searchCivName" placeholder="Search by name...">
-                <button class="btn-secondary" onclick="searchCivilian()">Search Person</button>
-                <div id="civResult" class="result-box" style="display:none;"></div>
+        <div class="content-area">
+            <!-- TAB: DISPATCH -->
+            <div id="dispatch" class="tab-content active">
+                <h2>Actieve Noodoproepen</h2>
+                <p style="color: #888; margin-bottom: 20px;">Live in-game, burger & staff meldingen.</p>
+                <div class="dispatch-container" id="dispatch-list">
+                    <div style="color: #666; font-style: italic;">Geen actieve meldingen...</div>
+                </div>
             </div>
 
-            <div class="card">
-                <h3>🚗 DMV Vehicle Database</h3>
-                <label>License Plate</label>
-                <input type="text" id="vehPlate" placeholder="e.g. 83ABC12">
-                
-                <label>Vehicle Model</label>
-                <input type="text" id="vehModel" placeholder="e.g. Vapid Stanier">
-                
-                <label>Owner Name</label>
-                <input type="text" id="vehOwner" placeholder="Owner's full name">
-                
-                <button class="btn-primary" onclick="registerVehicle()">Register Vehicle</button>
+            <!-- TAB: INBOX -->
+            <div id="inbox" class="tab-content">
+                <div class="inbox-header">
+                    <div>
+                        <h2>Meldingeninbox</h2>
+                        <p style="color: #888;">Archief van alle ontvangen meldingen en geschiedenis.</p>
+                    </div>
+                    <button class="secondary-btn" onclick="clearInbox()">Inbox Leegmaken</button>
+                </div>
+                <div class="dispatch-container" id="inbox-list">
+                    <div style="color: #666; font-style: italic;">Inbox is leeg...</div>
+                </div>
+            </div>
 
-                <h3 style="margin-top: 25px;">DMV Lookup</h3>
-                <label>Search License Plate</label>
-                <input type="text" id="searchVehPlate" placeholder="Search by license plate...">
-                <button class="btn-secondary" onclick="searchVehicle()">Search Plate</button>
-                <div id="vehResult" class="result-box" style="display:none;"></div>
+            <!-- TAB: CIV MELDING AANMAKEN -->
+            <div id="civ-create" class="tab-content">
+                <h2>Nieuwe Noodmelding Indienen</h2>
+                <p style="color: #888; margin-bottom: 20px;">Dien hier een melding aan voor de eenheden.</p>
+                
+                <div class="form-group">
+                    <label for="civ-title">Titel / Onderwerp:</label>
+                    <input type="text" id="civ-title" placeholder="Bijv. Woningoverval / Ongeval">
+                </div>
+
+                <div class="form-group">
+                    <label for="civ-location">Locatie:</label>
+                    <input type="text" id="civ-location" placeholder="Bijv. Main Street, Bank">
+                </div>
+
+                <div class="form-group">
+                    <label for="civ-unit">Benodigde Hulpdienst:</label>
+                    <select id="civ-unit">
+                        <option value="Staff">Staff</option>
+                        <option value="Police">Police</option>
+                        <option value="DOT">DOT</option>
+                        <option value="Ambulance">Ambulance</option>
+                        <option value="Firefighters">Firefighters</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="civ-desc">Omschrijving / Details:</label>
+                    <textarea id="civ-desc" placeholder="Geef extra informatie over de situaties..."></textarea>
+                </div>
+
+                <button class="action-btn" onclick="submitCivDispatch()">Verstuur Melding</button>
+            </div>
+
+            <!-- TAB: STAFF OPROEPEN AANMAKEN -->
+            <div id="staff-create" class="tab-content">
+                <h2>Staff-Lid Oproepen</h2>
+                <p style="color: #888; margin-bottom: 20px;">Heb je hulp nodig van een staff-lid in-game? Roep ze hier op.</p>
+                
+                <div class="form-group">
+                    <label for="staff-player">Jouw Spelernaam:</label>
+                    <input type="text" id="staff-player" placeholder="Je Roblox gebruikersnaam">
+                </div>
+
+                <div class="form-group">
+                    <label for="staff-reason">Reden van oproep:</label>
+                    <input type="text" id="staff-reason" placeholder="Bijv. RDM, VDM, Vraag over regels">
+                </div>
+
+                <div class="form-group">
+                    <label for="staff-desc">Extra toelichting:</label>
+                    <textarea id="staff-desc" placeholder="Beschrijf kort wat er aan de hand is..."></textarea>
+                </div>
+
+                <button class="action-btn" onclick="submitStaffCall()">Staff Oproepen</button>
+            </div>
+
+            <!-- TAB: TEAM & CALLSIGN PROFIEL -->
+            <div id="profile" class="tab-content">
+                <h2>Team & Callsign Instellen</h2>
+                <p style="color: #888; margin-bottom: 20px;">Selecteer je dienst en stel je in-game callsign in (exact zoals in-game).</p>
+                
+                <div class="form-group">
+                    <label for="team-select">Selecteer Team:</label>
+                    <select id="team-select" onchange="handleTeamChange()">
+                        <option value="CIV">CIV (Burger)</option>
+                        <option value="Staff">Staff</option>
+                        <option value="Police">Police</option>
+                        <option value="DOT">DOT</option>
+                        <option value="F&R">F&R (Fire & Rescue)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="callsign-group" style="display: none;">
+                    <label for="callsign-input">In-game Callsign:</label>
+                    <p style="font-size: 12px; color: #888; margin-bottom: 6px;">Moet exact hetzelfde zijn als in-game. Moet 3 tot 6 tekens lang zijn en maximaal 3 letters bevatten.</p>
+                    <input type="text" id="callsign-input" placeholder="Bijv. 1A2 of 123" maxlength="6">
+                    <div class="error-msg" id="callsign-error">Let op: Moet 3 tot 6 tekens lang zijn en maximaal 3 letters bevatten!</div>
+                </div>
+
+                <button class="action-btn" onclick="saveProfile()">Opslaan</button>
+            </div>
+
+            <!-- TAB: BURGERS -->
+            <div id="civilians" class="tab-content">
+                <h2>Burger Database</h2>
+                <p style="color: #888;">Hier kun je burgergegevens opzoeken of registreren.</p>
+            </div>
+
+            <!-- TAB: VOERTUIGEN -->
+            <div id="vehicles" class="tab-content">
+                <h2>Voertuig Database</h2>
+                <p style="color: #888;">Hier kun je kentekens controleren.</p>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- SECTIE 2: DISPATCH / MELDKAMER -->
-    <div id="section-dispatch" class="page-section">
-        <div class="full-width-card">
-            <h3>🚨 Dispatch / Meldkamer</h3>
-            
-            <label>Incident Title</label>
-            <input type="text" id="dispatchTitle" placeholder="e.g. Bank Robbery / Traffic Accident">
-            
-            <label>Location</label>
-            <input type="text" id="dispatchLocation" placeholder="e.g. Main Street / Highway 1">
-            
-            <label>Priority</label>
-            <select id="dispatchPriority">
-                <option value="Normal">Normal Priority</option>
-                <option value="High">High Priority</option>
-                <option value="Emergency">🚨 EMERGENCY (Code 3)</option>
-            </select>
-            
-            <label>Description Details</label>
-            <textarea id="dispatchDesc" placeholder="Enter call details..." rows="3"></textarea>
-            
-            <button class="btn-primary" onclick="createDispatch()">Dispatch Call</button>
-
-            <h3 style="margin-top: 25px;">Active Dispatches</h3>
-            <button class="btn-secondary" onclick="loadDispatches()" style="margin-bottom: 15px;">Refresh Calls</button>
-            <div id="dispatchList"></div>
-        </div>
-    </div>
-
-    <!-- SECTIE 3: INTERACTIVE MAP -->
-    <div id="section-map" class="page-section">
-        <div class="full-width-card">
-            <h3>🗺️ Liberty County Interactive Map</h3>
-            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Live interactive map provided by ER:LC Hub.</p>
-            <iframe class="map-frame" src="https://erlc-hub.pages.dev/" allowfullscreen></iframe>
-        </div>
-    </div>
+    <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
     <script>
-        // Functie om een geluidje af te spelen via de browser
-        function playNotificationSound(isSuccess = false) {
-            try {
-                var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                var osc = audioCtx.createOscillator();
-                var gain = audioCtx.createGain();
-                osc.type = 'sine';
-                
-                if (isSuccess) {
-                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 toon voor succes
+        let currentTeam = 'CIV';
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            if (element) element.classList.add('active');
+
+            const titles = {
+                'dispatch': 'Meldkamer Dispatch',
+                'inbox': 'Meldingeninbox',
+                'civ-create': 'Nieuwe Noodmelding Indienen',
+                'staff-create': 'Staff-Lid Oproepen',
+                'profile': 'Team & Callsign Instellen',
+                'civilians': 'Burger Database',
+                'vehicles': 'Voertuig Database'
+            };
+            document.getElementById('page-title').innerText = titles[tabId];
+        }
+
+        function handleTeamChange() {
+            const team = document.getElementById('team-select').value;
+            const callsignGroup = document.getElementById('callsign-group');
+            
+            if (team === 'CIV') {
+                callsignGroup.style.display = 'none';
+            } else {
+                callsignGroup.style.display = 'block';
+            }
+        }
+
+        function saveProfile() {
+            const team = document.getElementById('team-select').value;
+            const callsignInput = document.getElementById('callsign-input').value.trim();
+            const errorDiv = document.getElementById('callsign-error');
+
+            if (team !== 'CIV') {
+                const letterCount = (callsignInput.match(/[a-zA-Z]/g) || []).length;
+                if (callsignInput.length < 3 || callsignInput.length > 6 || letterCount > 3) {
+                    errorDiv.style.display = 'block';
+                    return;
                 } else {
-                    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Hoge alarmtoon
+                    errorDiv.style.display = 'none';
                 }
-
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.15);
-            } catch (e) {
-                // Browser blokkeert audio soms tot er geklikt is
-            }
-        }
-
-        // Toon visuele pop-up linksboven (Inkomende melding / Dispatch)
-        function showToast(title, location, priority) {
-            playNotificationSound(false);
-            var container = document.getElementById('notification-container');
-            var toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            toast.innerHTML = `<strong>🚨 [${priority}] ${title}</strong><br>📍 ${location}<br><span style="font-size:11px; color:#777;">New dispatch call received</span>`;
-            container.appendChild(toast);
-
-            setTimeout(function() {
-                toast.style.opacity = '0';
-                setTimeout(function() { toast.remove(); }, 300);
-            }, 6000);
-        }
-
-        // Toon visuele pop-up linksboven voor succesvolle acties (Registratie / Dispatch aangemaakt)
-        function showSuccessToast(message, subtext) {
-            playNotificationSound(true);
-            var container = document.getElementById('notification-container');
-            var toast = document.createElement('div');
-            toast.className = 'toast-notification toast-success';
-            toast.innerHTML = `<strong>✅ ${message}</strong><br><span style="font-size:11px; color:#555;">${subtext}</span>`;
-            container.appendChild(toast);
-
-            setTimeout(function() {
-                toast.style.opacity = '0';
-                setTimeout(function() { toast.remove(); }, 300);
-            }, 4000);
-        }
-
-        // Automatisch controleren op nieuwe meldingen elke 5 seconden
-        var lastKnownDispatchId = null;
-        async function pollDispatches() {
-            try {
-                var res = await fetch('/api/dispatches');
-                var dispatches = await res.json();
-                if (dispatches.length > 0) {
-                    var latest = dispatches[0];
-                    if (lastKnownDispatchId !== null && latest.id !== lastKnownDispatchId) {
-                        showToast(latest.title, latest.location, latest.priority);
-                    }
-                    lastKnownDispatchId = latest.id;
-                }
-            } catch (e) {
-                console.error('Polling error:', e);
-            }
-        }
-        setInterval(pollDispatches, 5000);
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-
-            if (tabName === 'registration') {
-                document.getElementById('section-registration').classList.add('active');
-                document.getElementById('btnReg').classList.add('active');
-            } else if (tabName === 'dispatch') {
-                document.getElementById('section-dispatch').classList.add('active');
-                document.getElementById('btnDisp').classList.add('active');
-                loadDispatches();
-            } else if (tabName === 'map') {
-                document.getElementById('section-map').classList.add('active');
-                document.getElementById('btnMap').classList.add('active');
-            }
-        }
-
-        async function registerCivilian() {
-            var name = document.getElementById('civName').value;
-            var dob = document.getElementById('civDob').value;
-            var gender = document.getElementById('civGender').value;
-
-            var res = await fetch('/api/civilians', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, dob, gender })
-            });
-            var data = await res.json();
-            if (res.ok) {
-                showSuccessToast('Civilian Registered', name + ' added to database');
-                document.getElementById('civName').value = '';
-                document.getElementById('civDob').value = '';
             } else {
-                alert('Error: ' + data.error);
+                errorDiv.style.display = 'none';
             }
-        }
 
-        async function searchCivilian() {
-            var name = document.getElementById('searchCivName').value;
-            var res = await fetch('/api/civilians/search?name=' + encodeURIComponent(name));
-            var box = document.getElementById('civResult');
-            box.style.display = 'block';
+            currentTeam = team;
+            document.getElementById('display-team').innerText = team;
+            document.getElementById('display-callsign').innerText = (team === 'CIV') ? 'N.v.t.' : callsignInput;
 
-            if (res.ok) {
-                var c = await res.json();
-                box.innerHTML = `<strong>Found:</strong> ${c.name}<br><strong>Date of Birth:</strong> ${c.dob}<br><strong>Gender:</strong> ${c.gender}`;
+            // Beheer zichtbaarheid van aanmaak-tabs op basis van het gekozen team
+            const civNavLi = document.getElementById('nav-civ-call');
+            const staffNavLi = document.getElementById('nav-staff-call');
+
+            if (team === 'CIV') {
+                civNavLi.style.display = 'block';
+                staffNavLi.style.display = 'block';
+            } else if (team === 'Staff') {
+                civNavLi.style.display = 'none';
+                staffNavLi.style.display = 'none'; // Staff mag zichzelf geen staff call sturen
             } else {
-                box.innerHTML = `<i>No civilian found.</i>`;
+                // Police, DOT, F&R mogen geen algemene meldingen aanmaken via de knop, maar wel staff oproepen als dat nodig is
+                civNavLi.style.display = 'none';
+                staffNavLi.style.display = 'block';
             }
+
+            alert('Je team en callsign zijn succesvol opgeslagen!');
+            switchTab('dispatch', document.querySelector('.nav-links li'));
         }
 
-        async function registerVehicle() {
-            var plate = document.getElementById('vehPlate').value;
-            var model = document.getElementById('vehModel').value;
-            var owner = document.getElementById('vehOwner').value;
+        async function submitCivDispatch() {
+            const title = document.getElementById('civ-title').value.trim();
+            const location = document.getElementById('civ-location').value.trim();
+            const unit = document.getElementById('civ-unit').value;
+            const description = document.getElementById('civ-desc').value.trim();
 
-            var res = await fetch('/api/vehicles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plate, model, owner })
-            });
-            var data = await res.json();
-            if (res.ok) {
-                showSuccessToast('Vehicle Registered', 'Plate: ' + plate.toUpperCase());
-                document.getElementById('vehPlate').value = '';
-                document.getElementById('vehModel').value = '';
-                document.getElementById('vehOwner').value = '';
-            } else {
-                alert('Error: ' + data.error);
-            }
-        }
-
-        async function searchVehicle() {
-            var plate = document.getElementById('searchVehPlate').value;
-            var res = await fetch('/api/vehicles/search?plate=' + encodeURIComponent(plate));
-            var box = document.getElementById('vehResult');
-            box.style.display = 'block';
-
-            if (res.ok) {
-                var v = await res.json();
-                box.innerHTML = `<strong>Plate:</strong> ${v.plate}<br><strong>Model:</strong> ${v.model}<br><strong>Owner:</strong> ${v.owner}`;
-            } else {
-                box.innerHTML = `<i>No vehicle found.</i>`;
-            }
-        }
-
-        async function createDispatch() {
-            var title = document.getElementById('dispatchTitle').value;
-            var location = document.getElementById('dispatchLocation').value;
-            var priority = document.getElementById('dispatchPriority').value;
-            var description = document.getElementById('dispatchDesc').value;
-
-            var res = await fetch('/api/dispatches', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, location, priority, description })
-            });
-
-            if (res.ok) {
-                showSuccessToast('Dispatch Created', title + ' has been dispatched.');
-                document.getElementById('dispatchTitle').value = '';
-                document.getElementById('dispatchLocation').value = '';
-                document.getElementById('dispatchDesc').value = '';
-                loadDispatches();
-            } else {
-                alert('Failed to send dispatch.');
-            }
-        }
-
-        async function loadDispatches() {
-            var res = await fetch('/api/dispatches');
-            var dispatches = await res.json();
-            var listDiv = document.getElementById('dispatchList');
-            listDiv.innerHTML = '';
-
-            if (dispatches.length === 0) {
-                listDiv.innerHTML = '<p style="font-size:13px; color:#777;"><i>No active dispatch calls.</i></p>';
+            if (!title || !location) {
+                alert('Vul ten minste een titel en locatie in.');
                 return;
             }
 
-            dispatches.forEach(d => {
-                var card = document.createElement('div');
-                card.className = 'dispatch-card';
-                card.innerHTML = `<strong>[${d.priority}] ${d.title}</strong><br>
-                                  📍 <b>Location:</b> ${d.location}<br>
-                                  💬 <b>Details:</b> ${d.description}<br>
-                                  🕒 <b>Time:</b> ${d.time}`;
-                listDiv.appendChild(card);
+            const response = await fetch('/api/dispatches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: title,
+                    location: location,
+                    description: description || 'Geen details opgegeven.',
+                    priority: 'Emergency',
+                    requiredUnit: unit,
+                    isStaffCall: false
+                })
             });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Melding succesvol verzonden naar de meldkamer!');
+                document.getElementById('civ-title').value = '';
+                document.getElementById('civ-location').value = '';
+                document.getElementById('civ-desc').value = '';
+                switchTab('dispatch', document.querySelector('.nav-links li'));
+                fetchDispatches();
+            } else {
+                alert('Fout bij verzenden melding.');
+            }
         }
+
+        async function submitStaffCall() {
+            const player = document.getElementById('staff-player').value.trim();
+            const reason = document.getElementById('staff-reason').value.trim();
+            const description = document.getElementById('staff-desc').value.trim();
+
+            if (!player || !reason) {
+                alert('Vul je spelernaam en de reden in.');
+                return;
+            }
+
+            const response = await fetch('/api/dispatches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `STAFF CALL: ${reason}`,
+                    location: `Speler: ${player}`,
+                    description: description || 'Geen extra toelichting.',
+                    priority: 'Emergency',
+                    requiredUnit: 'Staff',
+                    isStaffCall: true
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Staff is succesvol opgeroepen!');
+                document.getElementById('staff-player').value = '';
+                document.getElementById('staff-reason').value = '';
+                document.getElementById('staff-desc').value = '';
+                switchTab('dispatch', document.querySelector('.nav-links li'));
+                fetchDispatches();
+            } else {
+                alert('Fout bij verzenden staff call.');
+            }
+        }
+
+        let lastDispatchCount = 0;
+
+        async function fetchDispatches() {
+            try {
+                const response = await fetch('/api/dispatches');
+                const dispatches = await response.json();
+                
+                const listContainer = document.getElementById('dispatch-list');
+                const inboxContainer = document.getElementById('inbox-list');
+                
+                if (dispatches.length === 0) {
+                    listContainer.innerHTML = '<div style="color: #666; font-style: italic;">Geen actieve meldingen...</div>';
+                    inboxContainer.innerHTML = '<div style="color: #666; font-style: italic;">Inbox is leeg...</div>';
+                    lastDispatchCount = 0;
+                    return;
+                }
+
+                if (dispatches.length > lastDispatchCount && lastDispatchCount !== 0) {
+                    const latest = dispatches[0];
+                    if (latest.isStaffCall && currentTeam === 'Staff') {
+                        triggerAlert('🚨 STAFF AANDACHT: Speler roept je op!');
+                    } else if (!latest.isStaffCall) {
+                        triggerAlert('🚨 Nieuwe Dispatch Melding Ontvangen!');
+                    }
+                }
+                lastDispatchCount = dispatches.length;
+
+                listContainer.innerHTML = '';
+                dispatches.forEach(d => {
+                    const unitNeeded = d.requiredUnit || 'Algemeen / Onbekend';
+                    const isStaff = d.isStaffCall;
+                    const card = document.createElement('div');
+                    card.className = isStaff ? 'dispatch-card staff-card' : 'dispatch-card';
+                    card.innerHTML = `
+                        <h3>${isStaff ? '🛠️ ' : '🚨 '}${d.title}</h3>
+                        <p><strong>Locatie / Speler:</strong> ${d.location}</p>
+                        <p><strong>Benodigde Eenheid:</strong> <span style="color: ${isStaff ? '#3498db' : '#4CAF50'}; font-weight: bold;">${unitNeeded}</span></p>
+                        <p><strong>Details:</strong> ${d.description}</p>
+                        <p><strong>Tijd:</strong> ${d.time}</p>
+                    `;
+                    listContainer.appendChild(card);
+                });
+
+                inboxContainer.innerHTML = '';
+                dispatches.forEach(d => {
+                    const unitNeeded = d.requiredUnit || 'Algemeen / Onbekend';
+                    const isStaff = d.isStaffCall;
+                    const card = document.createElement('div');
+                    card.className = isStaff ? 'dispatch-card staff-card' : 'dispatch-card';
+                    card.style.borderLeftColor = isStaff ? '#3498db' : '#4CAF50';
+                    card.innerHTML = `
+                        <h3 style="color: ${isStaff ? '#3498db' : '#4CAF50'};">${isStaff ? '📩 [STAFF] ' : '📩 '}${d.title}</h3>
+                        <p><strong>Locatie / Speler:</strong> ${d.location}</p>
+                        <p><strong>Benodigde Eenheid:</strong> <span style="font-weight: bold;">${unitNeeded}</span></p>
+                        <p><strong>Details:</strong> ${d.description}</p>
+                        <p><strong>Ontvangen om:</strong> ${d.time}</p>
+                    `;
+                    inboxContainer.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error('Fout bij ophalen dispatches:', err);
+            }
+        }
+
+        function clearInbox() {
+            document.getElementById('inbox-list').innerHTML = '<div style="color: #666; font-style: italic;">Inbox is leeg...</div>';
+        }
+
+        function triggerAlert(customText) {
+            const sound = document.getElementById('alert-sound');
+            sound.play().catch(e => console.log('Audio autoplay geblokkeerd door browser:', e));
+
+            const popup = document.getElementById('alert-popup');
+            if (customText) popup.innerText = customText;
+            
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 5000);
+        }
+
+        setInterval(fetchDispatches, 3000);
+        fetchDispatches();
     </script>
 </body>
 </html>
