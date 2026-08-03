@@ -76,7 +76,6 @@
             align-items: center;
             text-align: center;
         }
-        /* Logo Styling */
         .mockup-logo-box {
             background-color: #ffffff;
             border-radius: 12px;
@@ -119,7 +118,6 @@
             border-left: 4px solid #4CAF50;
             font-weight: 600;
         }
-        /* User Status Box at bottom of sidebar */
         .user-status-box {
             padding: 15px 20px;
             font-size: 13px;
@@ -133,7 +131,6 @@
             color: #4CAF50;
             font-weight: 600;
         }
-        /* Main Content Area */
         main {
             flex: 1;
             display: flex;
@@ -156,7 +153,6 @@
             font-weight: 600;
             color: #fff;
         }
-        /* Change Team Button Styling */
         .change-team-btn {
             background: none;
             border: none;
@@ -310,7 +306,6 @@
 </head>
 <body>
 
-    <!-- SETUP OVERLAY SCHERM -->
     <div id="setup-overlay">
         <div class="setup-box">
             <h2>LemonCAD Setup</h2>
@@ -379,7 +374,6 @@
         </header>
 
         <div class="content-area">
-            <!-- TAB: DISPATCH -->
             <div id="dispatch" class="tab-content active">
                 <h2>Active Emergency Calls</h2>
                 <p style="color: #777; font-size: 13.5px;">Live in-game, civilian & staff dispatches.</p>
@@ -388,7 +382,6 @@
                 </div>
             </div>
 
-            <!-- TAB: INBOX -->
             <div id="inbox" class="tab-content">
                 <div class="inbox-header">
                     <div>
@@ -402,7 +395,6 @@
                 </div>
             </div>
 
-            <!-- TAB: CIVILIAN CREATE DISPATCH -->
             <div id="civ-create" class="tab-content">
                 <h2>Submit New Emergency Call</h2>
                 <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Submit a dispatch request for available units.</p>
@@ -468,7 +460,6 @@
                 <button class="action-btn" style="width: auto;" onclick="submitCivDispatch()">Send Dispatch</button>
             </div>
 
-            <!-- TAB: STAFF CALL -->
             <div id="staff-create" class="tab-content">
                 <h2>Request Staff Member</h2>
                 <p style="color: #777; font-size: 13.5px; margin-bottom: 20px;">Need in-game assistance from a staff member? Call them here.</p>
@@ -491,13 +482,11 @@
                 <button class="action-btn" style="width: auto;" onclick="submitStaffCall()">Call Staff</button>
             </div>
 
-            <!-- TAB: CIVILIANS -->
             <div id="civilians" class="tab-content">
                 <h2>Civilian Database</h2>
                 <p style="color: #777; font-size: 13.5px;">Search or register civilian records here.</p>
             </div>
 
-            <!-- TAB: VEHICLES -->
             <div id="vehicles" class="tab-content">
                 <h2>Vehicle Database</h2>
                 <p style="color: #777; font-size: 13.5px;">Check license plates and vehicle information here.</p>
@@ -589,11 +578,19 @@
             document.getElementById('page-title').innerText = titles[tabId];
         }
 
-        async function submitCivDispatch() {
+        function getStoredDispatches() {
+            const data = localStorage.getItem('lemoncad_dispatches');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveDispatches(dispatches) {
+            localStorage.setItem('lemoncad_dispatches', JSON.stringify(dispatches));
+        }
+
+        function submitCivDispatch() {
             const title = document.getElementById('civ-title').value.trim();
             const location = document.getElementById('civ-location').value.trim();
             
-            // Collect all selected units
             let units = [];
             const u1 = document.getElementById('civ-unit-1').value;
             const u2 = document.getElementById('civ-unit-2').value;
@@ -606,7 +603,6 @@
             if (u4 && u4 !== 'N/A') units.push(u4);
 
             const unitString = units.length > 0 ? units.join(', ') : 'General / Unknown';
-
             const description = document.getElementById('civ-desc').value.trim();
 
             if (!title || !location) {
@@ -614,37 +610,30 @@
                 return;
             }
 
-            const response = await fetch('/api/dispatches', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: title,
-                    location: location,
-                    description: description || 'No details provided.',
-                    priority: 'Emergency',
-                    requiredUnit: unitString,
-                    isStaffCall: false
-                })
-            });
+            const newDispatch = {
+                id: Date.now(),
+                title: title,
+                location: location,
+                description: description || 'No details provided.',
+                priority: 'Emergency',
+                requiredUnit: unitString,
+                isStaffCall: false,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
 
-            const result = await response.json();
-            if (result.success) {
-                alert('Dispatch successfully sent to the dispatch center!');
-                document.getElementById('civ-title').value = '';
-                document.getElementById('civ-location').value = '';
-                document.getElementById('civ-unit-1').value = 'Police';
-                document.getElementById('civ-unit-2').value = 'N/A';
-                document.getElementById('civ-unit-3').value = 'N/A';
-                document.getElementById('civ-unit-4').value = 'N/A';
-                document.getElementById('civ-desc').value = '';
-                switchTab('dispatch', document.querySelector('.nav-links li'));
-                fetchDispatches();
-            } else {
-                alert('Error sending dispatch.');
-            }
+            let dispatches = getStoredDispatches();
+            dispatches.unshift(newDispatch);
+            saveDispatches(dispatches);
+
+            alert('Dispatch successfully sent to the dispatch center!');
+            document.getElementById('civ-title').value = '';
+            document.getElementById('civ-location').value = '';
+            document.getElementById('civ-desc').value = '';
+            switchTab('dispatch', document.querySelector('.nav-links li'));
+            fetchDispatches();
         }
 
-        async function submitStaffCall() {
+        function submitStaffCall() {
             const player = document.getElementById('staff-player').value.trim();
             const reason = document.getElementById('staff-reason').value.trim();
             const description = document.getElementById('staff-desc').value.trim();
@@ -654,39 +643,34 @@
                 return;
             }
 
-            const response = await fetch('/api/dispatches', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: `STAFF CALL: ${reason}`,
-                    location: `Player: ${player}`,
-                    description: description || 'No additional details.',
-                    priority: 'Emergency',
-                    requiredUnit: 'Staff',
-                    isStaffCall: true
-                })
-            });
+            const newDispatch = {
+                id: Date.now(),
+                title: `STAFF CALL: ${reason}`,
+                location: `Player: ${player}`,
+                description: description || 'No additional details.',
+                priority: 'Emergency',
+                requiredUnit: 'Staff',
+                isStaffCall: true,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
 
-            const result = await response.json();
-            if (result.success) {
-                alert('Staff has been successfully requested!');
-                document.getElementById('staff-player').value = '';
-                document.getElementById('staff-reason').value = '';
-                document.getElementById('staff-desc').value = '';
-                switchTab('dispatch', document.querySelector('.nav-links li'));
-                fetchDispatches();
-            } else {
-                alert('Error sending staff call.');
-            }
+            let dispatches = getStoredDispatches();
+            dispatches.unshift(newDispatch);
+            saveDispatches(dispatches);
+
+            alert('Staff has been successfully requested!');
+            document.getElementById('staff-player').value = '';
+            document.getElementById('staff-reason').value = '';
+            document.getElementById('staff-desc').value = '';
+            switchTab('dispatch', document.querySelector('.nav-links li'));
+            fetchDispatches();
         }
 
         let lastDispatchCount = 0;
 
-        async function fetchDispatches() {
+        function fetchDispatches() {
             try {
-                const response = await fetch('/api/dispatches');
-                const dispatches = await response.json();
-                
+                const dispatches = getStoredDispatches();
                 const listContainer = document.getElementById('dispatch-list');
                 const inboxContainer = document.getElementById('inbox-list');
                 
@@ -753,7 +737,8 @@
         }
 
         function clearInbox() {
-            document.getElementById('inbox-list').innerHTML = '<div style="color: #666; font-style: italic;">Inbox is empty...</div>';
+            localStorage.removeItem('lemoncad_dispatches');
+            fetchDispatches();
         }
 
         function triggerAlert(customText) {
