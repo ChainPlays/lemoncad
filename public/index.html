@@ -75,30 +75,29 @@
             justify-content: space-between;
         }
         .logo-container {
-            padding: 20px 20px 10px 20px;
+            padding: 25px 20px 15px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
         }
         .logo-area {
-            width: 65px;
-            height: 65px;
-            background: linear-gradient(135deg, #252525, #1a1a1a);
+            width: 60px;
+            height: 60px;
+            background-color: #222;
             border: 1px solid #333;
-            border-radius: 14px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #4CAF50;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-            letter-spacing: -1px;
-            margin-bottom: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            margin-bottom: 12px;
         }
         .logo-text {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             color: #e0e0e0;
             letter-spacing: 0.5px;
@@ -109,25 +108,33 @@
             flex: 1;
         }
         .nav-links li {
-            padding: 12px 20px;
+            padding: 14px 20px;
             cursor: pointer;
             transition: background 0.2s;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 14px;
+            color: #ddd;
         }
-        .nav-links li:hover, .nav-links li.active {
+        .nav-links li:hover {
+            background-color: #252525;
+        }
+        .nav-links li.active {
             background-color: #2a2a2a;
             color: #4CAF50;
             border-left: 4px solid #4CAF50;
         }
+        /* User Status Box (Aangepast naar Mockup) */
         .user-status-box {
-            padding: 15px;
-            background-color: #161616;
-            border-top: 1px solid #2c2c2c;
+            padding: 20px;
             font-size: 13px;
+            color: #bbb;
+        }
+        .user-status-box div {
+            margin-bottom: 4px;
         }
         .user-status-box span {
             color: #4CAF50;
-            font-weight: bold;
+            font-weight: 600;
         }
         /* Main Content */
         main {
@@ -138,7 +145,7 @@
         }
         header {
             height: 60px;
-            background-color: #1e1e1e;
+            background-color: #181818;
             border-bottom: 1px solid #2c2c2c;
             display: flex;
             align-items: center;
@@ -146,8 +153,9 @@
             padding: 0 30px;
         }
         .header-title {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
         }
         .header-right {
             display: flex;
@@ -165,11 +173,18 @@
         .tab-content.active {
             display: block;
         }
+        /* Typography Content */
+        h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            color: #fff;
+        }
         /* Dispatch List */
         .dispatch-container {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            margin-top: 20px;
         }
         .dispatch-card {
             background-color: #222;
@@ -250,7 +265,7 @@
             margin-bottom: 20px;
         }
         .secondary-btn {
-            background-color: #333;
+            background-color: #2a2a2a;
             color: #fff;
             border: 1px solid #444;
             padding: 8px 15px;
@@ -260,7 +275,7 @@
             transition: background 0.2s;
         }
         .secondary-btn:hover {
-            background-color: #444;
+            background-color: #333;
         }
         /* Smooth Alert Popup */
         #alert-popup {
@@ -347,8 +362,9 @@
     <main>
         <header>
             <div class="header-title" id="page-title">Dispatch Center</div>
+            <!-- De functionaliteit om van team te wisselen is behouden, 
+                 maar past beter bij de cleane look van je mockup -->
             <div class="header-right">
-                <div style="font-size: 14px; color: #888;">Status: <span style="color: #4CAF50;">● Live Connected</span></div>
                 <button class="secondary-btn" onclick="openChangeTeamModal()">Change Team</button>
             </div>
         </header>
@@ -357,7 +373,7 @@
             <!-- TAB: DISPATCH -->
             <div id="dispatch" class="tab-content active">
                 <h2>Active Emergency Calls</h2>
-                <p style="color: #888; margin-bottom: 20px;">Live in-game, civilian & staff dispatches.</p>
+                <p style="color: #777; font-size: 14px;">Live in-game, civilian & staff dispatches.</p>
                 <div class="dispatch-container" id="dispatch-list">
                     <div style="color: #666; font-style: italic;">No active dispatches...</div>
                 </div>
@@ -368,7 +384,7 @@
                 <div class="inbox-header">
                     <div>
                         <h2>Dispatch Inbox</h2>
-                        <p style="color: #888;">Archive of all received dispatches and history.</p>
+                        <p style="color: #777; font-size: 14px;">Archive of all received dispatches and history.</p>
                     </div>
                     <button class="secondary-btn" onclick="clearInbox()">Clear Inbox</button>
                 </div>
@@ -380,7 +396,7 @@
             <!-- TAB: CIV CREATE DISPATCH -->
             <div id="civ-create" class="tab-content">
                 <h2>Submit New Emergency Call</h2>
-                <p style="color: #888; margin-bottom: 20px;">Submit a dispatch request for available units.</p>
+                <p style="color: #777; font-size: 14px; margin-bottom: 20px;">Submit a dispatch request for available units.</p>
                 
                 <div class="form-group profile-form">
                     <label for="civ-title">Title / Subject:</label>
@@ -414,7 +430,7 @@
             <!-- TAB: STAFF CALL -->
             <div id="staff-create" class="tab-content">
                 <h2>Request Staff Member</h2>
-                <p style="color: #888; margin-bottom: 20px;">Need in-game assistance from a staff member? Call them here.</p>
+                <p style="color: #777; font-size: 14px; margin-bottom: 20px;">Need in-game assistance from a staff member? Call them here.</p>
                 
                 <div class="form-group profile-form">
                     <label for="staff-player">Your Player Name:</label>
@@ -437,7 +453,7 @@
             <!-- TAB: PROFILE -->
             <div id="profile" class="tab-content">
                 <h2>Team & Callsign Settings</h2>
-                <p style="color: #888; margin-bottom: 20px;">Select your department and set your in-game callsign.</p>
+                <p style="color: #777; font-size: 14px; margin-bottom: 20px;">Select your department and set your in-game callsign.</p>
                 
                 <div class="form-group profile-form">
                     <label for="team-select">Select Team:</label>
@@ -463,13 +479,13 @@
             <!-- TAB: CIVILIANS -->
             <div id="civilians" class="tab-content">
                 <h2>Civilian Database</h2>
-                <p style="color: #888;">Search or register civilian records here.</p>
+                <p style="color: #777; font-size: 14px;">Search or register civilian records here.</p>
             </div>
 
             <!-- TAB: VEHICLES -->
             <div id="vehicles" class="tab-content">
                 <h2>Vehicle Database</h2>
-                <p style="color: #888;">Check license plates and vehicle information here.</p>
+                <p style="color: #777; font-size: 14px;">Check license plates and vehicle information here.</p>
             </div>
         </div>
     </main>
