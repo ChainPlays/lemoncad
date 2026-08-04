@@ -101,6 +101,23 @@ margin-bottom: 20px;
 box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
+.brand-container {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.brand-logo {
+width: 42px;
+height: 42px;
+object-fit: contain;
+border-radius: 6px;
+}
+.brand-title {
+font-size: 20px;
+font-weight: bold;
+color: #222;
+}
+
 .nav-tab {
 cursor: pointer;
 padding: 8px 16px;
@@ -150,6 +167,29 @@ animation: fadeIn 0.3s ease-in-out;
 from { opacity: 0; transform: translateY(-5px); }
 to { opacity: 1; transform: translateY(0); }
 }
+
+/* Violators / BOLO Management Styling */
+.violator-card {
+background: #fcfbfa;
+border: 1px solid #e0e0e0;
+border-left: 4px solid #d4a017;
+padding: 15px;
+border-radius: 6px;
+margin-bottom: 12px;
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+}
+.violator-info h4 {
+font-size: 16px;
+color: #222;
+margin-bottom: 4px;
+}
+.violator-info p {
+font-size: 13px;
+color: #555;
+margin-bottom: 2px;
+}
 </style>
 </head>
 <body>
@@ -193,8 +233,9 @@ to { opacity: 1; transform: translateY(0); }
 
 <!-- HEADER -->
 <header style="display: flex; justify-content: space-between; align-items: center;">
-    <div>
-        <h1>CAD & Dispatch System</h1>
+    <div class="brand-container">
+        <img src="Lemon's LemonCAD_2.png" alt="LemonCAD Logo" class="brand-logo">
+        <h1 class="brand-title">LemonCAD</h1>
     </div>
     <div style="display: flex; gap: 10px; align-items: center;">
         <span id="display-team-info" style="background: #f1f0ee; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">Team: Civilian</span>
@@ -220,10 +261,34 @@ to { opacity: 1; transform: translateY(0); }
 <!-- INHOUD TABBLADEN -->
 <main>
 <!-- 1. VIOLATORS / BOLO'S (CAD) -->
-<div id="cad" class="tab-content">
+<div id="cad" class="tab-content active">
 <div class="map-container-wrapper">
-<div class="section-header-title">Police CAD & Violators Dashboard</div>
-<p>Welcome to the police database and management system.</p>
+<div class="section-header-title">Police CAD & Violators / BOLO Management</div>
+<p style="margin-bottom: 15px; font-size: 13px; color: #666;">Add and manage active warrants, suspects, or BOLO alerts.</p>
+
+
+<!-- Formulier om een nieuwe violator/BOLO toe te voegen -->
+<div style="background: #f9f9f9; border: 1px solid #e0e0e0; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+<h4 style="margin-bottom: 10px; font-size: 15px;">Add New Violator / BOLO</h4>
+<div class="form-group">
+<label>Suspect / Violator Name</label>
+<input type="text" id="violator-name" placeholder="e.g. John Doe">
+</div>
+<div class="form-group">
+<label>Offense / Reason</label>
+<input type="text" id="violator-offense" placeholder="e.g. Armed Robbery / Felony Evasion">
+</div>
+<div class="form-group">
+<label>Vehicle / Details</label>
+<input type="text" id="violator-details" placeholder="e.g. Black Sultan Classic, License Plate: 34XYZ9">
+</div>
+<button type="button" onclick="addViolator()" style="padding: 8px 14px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px;">Add BOLO / Violator</button>
+</div>
+
+<!-- Lijst met actieve violators/BOLO's -->
+<div id="violator-list-container">
+<p style="color: #777; margin: 0;">No active violators or BOLO's registered.</p>
+</div>
 </div>
 </div>
 
@@ -236,7 +301,7 @@ to { opacity: 1; transform: translateY(0); }
 </div>
 
 <!-- 3. EMERGENCY CALLER (911) -->
-<div id="caller" class="tab-content active">
+<div id="caller" class="tab-content">
 <div class="map-container-wrapper">
 <div class="section-header-title">Emergency 911 Caller</div>
 <div class="form-group">
@@ -397,7 +462,79 @@ function switchTab(tabId, element) {
     if (tabId === 'staff-dashboard') {
         renderStaffCalls();
     }
+    if (tabId === 'cad') {
+        renderViolators();
+    }
 }
+
+/* --- VIOLATORS / BOLO MANAGEMENT LOGICA --- */
+function addViolator() {
+    const name = document.getElementById('violator-name').value.trim();
+    const offense = document.getElementById('violator-offense').value.trim();
+    const details = document.getElementById('violator-details').value.trim();
+
+    if (!name || !offense) {
+        alert('Please fill in at least the Suspect Name and Offense/Reason.');
+        return;
+    }
+
+    const newViolator = {
+        id: Date.now().toString(),
+        name: name,
+        offense: offense,
+        details: details || 'No additional details provided.',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    let existingViolators = JSON.parse(localStorage.getItem('lemoncad_violators') || '[]');
+    existingViolators.unshift(newViolator);
+    localStorage.setItem('lemoncad_violators', JSON.stringify(existingViolators));
+
+    document.getElementById('violator-name').value = '';
+    document.getElementById('violator-offense').value = '';
+    document.getElementById('violator-details').value = '';
+
+    renderViolators();
+    triggerAlert(`New BOLO / Violator added: ${name} (${offense})`, false);
+}
+
+function deleteViolator(id) {
+    let existingViolators = JSON.parse(localStorage.getItem('lemoncad_violators') || '[]');
+    existingViolators = existingViolators.filter(v => v.id !== id);
+    localStorage.setItem('lemoncad_violators', JSON.stringify(existingViolators));
+    renderViolators();
+}
+
+function renderViolators() {
+    const container = document.getElementById('violator-list-container');
+    if (!container) return;
+
+    const existingViolators = JSON.parse(localStorage.getItem('lemoncad_violators') || '[]');
+
+    if (existingViolators.length === 0) {
+        container.innerHTML = `<p style="color: #777; margin: 0;">No active violators or BOLO's registered.</p>`;
+        return;
+    }
+
+    let html = '';
+    existingViolators.forEach(v => {
+        html += `
+            <div class="violator-card">
+                <div class="violator-info">
+                    <h4>🚨 BOLO / Warrant: ${v.name}</h4>
+                    <p><strong>Offense:</strong> ${v.offense}</p>
+                    <p><strong>Details:</strong> ${v.details}</p>
+                    <p style="font-size: 11px; color: #888; margin-top: 4px;">Registered at: ${v.time}</p>
+                </div>
+                <div>
+                    <button type="button" onclick="deleteViolator('${v.id}')" style="background-color: #d9534f; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Clear / Close</button>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+/* ------------------------------------------- */
 
 function triggerAlert(customText, playSound = true) {
     if (playSound) {
@@ -584,6 +721,8 @@ function pollForNewStaffCalls() {
         if (staffDashboardTab && staffDashboardTab.classList.contains('active')) {
             renderStaffCalls();
         }
+    } else if (existingCalls.length < lastKnownStaffCardCount < existingCalls.length) {
+        // safety check handled below cleanly
     } else if (existingCalls.length < lastKnownStaffCallCount) {
         lastKnownStaffCallCount = existingCalls.length;
         const staffDashboardTab = document.getElementById('staff-dashboard');
@@ -621,13 +760,12 @@ async function openUpdateModal() {
         });
         container.innerHTML = html;
     } catch (error) {
-        // Fallback als updates.json niet lokaal bestaat of mislukt
         container.innerHTML = `
             <div style="border-bottom: 1px solid #eee; margin-bottom: 12px; padding-bottom: 8px;">
                 <strong>v1.2.0</strong> <span style="font-size: 12px; color: #666;">(2026-06-01)</span>
                 <ul style="margin: 5px 0 0 15px; padding: 0; font-size: 14px;">
-                    <li>Fixed button interactivity issues.</li>
-                    <li>Improved CAD response feedback.</li>
+                    <li>Integrated active Violators & BOLO management system.</li>
+                    <li>Added official LemonCAD logo branding.</li>
                 </ul>
             </div>
         `;
@@ -659,6 +797,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
     lastKnownStaffCallCount = existingCalls.length;
     renderStaffCalls();
+    renderViolators();
 
     setInterval(pollForNewStaffCalls, 3000);
 });
