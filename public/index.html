@@ -3,1224 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LemonCAD - Computer-Aided Dispatch (CAD)</title>
+    <title>CAD & Dispatch System</title>
     <style>
-        * {
-            box-sizing: border-box;
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --accent-yellow: #f0ad4e;
+            --accent-green: #2e7d32;
+            --accent-red: #d9534f;
+            --text-color: #fff;
+            --text-muted: #aaa;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #fcfbfa;
-            color: #333333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding: 20px;
         }
 
-        /* Team Modal Overlay */
-        #team-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.75);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-        .modal-box {
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
-            padding: 30px;
-            border-radius: 8px;
-            width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-        .modal-box h2 {
-            margin-bottom: 8px;
-            color: #222;
-            font-size: 20px;
-        }
-        .modal-box p {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            color: #444;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        .form-group select, .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            color: #333;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .form-group input[type="file"] {
-            padding: 6px;
-            background: #faf8f5;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: #d4a017;
-            outline: none;
-        }
-        .modal-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #d4a017;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
-        }
-        .modal-btn:hover {
-            background-color: #b8860b;
-        }
-        .error-msg {
-            color: #d9534f;
-            font-size: 12px;
-            margin-top: 5px;
-            display: none;
-        }
-
-        /* Top Header & Branding */
         header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .header-top-left {
-            position: absolute;
-            top: 0;
-            left: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .civ-points-badge {
-            font-size: 12px;
-            background: #fff;
-            padding: 6px 12px;
-            border-radius: 4px;
-            color: #d9534f;
-            border: 1px solid #e0e0e0;
-            font-weight: bold;
-            display: none;
-        }
-        .header-top-right {
-            position: absolute;
-            top: 0;
-            right: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .current-team-badge {
-            font-size: 12px;
-            background: #fff;
-            padding: 6px 12px;
-            border-radius: 4px;
-            color: #d4a017;
-            border: 1px solid #e0e0e0;
-            font-weight: 600;
-        }
-        .change-team-btn {
-            background: #f0f0f0;
-            border: 1px solid #ccc;
-            color: #333;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-        .change-team-btn:hover {
-            background: #e4e4e4;
-        }
-        .logo-img {
-            width: 32px;
-            height: 32px;
-            object-fit: contain;
-            margin-bottom: 4px;
-        }
-        .brand-title {
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            color: #222;
-        }
-        .brand-subtitle {
-            font-size: 11px;
-            color: #777;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-        .main-heading {
-            font-size: 22px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
         }
 
-        /* Navigation Tabs */
-        .nav-tabs {
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .header-controls {
             display: flex;
             gap: 10px;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            align-items: center;
         }
-        .nav-tab {
-            padding: 10px 20px;
-            background-color: #eaeaea;
-            border: 1px solid #dcdcdc;
-            color: #444;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+
+        .badge {
+            background: #333;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
         }
-        .nav-tab:hover {
-            background-color: #dfdfdf;
-        }
-        .nav-tab.active {
-            background-color: #d4a017;
+
+        .badge-bolo {
+            background: var(--accent-red);
             color: white;
-            border-color: #b8860b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
         }
-        .nav-tab.hidden-for-civ {
-            display: none !important;
+
+        .badge-violator {
+            background: var(--accent-yellow);
+            color: black;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
         }
-        .nav-tab.hidden-for-staff {
+
+        nav {
+            background-color: #181818;
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .nav-tab.active {
+            background: var(--accent-yellow);
+            color: black;
+            font-weight: bold;
+        }
+
+        .hidden-for-staff {
             display: none !important;
         }
 
-        /* Content Sections */
-        .tab-content {
-            display: none;
-            max-width: 1000px;
-            width: 100%;
+        .hidden-for-civ {
+            display: none !important;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
             margin: 0 auto;
         }
+
+        .tab-content {
+            display: none;
+        }
+
         .tab-content.active {
             display: block;
         }
-        .tab-content.map-container-wrapper {
-            max-width: 1200px;
-        }
 
-        /* Grid Layout */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
         .card {
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
             margin-bottom: 20px;
         }
-        .card-title {
-            font-size: 15px;
-            font-weight: bold;
-            color: #222;
+
+        .form-group {
             margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-yellow {
-            width: 100%;
-            padding: 10px;
-            background-color: #d4a017;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 5px;
-        }
-        .btn-yellow:hover {
-            background-color: #b8860b;
-        }
-        .btn-light {
-            width: 100%;
-            padding: 10px;
-            background-color: #f7f4ec;
-            color: #444;
-            border: 1px solid #e0d8c3;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 5px;
-        }
-        .btn-light:hover {
-            background-color: #eee5d0;
         }
 
-        /* Mockup Height Selector Styling */
-        .height-picker-container {
-            display: flex;
-            background: #faf8f5;
-            border: 1px solid #e0d8c3;
-            border-radius: 6px;
-            padding: 15px;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-        }
-        .height-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            user-select: none;
-        }
-        .height-arrow {
-            background: none;
-            border: none;
-            font-size: 20px;
-            font-weight: 900;
-            cursor: pointer;
-            color: #333;
-            padding: 4px 10px;
-            transition: color 0.15s;
-        }
-        .height-arrow:hover {
-            color: #d4a017;
-        }
-        .height-value-display {
-            font-size: 28px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            color: #222;
-            padding: 4px 0;
-        }
-
-        /* Lookup Result Boxes */
-        .lookup-result-box {
-            background: #faf8f5;
-            border: 1px solid #e0d8c3;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 12px;
+        label {
+            display: block;
+            margin-bottom: 5px;
             font-size: 13px;
-            color: #444;
-        }
-        .lookup-result-box p {
-            margin-bottom: 8px;
+            color: var(--text-muted);
         }
 
-        /* Leaderboard table style */
-        .leaderboard-table {
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: #2a2a2a;
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button.btn-yellow {
+            background-color: var(--accent-yellow);
+            color: black;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button.btn-yellow:hover {
+            opacity: 0.9;
+        }
+
+        table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            margin-top: 10px;
         }
-        .leaderboard-table th, .leaderboard-table td {
-            padding: 8px 10px;
+
+        th, td {
+            padding: 10px;
             text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        .leaderboard-table th {
-            background-color: #faf8f5;
-            color: #444;
-            font-weight: 600;
-        }
-        .badge-violator {
-            background: #f0f0f0;
-            color: #333;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .badge-bolo {
-            background: #d9534f;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        /* Dispatch & Caller specific styling */
-        .section-header-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #222;
-            margin-bottom: 5px;
-        }
-        .section-subtitle {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .dispatch-card {
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-left: 5px solid #d9534f;
-            padding: 15px 20px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-        }
-        .dispatch-card h3 {
-            color: #d9534f;
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
-        .dispatch-card p {
-            margin: 4px 0;
+            border-bottom: 1px solid var(--border-color);
             font-size: 14px;
-            color: #555;
-        }
-        .caller-form-box {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            padding: 25px;
-            border-radius: 8px;
-            max-width: 650px;
         }
 
+        th {
+            color: var(--text-muted);
+        }
+
+        .dispatch-card {
+            background: #252525;
+            border-left: 4px solid var(--accent-yellow);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        /* Alert Popup */
         #alert-popup {
             position: fixed;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
-            background-color: #d9534f;
+            background: #333;
             color: white;
-            padding: 15px 25px;
+            padding: 15px 20px;
             border-radius: 6px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            font-weight: bold;
-            z-index: 3000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-20px);
-            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+            border-left: 4px solid var(--accent-yellow);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 9999;
         }
+
         #alert-popup.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+            display: block;
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
         }
     </style>
 </head>
 <body>
 
-    <!-- Verplichte Team Selectie Modal bij inladen -->
-    <div id="team-modal">
-        <div class="modal-box">
-            <h2>Select Your In-Game Team</h2>
-            <p>You must select your team to continue. Civilians do not require a callsign.</p>
+    <!-- AUDIO VOOR ALERTS -->
+    <audio id="alert-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
+    <!-- ALERT POPUP ELEMENT -->
+    <div id="alert-popup">Notification message here</div>
+
+    <!-- TEAM SELECTION MODAL (Standaard bij start) -->
+    <div id="team-modal" class="modal-overlay">
+        <div class="card" style="width: 400px;">
+            <h3>Select Role & Team</h3>
             <div class="form-group">
-                <label>Team Selection</label>
+                <label>Select Team</label>
                 <select id="modal-team-select" onchange="handleTeamChange()">
-                    <option value="Civilian" selected>Civilian</option>
-                    <option value="Staff">Staff</option>
+                    <option value="Civilian">Civilian</option>
                     <option value="Police">Police</option>
-                    <option value="DOT">DOT</option>
-                    <option value="Ambulance">Ambulance</option>
-                    <option value="Firefighters">Firefighters</option>
+                    <option value="EMS">EMS</option>
+                    <option value="Staff">Staff</option>
                 </select>
             </div>
             <div class="form-group" id="callsign-group" style="display: none;">
-                <label>In-Game Callsign (3-6 chars, max 3 letters, e.g. 101 or A12)</label>
-                <input type="text" id="modal-callsign-input" placeholder="e.g. 101" maxlength="6">
-                <div id="callsign-error" class="error-msg">Callsign must be 3-6 characters long and contain at most 3 letters.</div>
+                <label>Callsign (3-6 chars, max 3 letters)</label>
+                <input type="text" id="modal-callsign-input" placeholder="e.g. 101">
+                <span id="callsign-error" style="color: var(--accent-red); font-size: 12px; display: none;">Invalid callsign format.</span>
             </div>
-            <button class="modal-btn" onclick="submitTeamSelection()">Join CAD</button>
+            <button class="btn-yellow" style="width: 100%; margin-top: 10px;" onclick="submitTeamSelection()">Confirm Team</button>
         </div>
     </div>
 
-    <div id="alert-popup">🚨 System Notification</div>
+    <!-- UPDATE LOGS MODAL -->
+    <div id="update-modal" style="display:none;" class="modal-overlay">
+        <div class="card" style="width: 450px; max-height: 80vh; overflow-y: auto;">
+            <h3>📜 Update Logs & Version Control</h3>
+            <div id="update-logs-container" style="margin-top: 15px;">
+                <p>Loading updates...</p>
+            </div>
+            <button onclick="closeUpdateModal()" style="margin-top: 15px; width: 100%;" class="btn-yellow">Close</button>
+        </div>
+    </div>
 
-    <!-- Header & Branding -->
+    <!-- HOOFDPAGINA / HEADER -->
     <header>
-        <div class="header-top-left">
-            <div class="civ-points-badge" id="civ-points-display">CVP Points: 0 | Status: Violator</div>
-        </div>
-        <div class="header-top-right">
-            <div class="current-team-badge" id="display-team-info">Team: Civilian</div>
-            <button class="change-team-btn" onclick="openTeamModal()">Change Team</button>
-        </div>
-        <img src="https://img.icons8.com/color/48/lemon.png" alt="Lemon Logo" class="logo-img">
-        <div class="brand-title">LEMON'S</div>
-        <div class="brand-subtitle">RP SERVER</div>
-        <div class="main-heading">Computer-Aided Dispatch (CAD)</div>
-
-        <!-- Navigation Tabs -->
-        <div class="nav-tabs" id="nav-tabs-container">
-            <div class="nav-tab active hidden-for-civ" id="tab-btn-cad" onclick="switchTab('cad', this)">Violators / BOLO's</div>
-            <div class="nav-tab hidden-for-civ" id="tab-btn-dispatch" onclick="switchTab('dispatch', this)">Dispatch</div>
-            <div class="nav-tab" id="tab-btn-caller" onclick="switchTab('caller', this)">Emergency Caller (911)</div>
-            <div class="nav-tab hidden-for-staff" id="tab-btn-staff-caller" onclick="switchTab('staff-caller', this)">Staff Caller</div>
-            <div class="nav-tab" id="tab-btn-staff-dashboard" onclick="switchTab('staff-dashboard', this)" style="display: none;">Staff Dashboard</div>
-            <div class="nav-tab" id="tab-btn-map" onclick="switchTab('map', this)">Interactive Map</div>
+        <div class="header-title">CAD & Dispatch System</div>
+        <div class="header-controls">
+            <span id="display-team-info" class="badge">Team: Civilian</span>
+            <div id="civ-points-display" class="badge">CVP Points: 0 | Status: Violator</div>
+            <button onclick="openTeamModal()" class="badge" style="cursor: pointer; background: #444; border: none; color: white;">Switch Team</button>
+            <button onclick="openUpdateModal()" class="badge" style="cursor: pointer; background: var(--accent-yellow); color: black; border: none; font-weight: bold;">Updates (<span id="version-label">...</span>)</button>
         </div>
     </header>
 
-    <!-- Main Content Area -->
+    <!-- NAVIGATIE TABBLADEN -->
+    <nav>
+        <button id="tab-btn-caller" class="nav-tab active" onclick="switchTab('caller', this)">911 Caller</button>
+        <button id="tab-btn-cad" class="nav-tab hidden-for-civ" onclick="switchTab('cad', this)">Police CAD / DMV</button>
+        <button id="tab-btn-dispatch" class="nav-tab hidden-for-civ" onclick="switchTab('dispatch', this)">Dispatch Active</button>
+        <button id="tab-btn-staff-caller" class="nav-tab" onclick="switchTab('staff-caller', this)">Staff Report</button>
+        <button id="tab-btn-staff-dashboard" class="nav-tab" style="display: none;" onclick="switchTab('staff-dashboard', this)">Staff Dashboard</button>
+    </nav>
+
+    <!-- INHOUD VAN DE TABBLADEN -->
     <main>
-        <!-- 1. VIOLATORS / BOLO'S TAB -->
-        <div id="cad" class="tab-content active">
-            <div class="grid-2">
-                <!-- Left Column: Civilian Violations Profile (CVP) -->
-                <div>
-                    <div class="card">
-                        <div class="card-title">👤 Civilian Violations Profile (CVP)</div>
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="civ-name" placeholder="e.g. John Doe">
-                        </div>
-                        <div class="form-group">
-                            <label>Age</label>
-                            <select id="civ-age">
-                                <option value="Toddler">Toddler</option>
-                                <option value="Kid">Kid</option>
-                                <option value="Teen">Teen</option>
-                                <option value="Young Adult">Young Adult</option>
-                                <option value="Adult" selected>Adult</option>
-                                <option value="Elder">Elder</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Height</label>
-                            <div class="height-picker-container">
-                                <div class="height-column">
-                                    <button type="button" class="height-arrow" onclick="adjustHeight('feet', 1)">&#9650;</button>
-                                    <div class="height-value-display"><span id="height-feet">5</span>'</div>
-                                    <button type="button" class="height-arrow" onclick="adjustHeight('feet', -1)">&#9660;</button>
-                                </div>
-                                <div class="height-column">
-                                    <button type="button" class="height-arrow" onclick="adjustHeight('inches', 1)">&#9650;</button>
-                                    <div class="height-value-display"><span id="height-inches">7</span>"</div>
-                                    <button type="button" class="height-arrow" onclick="adjustHeight('inches', -1)">&#9660;</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Gender</label>
-                            <select id="civ-gender">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Vehicle License Plate (Required for CVP)</label>
-                            <input type="text" id="civ-plate" placeholder="e.g. 83ABC12">
-                        </div>
-                        <div class="form-group">
-                            <label>Violation / Offense Type</label>
-                            <select id="civ-violation-type">
-                                <option value="1">Traffic Stop (1 Point)</option>
-                                <option value="2">Robbery / Heist (2 Points)</option>
-                                <option value="3">Killing another Civilian (3 Points)</option>
-                                <option value="4">Killing LEO, DOT, Medic, or Firefighter (4 Points)</option>
-                            </select>
-                        </div>
-                        <button class="btn-yellow" onclick="registerCivilianProfile()">Create/Update CVP & Add Points</button>
-                    </div>
-                </div>
 
-                <!-- Right Column: CVP Lookup, DMV Lookup & Leaderboard -->
-                <div>
-                    <div class="card">
-                        <div class="card-title">🔍 CVP Lookup</div>
-                        <div class="form-group">
-                            <label>Search Person</label>
-                            <input type="text" id="search-person-input" placeholder="Search by name...">
-                        </div>
-                        <button class="btn-light" onclick="searchPerson()">Search Person</button>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">🚗 DMV Lookup</div>
-                        <div class="form-group">
-                            <label>Search License Plate</label>
-                            <input type="text" id="search-plate-input" placeholder="Search by license plate...">
-                        </div>
-                        <button class="btn-light" onclick="searchPlate()">Search Plate</button>
-                        <div id="dmv-lookup-result" style="display: none;"></div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">🏆 Violators & BOLO Leaderboard</div>
-                        <div style="max-height: 200px; overflow-y: auto;">
-                            <table class="leaderboard-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Plate</th>
-                                        <th>Points</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="leaderboard-body">
-                                    <tr>
-                                        <td colspan="4" style="text-align: center; color: #777;">No records found.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. DISPATCH & INBOX TAB -->
-        <div id="dispatch" class="tab-content">
-            <div class="section-header-title">Dispatch Center & History</div>
-            <div class="section-subtitle">Live in-game dispatches and historical logs.</div>
-            <div class="dispatch-container" id="dispatch-list">
-                <div style="color: #666; font-style: italic;">No active dispatches...</div>
-            </div>
-        </div>
-
-        <!-- 3. EMERGENCY CALLER (911) TAB -->
-        <div id="caller" class="tab-content">
-            <div class="section-header-title">911 Emergency Caller</div>
-            <div class="section-subtitle">Submit an emergency call and dispatch specific services.</div>
-            <div class="caller-form-box">
+        <!-- 1. 911 CALLER -->
+        <div id="caller" class="tab-content active">
+            <div class="card">
+                <h2>Emergency 911 Call</h2>
                 <div class="form-group">
-                    <label>Incident / Emergency Title</label>
-                    <input type="text" id="call-title" placeholder="e.g. Bank Robbery / Medical Emergency">
+                    <label>Incident Title</label>
+                    <input type="text" id="call-title" placeholder="e.g. Armed Robbery">
                 </div>
                 <div class="form-group">
                     <label>Location</label>
-                    <input type="text" id="call-location" placeholder="e.g. Main Street, Downtown">
+                    <input type="text" id="call-location" placeholder="e.g. Vinewood Blvd">
                 </div>
                 <div class="form-group">
-                    <label>Description & Details</label>
-                    <textarea id="call-description" placeholder="Describe the emergency details..."></textarea>
+                    <label>Description</label>
+                    <textarea id="call-description" rows="3" placeholder="Provide extra information..."></textarea>
                 </div>
-
-                <div class="form-group">
-                    <label>Dispatch Service 1 (Required)</label>
-                    <select id="service-1">
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Firefighters">Firefighters</option>
-                    </select>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                    <div class="form-group"><label>Service 1</label><select id="service-1"><option value="Police">Police</option><option value="N/A">N/A</option></select></div>
+                    <div class="form-group"><label>Service 2</label><select id="service-2"><option value="EMS">EMS</option><option value="N/A">N/A</option></select></div>
+                    <div class="form-group"><label>Service 3</label><select id="service-3"><option value="Fire">Fire</option><option value="N/A">N/A</option></select></div>
+                    <div class="form-group"><label>Service 4</label><select id="service-4"><option value="DOT">DOT</option><option value="N/A" selected>N/A</option></select></div>
                 </div>
-                <div class="form-group">
-                    <label>Dispatch Service 2 (Optional)</label>
-                    <select id="service-2">
-                        <option value="N/A">N/A</option>
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Firefighters">Firefighters</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Dispatch Service 3 (Optional)</label>
-                    <select id="service-3">
-                        <option value="N/A">N/A</option>
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Firefighters">Firefighters</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Dispatch Service 4 (Optional)</label>
-                    <select id="service-4">
-                        <option value="N/A">N/A</option>
-                        <option value="Police">Police</option>
-                        <option value="DOT">DOT</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Firefighters">Firefighters</option>
-                    </select>
-                </div>
-
-                <button class="btn-yellow" onclick="submitEmergencyCall()">Send 911 Call</button>
+                <button class="btn-yellow" onclick="submitEmergencyCall()">Dispatch 911 Call</button>
             </div>
         </div>
 
-        <!-- STAFF CALLER TAB (Toegankelijk voor iedereen behalve Staff) -->
+        <!-- 2. POLICE CAD / DMV -->
+        <div id="cad" class="tab-content">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <div class="card">
+                        <h2>CVP Registration & Violation</h2>
+                        <div class="form-group"><label>Full Name</label><input type="text" id="civ-name" placeholder="John Doe"></div>
+                        <div class="form-group"><label>Age</label><input type="number" id="civ-age" value="25"></div>
+                        <div class="form-group">
+                            <label>Height: <span id="height-feet">5</span>ft <span id="height-inches">7</span>in</label>
+                            <div style="display:flex; gap: 5px;">
+                                <button type="button" onclick="adjustHeight('feet', -1)">- ft</button><button type="button" onclick="adjustHeight('feet', 1)">+ ft</button>
+                                <button type="button" onclick="adjustHeight('inches', -1)">- in</button><button type="button" onclick="adjustHeight('inches', 1)">+ in</button>
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Gender</label><select id="civ-gender"><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                        <div class="form-group"><label>License Plate</label><input type="text" id="civ-plate" placeholder="3XYZ123"></div>
+                        <div class="form-group">
+                            <label>Violation / Infraction Type</label>
+                            <select id="civ-violation-type">
+                                <option value="1">Traffic Stop (+1 Point)</option>
+                                <option value="2">Robbery / Heist (+2 Points)</option>
+                                <option value="3">Killing another Civilian (+3 Points)</option>
+                                <option value="4">Killing LEO, DOT, Medic, or Firefighter (+4 Points)</option>
+                            </select>
+                        </div>
+                        <button class="btn-yellow" onclick="registerCivilianProfile()">Save / Update CVP Profile</button>
+                    </div>
+
+                    <div class="card">
+                        <h2>DMV Database Lookup</h2>
+                        <div class="form-group"><label>Search License Plate</label><input type="text" id="search-plate-input" placeholder="Enter plate..."></div>
+                        <button class="btn-yellow" onclick="searchPlate()">Search DMV</button>
+                        <div id="dmv-lookup-result" style="margin-top: 15px; display: none; background: #252525; padding: 10px; border-radius: 4px;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <h2>Person Search (CVP)</h2>
+                        <div class="form-group"><label>Search Name</label><input type="text" id="search-person-input" placeholder="Enter name..."></div>
+                        <button class="btn-yellow" onclick="searchPerson()">Search Database</button>
+                    </div>
+
+                    <div class="card">
+                        <h2>Active Violators & BOLO Leaderboard</h2>
+                        <table>
+                            <thead>
+                                <tr><th>Name</th><th>Plate</th><th>Points</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="leaderboard-body">
+                                <tr><td colspan="4" style="text-align: center; color: #777;">No records found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. DISPATCH ACTIVE -->
+        <div id="dispatch" class="tab-content">
+            <div class="card">
+                <h2>Active Emergency Dispatches & BOLO Alerts</h2>
+                <div id="dispatch-list">
+                    <div class="dispatch-card"><p style="color: #777; margin: 0;">No active dispatches right now.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. STAFF REPORT CALLER -->
         <div id="staff-caller" class="tab-content">
-            <div class="section-header-title">Staff Assistance Caller</div>
-            <div class="section-subtitle">Need help from a staff member or report a rule breaker? File a staff call here.</div>
-            <div class="caller-form-box">
+            <div class="card">
+                <h2>Staff Report Submission</h2>
                 <div class="form-group">
-                    <label>Report Reason / Rule Break Type</label>
+                    <label>Reason</label>
                     <select id="staff-call-reason" onchange="handleStaffReasonChange()">
                         <option value="RDM (Random Deathmatch)">RDM (Random Deathmatch)</option>
                         <option value="VDM (Vehicle Deathmatch)">VDM (Vehicle Deathmatch)</option>
-                        <option value="FRP (Failed/Fail Roleplay)">FRP (Failed/Fail Roleplay)</option>
-                        <option value="NLR (New Life Rule)">NLR (New Life Rule)</option>
-                        <option value="No Gun Motion">No Gun Motion</option>
-                        <option value="Unrealistic avatars">Unrealistic avatars</option>
-                        <option value="Metagaming">Metagaming</option>
-                        <option value="Powergaming">Powergaming</option>
+                        <option value="FailRP">FailRP</option>
+                        <option value="New Life Rule Violation">New Life Rule Violation</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>In-Game Location / Details</label>
-                    <textarea id="staff-call-description" placeholder="Describe what happened and who was involved..."></textarea>
-                </div>
-                
-                <!-- Proof Upload Section (Standaard zichtbaar omdat RDM de eerste optie is) -->
                 <div class="form-group" id="proof-container">
-                    <label id="proof-label">If you file a staff call for RDM/VDM, you must upload proof here.</label>
-                    <input type="file" id="staff-call-proof" accept="image/*,video/*">
+                    <label>Upload Video/Screenshot Proof (Required for RDM/VDM)</label>
+                    <input type="file" id="staff-call-proof">
                 </div>
-
-                <button class="btn-yellow" onclick="submitStaffCall()">Submit Staff Call</button>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="staff-call-description" rows="3" placeholder="Explain what happened..."></textarea>
+                </div>
+                <button class="btn-yellow" onclick="submitStaffCall()">Submit Report</button>
             </div>
         </div>
 
-        <!-- STAFF DASHBOARD TAB (Alleen zichtbaar voor Staff om calls te bekijken) -->
+        <!-- 5. STAFF DASHBOARD -->
         <div id="staff-dashboard" class="tab-content">
-            <div class="section-header-title">Staff Call Dashboard</div>
-            <div class="section-subtitle">Incoming staff assistance requests from players and teams.</div>
-            <div class="dispatch-container" id="staff-call-list">
-                <div style="color: #666; font-style: italic;">No active staff calls...</div>
+            <div class="card">
+                <h2>Staff Reports & Moderation Feed</h2>
+                <div id="staff-call-list">
+                    <div class="dispatch-card"><p style="color: #777; margin: 0;">No active staff calls.</p></div>
+                </div>
             </div>
         </div>
 
-        <!-- 4. INTERACTIVE MAP TAB -->
-        <div id="map" class="tab-content map-container-wrapper">
-            <div class="section-header-title">Interactive Map</div>
-            <div class="section-subtitle">Live ER:LC GPS tracking and locations (Powered by erlc-hub.pages.dev).</div>
-            <div class="card" style="padding: 0; overflow: hidden; height: 700px; background: #fff;">
-                <iframe src="https://erlc-hub.pages.dev" style="width: 100%; height: 100%; border: none;" title="ER:LC Interactive Map"></iframe>
-            </div>
-        </div>
     </main>
 
-    <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-
-    <script>
-        let currentActiveTeam = 'Civilian';
-        let registeredCivilians = [];
-        let alertTimeout = null;
-        let currentFeet = 5;
-        let currentInches = 7;
-
-        function adjustHeight(type, amount) {
-            if (type === 'feet') {
-                currentFeet += amount;
-                if (currentFeet < 2) currentFeet = 2; 
-                if (currentFeet > 7) currentFeet = 7;
-                
-                if (currentFeet === 2 && currentInches < 0) {
-                    currentInches = 0;
-                }
-
-                if (currentFeet === 7) {
-                    currentInches = 0;
-                    document.getElementById('height-inches').innerText = currentInches;
-                }
-                document.getElementById('height-feet').innerText = currentFeet;
-            } else if (type === 'inches') {
-                if (currentFeet === 7 && amount > 0) {
-                    currentInches = 0;
-                    document.getElementById('height-inches').innerText = currentInches;
-                    return;
-                }
-
-                currentInches += amount;
-                if (currentInches < 0) {
-                    currentInches = 11;
-                    if (currentFeet > 2) { 
-                        currentFeet--;
-                        document.getElementById('height-feet').innerText = currentFeet;
-                    } else {
-                        currentFeet = 2;
-                        currentInches = 0;
-                    }
-                } else if (currentInches > 11) {
-                    currentInches = 0;
-                    if (currentFeet < 7) {
-                        currentFeet++;
-                        document.getElementById('height-feet').innerText = currentFeet;
-                        if (currentFeet === 7) {
-                            currentInches = 0;
-                        }
-                    } else {
-                        currentInches = 0;
-                    }
-                }
-
-                if (currentFeet === 7) {
-                    currentInches = 0;
-                }
-
-                document.getElementById('height-inches').innerText = currentInches;
-            }
-        }
-
-        function openTeamModal() {
-            document.getElementById('team-modal').style.display = 'flex';
-        }
-
-        function handleTeamChange() {
-            const team = document.getElementById('modal-team-select').value;
-            const callsignGroup = document.getElementById('callsign-group');
-            if (team === 'Civilian') {
-                callsignGroup.style.display = 'none';
-            } else {
-                callsignGroup.style.display = 'block';
-            }
-        }
-
-        function submitTeamSelection() {
-            const team = document.getElementById('modal-team-select').value;
-            const callsign = document.getElementById('modal-callsign-input').value.trim();
-            const errorDiv = document.getElementById('callsign-error');
-
-            currentActiveTeam = team;
-            const pointsBadge = document.getElementById('civ-points-display');
-            const staffCallerTab = document.getElementById('tab-btn-staff-caller');
-            const staffDashboardTab = document.getElementById('tab-btn-staff-dashboard');
-
-            if (team === 'Civilian') {
-                errorDiv.style.display = 'none';
-                document.getElementById('display-team-info').innerText = `Team: Civilian`;
-                document.getElementById('team-modal').style.display = 'none';
-                pointsBadge.style.display = 'block';
-                
-                document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
-                staffCallerTab.classList.remove('hidden-for-staff');
-                staffDashboardTab.style.display = 'none';
-
-                switchTab('caller', document.getElementById('tab-btn-caller'));
-                return;
-            }
-
-            if (team === 'Staff') {
-                errorDiv.style.display = 'none';
-                document.getElementById('display-team-info').innerText = `Team: Staff`;
-                document.getElementById('team-modal').style.display = 'none';
-                pointsBadge.style.display = 'none';
-
-                document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
-                staffCallerTab.classList.add('hidden-for-staff'); 
-                staffDashboardTab.style.display = 'block'; 
-
-                switchTab('staff-dashboard', staffDashboardTab);
-                return;
-            }
-
-            const letterCount = (callsign.match(/[a-zA-Z]/g) || []).length;
-            const isValidLength = callsign.length >= 3 && callsign.length <= 6;
-            const isValidLetters = letterCount <= 3;
-
-            if (!isValidLength || !isValidLetters) {
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            errorDiv.style.display = 'none';
-            document.getElementById('display-team-info').innerText = `Team: ${team} | ${callsign}`;
-            document.getElementById('team-modal').style.display = 'none';
-            pointsBadge.style.display = 'none';
-
-            document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
-            staffCallerTab.classList.remove('hidden-for-staff'); 
-            staffDashboardTab.style.display = 'none';
-
-            switchTab('cad', document.getElementById('tab-btn-cad'));
-        }
-
-        function switchTab(tabId, element) {
-            if (currentActiveTeam === 'Civilian' && (tabId === 'cad' || tabId === 'dispatch')) {
-                return;
-            }
-            if (currentActiveTeam === 'Staff' && tabId === 'staff-caller') {
-                return;
-            }
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            if(element) element.classList.add('active');
-        }
-
-        function handleStaffReasonChange() {
-            const reason = document.getElementById('staff-call-reason').value;
-            const proofContainer = document.getElementById('proof-container');
-            
-            // Alleen tonen en verplichten bij RDM of VDM
-            if (reason.startsWith('RDM') || reason.startsWith('VDM')) {
-                proofContainer.style.display = 'block';
-            } else {
-                proofContainer.style.display = 'none';
-                document.getElementById('staff-call-proof').value = ''; // Reset waarde als het verborgen wordt
-            }
-        }
-
-        function registerCivilianProfile() {
-            const name = document.getElementById('civ-name').value.trim();
-            const age = document.getElementById('civ-age').value;
-            const height = `${currentFeet}'${currentInches}"`;
-            const gender = document.getElementById('civ-gender').value;
-            const plate = document.getElementById('civ-plate').value.trim();
-            const pointsToAdd = parseInt(document.getElementById('civ-violation-type').value) || 1;
-
-            if(!name || !plate) {
-                triggerAlert('⚠️ Error: Please enter full name and license plate.');
-                return;
-            }
-
-            let existingCiv = registeredCivilians.find(c => c.name.toLowerCase() === name.toLowerCase());
-            let wasAlreadyBolo = existingCiv ? existingCiv.points >= 4 : false;
-            let finalPoints = pointsToAdd;
-
-            if (existingCiv) {
-                existingCiv.points += pointsToAdd;
-                existingCiv.plate = plate;
-                existingCiv.age = age;
-                existingCiv.height = height;
-                finalPoints = existingCiv.points;
-            } else {
-                existingCiv = { name, age, height, gender, plate, points: pointsToAdd };
-                registeredCivilians.push(existingCiv);
-                finalPoints = pointsToAdd;
-            }
-
-            updateCivPointsBadge();
-            updateLeaderboard();
-
-            let isNowBolo = finalPoints >= 4;
-
-            if (isNowBolo && !wasAlreadyBolo) {
-                dispatchBoloAlert(name, plate, finalPoints);
-            } else {
-                let statusType = isNowBolo ? "BOLO 🚨" : "Violator";
-                triggerAlert(`✅ CVP Updated: +${pointsToAdd} pts for ${name}. Total: ${finalPoints} (${statusType})`);
-            }
-            
-            document.getElementById('civ-name').value = '';
-            document.getElementById('civ-plate').value = '';
-        }
-
-        function dispatchBoloAlert(civName, plate, points) {
-            const newDispatch = {
-                title: `[BOLO ALERT] ${civName} (Plate: ${plate}) reached ${points} points!`,
-                location: 'Citywide / Active Pursuit',
-                description: `Civilian ${civName} driving plate ${plate} has accumulated ${points} infraction points and is officially designated as a BOLO. All police units exercise caution.`,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                services: ['Police']
-            };
-
-            const listContainer = document.getElementById('dispatch-list');
-            if (listContainer.innerHTML.includes('No active dispatches')) {
-                listContainer.innerHTML = '';
-            }
-
-            const card = document.createElement('div');
-            card.className = 'dispatch-card';
-            card.innerHTML = `
-                <h3>🚨 ${newDispatch.title}</h3>
-                <p><strong>Location:</strong> ${newDispatch.location}</p>
-                <p><strong>Details:</strong> ${newDispatch.description}</p>
-                <p><strong>Dispatched Services:</strong> Police</p>
-                <p><strong>Time:</strong> ${newDispatch.time}</p>
-            `;
-            listContainer.prepend(card);
-
-            triggerAlert('🚨 BOLO ALERT: ' + civName + ' (' + plate + ') is now a BOLO!');
-        }
-
-        function updateCivPointsBadge() {
-            const badge = document.getElementById('civ-points-display');
-            if (registeredCivilians.length > 0) {
-                const latestCiv = registeredCivilians[registeredCivilians.length - 1];
-                let status = latestCiv.points >= 4 ? "BOLO" : "Violator";
-                badge.innerText = `CVP Points: ${latestCiv.points} | Status: ${status}`;
-            } else {
-                badge.innerText = `CVP Points: 0 | Status: Violator`;
-            }
-        }
-
-        function updateLeaderboard() {
-            const tbody = document.getElementById('leaderboard-body');
-            tbody.innerHTML = '';
-
-            if (registeredCivilians.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #777;">No records found.</td></tr>`;
-                return;
-            }
-
-            let sortedCivs = [...registeredCivilians].sort((a, b) => b.points - a.points);
-
-            sortedCivs.forEach(civ => {
-                let isBolo = civ.points >= 4;
-                let badgeHtml = isBolo ? `<span class="badge-bolo">BOLO</span>` : `<span class="badge-violator">Violator</span>`;
-                
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${civ.name}</strong></td>
-                    <td><code>${civ.plate}</code></td>
-                    <td>${civ.points}</td>
-                    <td>${badgeHtml}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function searchPerson() {
-            const searchInput = document.getElementById('search-person-input');
-            const query = searchInput.value.trim().toLowerCase();
-            
-            if(!query) {
-                triggerAlert('⚠️ Error: Please enter a name to search.');
-                return;
-            }
-
-            const found = registeredCivilians.find(c => c.name.toLowerCase().includes(query));
-            if(found) {
-                let status = found.points >= 4 ? "BOLO 🚨 (HIGH PRIORITY)" : "Violator";
-                triggerAlert(`🔍 Found CVP: ${found.name} (${found.age}, ${found.height}) | Plate: ${found.plate} | Points: ${found.points} (${status})`);
-            } else {
-                triggerAlert('🔍 CVP Search: No profile found with that name.');
-            }
-
-            searchInput.value = '';
-        }
-
-        function searchPlate() {
-            const searchInput = document.getElementById('search-plate-input');
-            const query = searchInput.value.trim().toLowerCase();
-            const resultBox = document.getElementById('dmv-lookup-result');
-            resultBox.style.display = 'block';
-            resultBox.innerHTML = '';
-
-            if(!query) {
-                triggerAlert('⚠️ Error: Please enter a license plate to search.');
-                resultBox.style.display = 'none';
-                return;
-            }
-
-            const foundCvp = registeredCivilians.find(c => c.plate.toLowerCase() === query);
-
-            if(!foundCvp) {
-                triggerAlert('🔍 DMV Search: License plate not found in CVP database.');
-                resultBox.innerHTML = `
-                    <p style="color: #d9534f; font-weight: bold; margin-bottom: 8px;">This vehicle is not yet in our CVP database. Want to add the license plate to the registration form for a new CVP?</p>
-                    <button class="btn-yellow" onclick="autofillPlate('${query.toUpperCase()}')">Fill Plate in CVP Form</button>
-                `;
-            } else {
-                let ownerStatus = foundCvp.points >= 4 ? "BOLO Owner 🚨" : "Violator";
-                triggerAlert(`🔍 DMV Search: License plate recognized.`);
-                resultBox.innerHTML = `
-                    <p style="color: #2e7d32; font-weight: bold; margin-bottom: 6px;">License plate recognized.</p>
-                    <p><strong>Owner:</strong> ${foundCvp.name} (${foundCvp.age}, ${foundCvp.height}) | <strong>Points:</strong> ${foundCvp.points} (${ownerStatus})</p>
-                    <div class="form-group" style="margin-top: 10px; margin-bottom: 8px;">
-                        <label style="font-size: 12px;">Add Points to ${foundCvp.name}</label>
-                        <select id="quick-add-points-${foundCvp.plate}" style="font-size: 13px; padding: 6px;">
-                            <option value="1">Traffic Stop (+1 Point)</option>
-                            <option value="2">Robbery / Heist (+2 Points)</option>
-                            <option value="3">Killing another Civilian (+3 Points)</option>
-                            <option value="4">Killing LEO, DOT, Medic, or Firefighter (+4 Points)</option>
-                        </select>
-                    </div>
-                    <button class="btn-yellow" style="padding: 6px; font-size: 13px;" onclick="addPointsDirectly('${foundCvp.plate}')">Add Points</button>
-                `;
-            }
-
-            searchInput.value = '';
-        }
-
-        function autofillPlate(plate) {
-            document.getElementById('civ-plate').value = plate;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            const resultBox = document.getElementById('dmv-lookup-result');
-            resultBox.style.display = 'none';
-            resultBox.innerHTML = '';
-
-            triggerAlert(`✅ Plate ${plate} filled into CVP Registration form.`);
-        }
-
-        function addPointsDirectly(plate) {
-            const selectEl = document.getElementById(`quick-add-points-${plate}`);
-            const pointsToAdd = parseInt(selectEl.value) || 1;
-            const civ = registeredCivilians.find(c => c.plate.toLowerCase() === plate.toLowerCase());
-
-            if (!civ) return;
-
-            let wasAlreadyBolo = civ.points >= 4;
-            civ.points += pointsToAdd;
-            let finalPoints = civ.points;
-
-            updateCivPointsBadge();
-            updateLeaderboard();
-
-            let isNowBolo = finalPoints >= 4;
-
-            if (isNowBolo && !wasAlreadyBolo) {
-                dispatchBoloAlert(civ.name, civ.plate, finalPoints);
-            } else {
-                let statusType = isNowBolo ? "BOLO 🚨" : "Violator";
-                triggerAlert(`✅ Added +${pointsToAdd} pts to ${civ.name}. Total: ${finalPoints} (${statusType})`);
-            }
-
-            const resultBox = document.getElementById('dmv-lookup-result');
-            resultBox.style.display = 'none';
-            resultBox.innerHTML = '';
-        }
-
-        async function submitEmergencyCall() {
-            const title = document.getElementById('call-title').value.trim();
-            const location = document.getElementById('call-location').value.trim();
-            const description = document.getElementById('call-description').value.trim();
-
-            const s1 = document.getElementById('service-1').value;
-            const s2 = document.getElementById('service-2').value;
-            const s3 = document.getElementById('service-3').value;
-            const s4 = document.getElementById('service-4').value;
-
-            if (!title || !location) {
-                triggerAlert('⚠️ Error: Please enter a title and location for the 911 call.');
-                return;
-            }
-
-            const targetServices = [s1, s2, s3, s4].filter(s => s !== 'N/A');
-
-            const newDispatch = {
-                title: `[911 CALL] ${title}`,
-                location: location,
-                description: description || 'No extra details provided.',
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                services: targetServices
-            };
-
-            const listContainer = document.getElementById('dispatch-list');
-            if (listContainer.innerHTML.includes('No active dispatches')) {
-                listContainer.innerHTML = '';
-            }
-
-            const card = document.createElement('div');
-            card.className = 'dispatch-card';
-            card.innerHTML = `
-                <h3>🚨 ${newDispatch.title}</h3>
-                <p><strong>Location:</strong> ${newDispatch.location}</p>
-                <p><strong>Details:</strong> ${newDispatch.description}</p>
-                <p><strong>Dispatched Services:</strong> ${targetServices.join(', ')}</p>
-                <p><strong>Time:</strong> ${newDispatch.time}</p>
-            `;
-            listContainer.prepend(card);
-
-            triggerAlert('🚨 New 911 Emergency Dispatch Sent Successfully!');
-            
-            document.getElementById('call-title').value = '';
-            document.getElementById('call-location').value = '';
-            document.getElementById('call-description').value = '';
-            
-            if (currentActiveTeam !== 'Civilian') {
-                switchTab('dispatch', document.getElementById('tab-btn-dispatch'));
-            }
-        }
-
-        function submitStaffCall() {
-            const reason = document.getElementById('staff-call-reason').value;
-            const description = document.getElementById('staff-call-description').value.trim();
-            const proofInput = document.getElementById('staff-call-proof');
-            const isRdmVdm = reason.startsWith('RDM') || reason.startsWith('VDM');
-
-            if (isRdmVdm && proofInput.files.length === 0) {
-                triggerAlert('⚠️ Error: Proof is required for RDM/VDM reports.');
-                return;
-            }
-
-            const hasProof = proofInput.files.length > 0 ? 'Yes (File attached)' : 'None required/provided';
-
-            const newStaffCall = {
-                title: reason,
-                description: description || 'No details provided.',
-                hasProof: hasProof,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                team: currentActiveTeam
-            };
-
-            const listContainer = document.getElementById('staff-call-list');
-            if (listContainer.innerHTML.includes('No active staff calls')) {
-                listContainer.innerHTML = '';
-            }
-
-            const card = document.createElement('div');
-            card.className = 'dispatch-card';
-            card.innerHTML = `
-                <h3>⚠️ [STAFF CALL] ${newStaffCall.title}</h3>
-                <p><strong>Submitted by Team:</strong> ${newStaffCall.team}</p>
-                <p><strong>Details:</strong> ${newStaffCall.description}</p>
-                <p><strong>Proof Uploaded:</strong> ${newStaffCall.hasProof}</p>
-                <p><strong>Time:</strong> ${newStaffCall.time}</p>
-            `;
-            listContainer.prepend(card);
-
-            if (currentActiveTeam === 'Staff') {
-                triggerAlert('🚨 NEW STAFF CALL RECEIVED: ' + reason);
-            } else {
-                triggerAlert('✅ Staff call successfully submitted to moderation team.');
-            }
-
-            document.getElementById('staff-call-description').value = '';
-            proofInput.value = '';
-        }
-
-        function triggerAlert(customText) {
-            const sound = document.getElementById('alert-sound');
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log('Autoplay blocked by browser:', e));
-            }
-
-            const popup = document.getElementById('alert-popup');
-            if (customText) {
-                popup.innerText = customText;
-            }
-            popup.classList.add('show');
-            
-            if (alertTimeout) clearTimeout(alertTimeout);
-            alertTimeout = setTimeout(() => {
-                popup.classList.remove('show');
-            }, 6000);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
-            document.getElementById('civ-points-display').style.display = 'block';
-            handleStaffReasonCheck(); // Check initiële status bij laden
-        });
-
-        function handleStaffReasonCheck() {
-            handleStaffReasonChange();
-        }
-    </script>
+    <!-- Koppel de client-side javascript logica -->
 </body>
 </html>
