@@ -307,6 +307,7 @@ header {
     <!-- JAVASCRIPT LOGICA -->
     <script>
         let currentActiveTeam = 'Civilian';
+        let lastKnownStaffCallCount = 0;
 
         function openTeamModal() {
             document.getElementById('team-modal').style.display = 'flex';
@@ -519,6 +520,33 @@ header {
             listContainer.innerHTML = html;
         }
 
+        // Automatische achtergrondcheck voor nieuwe staff calls (elke 3 seconden)
+        function pollForNewStaffCalls() {
+            const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
+            
+            // Als er opeens meer meldingen zijn dan we kenden, en we zijn staff (of ongeacht tabblad)
+            if (existingCalls.length > lastKnownStaffCallCount) {
+                if (lastKnownStaffCallCount !== 0) {
+                    // Pak de nieuwste melding en triggert alert/geluid
+                    const latest = existingCalls[0];
+                    triggerAlert(`New Staff Report by ${latest.robloxUser}: ${latest.title}`);
+                }
+                lastKnownStaffCallCount = existingCalls.length;
+                
+                // Als het staff dashboard open staat, direct hernoemen/updaten
+                const staffDashboardTab = document.getElementById('staff-dashboard');
+                if (staffDashboardTab && staffDashboardTab.classList.contains('active')) {
+                    renderStaffCalls();
+                }
+            } else if (existingCalls.length < lastKnownStaffCallCount) {
+                lastKnownStaffCallCount = existingCalls.length;
+                const staffDashboardTab = document.getElementById('staff-dashboard');
+                if (staffDashboardTab && staffDashboardTab.classList.contains('active')) {
+                    renderStaffCalls();
+                }
+            }
+        }
+
         async function openUpdateModal() {
             const modal = document.getElementById('update-modal');
             const container = document.getElementById('update-logs-container');
@@ -570,7 +598,13 @@ header {
             if(civPoints) civPoints.style.display = 'block';
             handleStaffReasonChange();
             initVersionCheck();
+            
+            const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
+            lastKnownStaffCallCount = existingCalls.length;
             renderStaffCalls();
+
+            // Start polling elke 3 seconden
+            setInterval(pollForNewStaffCalls, 3000);
         });
     </script>
 </body>
