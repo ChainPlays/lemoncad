@@ -126,6 +126,30 @@ header {
     font-weight: bold;
     margin-bottom: 15px;
 }
+
+/* Live Meldingen / Alerts Banner */
+#live-alerts-container {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.alert-banner {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 12px 15px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 <body>
@@ -180,13 +204,16 @@ header {
         </div>
     </header>
 
+    <!-- LIVE MELDINGEN CONTAINER (Zichtbaar op de website) -->
+    <div id="live-alerts-container"></div>
+
     <!-- NAVIGATIE TABBLADEN -->
     <nav style="display: flex; gap: 10px; margin-bottom: 20px;">
         <div class="nav-tab active hidden-for-civ" id="tab-btn-cad" onclick="switchTab('cad', this)">Violators / BOLO's</div>
         <div class="nav-tab hidden-for-civ" id="tab-btn-dispatch" onclick="switchTab('dispatch', this)">Dispatch</div>
         <div class="nav-tab" id="tab-btn-caller" onclick="switchTab('caller', this)">Emergency Caller (911)</div>
-        <div class="nav-tab" id="tab-btn-staff-caller" onclick="switchTab('staff-caller', this)" style="display: block;">Staff Caller</div>
-        <div class="nav-tab hidden-for-civ" id="tab-btn-staff-dashboard" onclick="switchTab('staff-dashboard', this)" style="display: none;">Staff Dashboard</div>
+        <div class="nav-tab" id="tab-btn-staff-caller" onclick="switchTab('staff-caller', this)">Staff Caller</div>
+        <div class="nav-tab" id="tab-btn-staff-dashboard" onclick="switchTab('staff-dashboard', this)" style="display: none;">Staff Dashboard</div>
         <div class="nav-tab" id="tab-btn-map" onclick="switchTab('map', this)">Interactive Map</div>
     </nav>
 
@@ -224,6 +251,7 @@ header {
                     <label>Description</label>
                     <textarea id="call-description" rows="3" placeholder="Provide extra information..."></textarea>
                 </div>
+                <button onclick="submitEmergencyCall()" style="padding: 10px 15px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Dispatch 911 Call</button>
             </div>
         </div>
 
@@ -276,7 +304,7 @@ header {
     <script>
         let currentActiveTeam = 'Civilian';
         let registeredCivilians = [];
-        let alertTimeout = null;
+        let globalStaffCalls = [];
 
         function handleTeamChange() {
             const team = document.getElementById('modal-team-select').value;
@@ -358,6 +386,47 @@ header {
             if(element) element.classList.add('active');
         }
 
+        function triggerAlert(customText) {
+            const sound = document.getElementById('alert-sound');
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Autoplay blocked:', e));
+            }
+
+            const container = document.getElementById('live-alerts-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert-banner';
+            alertDiv.innerHTML = `
+                <span>🚨 <strong>ALERT:</strong> ${customText}</span>
+                <button onclick="this.parentElement.remove()" style="background:none; border:none; font-weight:bold; cursor:pointer; color:#856404;">&times;</button>
+            `;
+            container.prepend(alertDiv);
+
+            // Automatisch weghalen na 8 seconden
+            setTimeout(() => {
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 8000);
+        }
+
+        function submitEmergencyCall() {
+            const title = document.getElementById('call-title').value.trim();
+            const location = document.getElementById('call-location').value.trim();
+            const description = document.getElementById('call-description').value.trim();
+
+            if (!title || !location) {
+                alert('Please fill in at least the Incident Title and Location.');
+                return;
+            }
+
+            triggerAlert(`New 911 Call: ${title} at ${location}`);
+            
+            document.getElementById('call-title').value = '';
+            document.getElementById('call-location').value = '';
+            document.getElementById('call-description').value = '';
+        }
+
         function handleStaffReasonChange() {
             const reason = document.getElementById('staff-call-reason').value;
             const proofContainer = document.getElementById('proof-container');
@@ -394,30 +463,37 @@ header {
                 team: currentActiveTeam
             };
 
-            const listContainer = document.getElementById('staff-call-list');
-            if (listContainer.innerHTML.includes('No active staff calls')) {
-                listContainer.innerHTML = '';
-            }
+            globalStaffCalls.push(newStaffCall);
+            renderStaffCalls();
 
-            const card = document.createElement('div');
-            card.style.background = '#fcfbfa';
-            card.style.borderLeft = '4px solid #d4a017';
-            card.style.padding = '15px';
-            card.style.marginBottom = '10px';
-            card.style.borderRadius = '4px';
-            card.innerHTML = `
-                <h3>⚠️ [STAFF CALL] ${newStaffCall.title}</h3>
-                <p><strong>Submitted by Team:</strong> ${newStaffCall.team}</p>
-                <p><strong>Details:</strong> ${newStaffCall.description}</p>
-                <p><strong>Proof Uploaded:</strong> ${newStaffCall.hasProof}</p>
-                <p><strong>Time:</strong> ${newStaffCall.time}</p>
-            `;
-            listContainer.prepend(card);
-
-            alert('✅ Staff call successfully submitted.');
+            triggerAlert(`New Staff Report: ${reason}`);
 
             document.getElementById('staff-call-description').value = '';
             proofInput.value = '';
+        }
+
+        function renderStaffCalls() {
+            const listContainer = document.getElementById('staff-call-list');
+            if (!listContainer) return;
+
+            if (globalStaffCalls.length === 0) {
+                listContainer.innerHTML = `<p style="color: #777; margin: 0;">No active staff calls.</p>`;
+                return;
+            }
+
+            let html = '';
+            globalStaffCalls.forEach((call) => {
+                html += `
+                    <div style="background: #fcfbfa; border-left: 4px solid #d4a017; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
+                        <h3>⚠️ [STAFF CALL] ${call.title}</h3>
+                        <p><strong>Submitted by Team:</strong> ${call.team}</p>
+                        <p><strong>Details:</strong> ${call.description}</p>
+                        <p><strong>Proof Uploaded:</strong> ${call.hasProof}</p>
+                        <p><strong>Time:</strong> ${call.time}</p>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
         }
 
         async function openUpdateModal() {
