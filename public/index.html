@@ -193,8 +193,9 @@ header {
 
     <!-- HEADER -->
     <header style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h1>CAD & Dispatch System</h1>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="Lemon's LemonCAD.png" alt="LemonCAD Logo" style="height: 40px; width: auto; object-fit: contain;">
+            <h1 style="font-size: 22px; font-weight: bold; color: #333;">LemonCAD</h1>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
             <span id="display-team-info" style="background: #f1f0ee; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">Team: Civilian</span>
@@ -498,7 +499,6 @@ header {
             proofInput.value = '';
         }
 
-        // Functie om de melding voor iedereen te verwijderen
         function resolveStaffCall(callId) {
             const actionContainer = document.getElementById(`action-container-${callId}`);
             if (!actionContainer) return;
@@ -522,7 +522,6 @@ header {
             renderStaffCalls();
         }
 
-        // Functie om de melding alleen voor jezelf (jouw browser) weg te klikken
         function dismissForMe(callId) {
             let hiddenCalls = JSON.parse(localStorage.getItem('lemoncad_hidden_calls') || '[]');
             if (!hiddenCalls.includes(callId)) {
@@ -539,7 +538,6 @@ header {
             const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
             const hiddenCalls = JSON.parse(localStorage.getItem('lemoncad_hidden_calls') || '[]');
 
-            // Filter de meldingen zodat degene die jij voor jezelf hebt weggeklikt niet zichtbaar zijn
             const visibleCalls = existingCalls.filter(call => !hiddenCalls.includes(call.id));
 
             if (visibleCalls.length === 0) {
