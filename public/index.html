@@ -70,6 +70,10 @@
             border-radius: 4px;
             font-size: 14px;
         }
+        .form-group input[type="file"] {
+            padding: 6px;
+            background: #faf8f5;
+        }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             border-color: #d4a017;
             outline: none;
@@ -207,6 +211,9 @@
             border-color: #b8860b;
         }
         .nav-tab.hidden-for-civ {
+            display: none !important;
+        }
+        .nav-tab.hidden-for-staff {
             display: none !important;
         }
 
@@ -475,6 +482,8 @@
             <div class="nav-tab active hidden-for-civ" id="tab-btn-cad" onclick="switchTab('cad', this)">Violators / BOLO's</div>
             <div class="nav-tab hidden-for-civ" id="tab-btn-dispatch" onclick="switchTab('dispatch', this)">Dispatch</div>
             <div class="nav-tab" id="tab-btn-caller" onclick="switchTab('caller', this)">Emergency Caller (911)</div>
+            <div class="nav-tab hidden-for-staff" id="tab-btn-staff-caller" onclick="switchTab('staff-caller', this)">Staff Caller</div>
+            <div class="nav-tab" id="tab-btn-staff-dashboard" onclick="switchTab('staff-dashboard', this)" style="display: none;">Staff Dashboard</div>
             <div class="nav-tab" id="tab-btn-map" onclick="switchTab('map', this)">Interactive Map</div>
         </div>
     </header>
@@ -659,6 +668,48 @@
             </div>
         </div>
 
+        <!-- STAFF CALLER TAB (Toegankelijk voor iedereen behalve Staff) -->
+        <div id="staff-caller" class="tab-content">
+            <div class="section-header-title">Staff Assistance Caller</div>
+            <div class="section-subtitle">Need help from a staff member or report a rule breaker? File a staff call here.</div>
+            <div class="caller-form-box">
+                <div class="form-group">
+                    <label>Report Reason / Rule Break Type</label>
+                    <select id="staff-call-reason" onchange="handleStaffReasonChange()">
+                        <option value="RDM (Random Deathmatch)">RDM (Random Deathmatch)</option>
+                        <option value="VDM (Vehicle Deathmatch)">VDM (Vehicle Deathmatch)</option>
+                        <option value="FRP (Failed/Fail Roleplay)">FRP (Failed/Fail Roleplay)</option>
+                        <option value="NLR (New Life Rule)">NLR (New Life Rule)</option>
+                        <option value="No Gun Motion">No Gun Motion</option>
+                        <option value="Unrealistic avatars">Unrealistic avatars</option>
+                        <option value="Metagaming">Metagaming</option>
+                        <option value="Powergaming">Powergaming</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>In-Game Location / Details</label>
+                    <textarea id="staff-call-description" placeholder="Describe what happened and who was involved..."></textarea>
+                </div>
+                
+                <!-- Proof Upload Section (Standaard zichtbaar omdat RDM de eerste optie is) -->
+                <div class="form-group" id="proof-container">
+                    <label id="proof-label">If you file a staff call for RDM/VDM, you must upload proof here.</label>
+                    <input type="file" id="staff-call-proof" accept="image/*,video/*">
+                </div>
+
+                <button class="btn-yellow" onclick="submitStaffCall()">Submit Staff Call</button>
+            </div>
+        </div>
+
+        <!-- STAFF DASHBOARD TAB (Alleen zichtbaar voor Staff om calls te bekijken) -->
+        <div id="staff-dashboard" class="tab-content">
+            <div class="section-header-title">Staff Call Dashboard</div>
+            <div class="section-subtitle">Incoming staff assistance requests from players and teams.</div>
+            <div class="dispatch-container" id="staff-call-list">
+                <div style="color: #666; font-style: italic;">No active staff calls...</div>
+            </div>
+        </div>
+
         <!-- 4. INTERACTIVE MAP TAB -->
         <div id="map" class="tab-content map-container-wrapper">
             <div class="section-header-title">Interactive Map</div>
@@ -681,22 +732,19 @@
         function adjustHeight(type, amount) {
             if (type === 'feet') {
                 currentFeet += amount;
-                if (currentFeet < 2) currentFeet = 2; // Minimaal 2 feet (voor toddlers)
+                if (currentFeet < 2) currentFeet = 2; 
                 if (currentFeet > 7) currentFeet = 7;
                 
-                // Als we op 2' komen, kunnen inches niet onder 0 komen
                 if (currentFeet === 2 && currentInches < 0) {
                     currentInches = 0;
                 }
 
-                // Als we op 7' komen en inches zijn groter dan 0, automatisch naar 0 zetten
                 if (currentFeet === 7) {
                     currentInches = 0;
                     document.getElementById('height-inches').innerText = currentInches;
                 }
                 document.getElementById('height-feet').innerText = currentFeet;
             } else if (type === 'inches') {
-                // Als we al op 7' zitten en proberen inches te verhogen, blokkeren/op 0 houden
                 if (currentFeet === 7 && amount > 0) {
                     currentInches = 0;
                     document.getElementById('height-inches').innerText = currentInches;
@@ -706,7 +754,7 @@
                 currentInches += amount;
                 if (currentInches < 0) {
                     currentInches = 11;
-                    if (currentFeet > 2) { // Minimale grens is nu 2 feet
+                    if (currentFeet > 2) { 
                         currentFeet--;
                         document.getElementById('height-feet').innerText = currentFeet;
                     } else {
@@ -755,6 +803,8 @@
 
             currentActiveTeam = team;
             const pointsBadge = document.getElementById('civ-points-display');
+            const staffCallerTab = document.getElementById('tab-btn-staff-caller');
+            const staffDashboardTab = document.getElementById('tab-btn-staff-dashboard');
 
             if (team === 'Civilian') {
                 errorDiv.style.display = 'none';
@@ -763,7 +813,24 @@
                 pointsBadge.style.display = 'block';
                 
                 document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
+                staffCallerTab.classList.remove('hidden-for-staff');
+                staffDashboardTab.style.display = 'none';
+
                 switchTab('caller', document.getElementById('tab-btn-caller'));
+                return;
+            }
+
+            if (team === 'Staff') {
+                errorDiv.style.display = 'none';
+                document.getElementById('display-team-info').innerText = `Team: Staff`;
+                document.getElementById('team-modal').style.display = 'none';
+                pointsBadge.style.display = 'none';
+
+                document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
+                staffCallerTab.classList.add('hidden-for-staff'); 
+                staffDashboardTab.style.display = 'block'; 
+
+                switchTab('staff-dashboard', staffDashboardTab);
                 return;
             }
 
@@ -782,6 +849,9 @@
             pointsBadge.style.display = 'none';
 
             document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
+            staffCallerTab.classList.remove('hidden-for-staff'); 
+            staffDashboardTab.style.display = 'none';
+
             switchTab('cad', document.getElementById('tab-btn-cad'));
         }
 
@@ -789,11 +859,27 @@
             if (currentActiveTeam === 'Civilian' && (tabId === 'cad' || tabId === 'dispatch')) {
                 return;
             }
+            if (currentActiveTeam === 'Staff' && tabId === 'staff-caller') {
+                return;
+            }
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             
             document.getElementById(tabId).classList.add('active');
             if(element) element.classList.add('active');
+        }
+
+        function handleStaffReasonChange() {
+            const reason = document.getElementById('staff-call-reason').value;
+            const proofContainer = document.getElementById('proof-container');
+            
+            // Alleen tonen en verplichten bij RDM of VDM
+            if (reason.startsWith('RDM') || reason.startsWith('VDM')) {
+                proofContainer.style.display = 'block';
+            } else {
+                proofContainer.style.display = 'none';
+                document.getElementById('staff-call-proof').value = ''; // Reset waarde als het verborgen wordt
+            }
         }
 
         function registerCivilianProfile() {
@@ -1060,6 +1146,53 @@
             }
         }
 
+        function submitStaffCall() {
+            const reason = document.getElementById('staff-call-reason').value;
+            const description = document.getElementById('staff-call-description').value.trim();
+            const proofInput = document.getElementById('staff-call-proof');
+            const isRdmVdm = reason.startsWith('RDM') || reason.startsWith('VDM');
+
+            if (isRdmVdm && proofInput.files.length === 0) {
+                triggerAlert('⚠️ Error: Proof is required for RDM/VDM reports.');
+                return;
+            }
+
+            const hasProof = proofInput.files.length > 0 ? 'Yes (File attached)' : 'None required/provided';
+
+            const newStaffCall = {
+                title: reason,
+                description: description || 'No details provided.',
+                hasProof: hasProof,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                team: currentActiveTeam
+            };
+
+            const listContainer = document.getElementById('staff-call-list');
+            if (listContainer.innerHTML.includes('No active staff calls')) {
+                listContainer.innerHTML = '';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'dispatch-card';
+            card.innerHTML = `
+                <h3>⚠️ [STAFF CALL] ${newStaffCall.title}</h3>
+                <p><strong>Submitted by Team:</strong> ${newStaffCall.team}</p>
+                <p><strong>Details:</strong> ${newStaffCall.description}</p>
+                <p><strong>Proof Uploaded:</strong> ${newStaffCall.hasProof}</p>
+                <p><strong>Time:</strong> ${newStaffCall.time}</p>
+            `;
+            listContainer.prepend(card);
+
+            if (currentActiveTeam === 'Staff') {
+                triggerAlert('🚨 NEW STAFF CALL RECEIVED: ' + reason);
+            } else {
+                triggerAlert('✅ Staff call successfully submitted to moderation team.');
+            }
+
+            document.getElementById('staff-call-description').value = '';
+            proofInput.value = '';
+        }
+
         function triggerAlert(customText) {
             const sound = document.getElementById('alert-sound');
             if (sound) {
@@ -1082,7 +1215,12 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
             document.getElementById('civ-points-display').style.display = 'block';
+            handleStaffReasonCheck(); // Check initiële status bij laden
         });
+
+        function handleStaffReasonCheck() {
+            handleStaffReasonChange();
+        }
     </script>
 </body>
 </html>
