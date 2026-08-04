@@ -1,1092 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LemonCAD - Computer-Aided Dispatch (CAD)</title>
-<style>
-* {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-body {
-background-color: #fcfbfa;
-color: #333333;
-display: flex;
-flex-direction: column;
-min-height: 100vh;
-padding: 20px;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LemonCAD - Emergency & Dispatch System</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --accent-color: #f39c12;
+            --accent-hover: #e67e22;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --danger-color: #d9534f;
+            --success-color: #2e7d32;
+            --border-color: #333333;
+        }
 
-/* Team Modal Overlay */
-#team-modal {
-position: fixed;
-top: 0;
-left: 0;
-width: 100vw;
-height: 100vh;
-background-color: rgba(0, 0, 0, 0.75);
-display: flex;
-justify-content: center;
-align-items: center;
-z-index: 2000;
-}
-.modal-box {
-background-color: #ffffff;
-border: 1px solid #e0e0e0;
-padding: 30px;
-border-radius: 8px;
-width: 400px;
-box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-.modal-box h2 {
-margin-bottom: 8px;
-color: #222;
-font-size: 20px;
-}
-.modal-box p {
-font-size: 13px;
-color: #666;
-margin-bottom: 20px;
-}
-.form-group {
-margin-bottom: 15px;
-}
-.form-group label {
-display: block;
-font-size: 13px;
-color: #444;
-margin-bottom: 5px;
-font-weight: 600;
-}
-.form-group select, .form-group input, .form-group textarea {
-width: 100%;
-padding: 10px;
-background-color: #fff;
-border: 1px solid #ccc;
-color: #333;
-border-radius: 4px;
-font-size: 14px;
-}
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-border-color: #d4a017;
-outline: none;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
 
-.nav-tab.hidden-for-civ {
-display: none !important;
-}
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.hidden-for-staff {
-display: none !important;
-}
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--accent-color);
+        }
 
-/* Content Sections */
-.tab-content {
-display: none;
-}
-.tab-content.active {
-display: block;
-}
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-/* Header & Nav Styling */
-header {
-background-color: #ffffff;
-border: 1px solid #e0e0e0;
-padding: 15px 25px;
-border-radius: 8px;
-margin-bottom: 20px;
-box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
+        .badge {
+            background-color: #2a2a2a;
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
 
-.brand-container {
-display: flex;
-align-items: center;
-gap: 12px;
-}
-.brand-logo {
-width: 42px;
-height: 42px;
-object-fit: contain;
-border-radius: 6px;
-}
-.brand-title {
-font-size: 20px;
-font-weight: bold;
-color: #222;
-}
+        nav {
+            background-color: #181818;
+            padding: 10px 30px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-.nav-tab {
-cursor: pointer;
-padding: 8px 16px;
-background: #f1f0ee;
-border-radius: 4px;
-font-weight: 600;
-font-size: 14px;
-}
-.nav-tab.active {
-background-color: #d4a017;
-color: #fff;
-}
+        .nav-tab {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
 
-.map-container-wrapper {
-background: #fff;
-border: 1px solid #e0e0e0;
-border-radius: 8px;
-padding: 20px;
-}
+        .nav-tab:hover {
+            color: var(--text-color);
+            background-color: #252525;
+        }
 
-.section-header-title {
-font-size: 18px;
-font-weight: bold;
-margin-bottom: 15px;
-}
+        .nav-tab.active {
+            color: var(--text-color);
+            background-color: var(--accent-color);
+            font-weight: bold;
+        }
 
-/* Live Meldingen / Alerts Banner */
-#live-alerts-container {
-margin-bottom: 20px;
-display: flex;
-flex-direction: column;
-gap: 10px;
-}
-.alert-banner {
-background-color: #fff3cd;
-border: 1px solid #ffeeba;
-color: #856404;
-padding: 12px 15px;
-border-radius: 6px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-animation: fadeIn 0.3s ease-in-out;
-}
-@keyframes fadeIn {
-from { opacity: 0; transform: translateY(-5px); }
-to { opacity: 1; transform: translateY(0); }
-}
+        .hidden-for-civ {
+            display: none !important;
+        }
 
-/* Violators / BOLO Management Styling */
-.violator-card {
-background: #fcfbfa;
-border: 1px solid #e0e0e0;
-border-left: 4px solid #d4a017;
-padding: 15px;
-border-radius: 6px;
-margin-bottom: 12px;
-display: flex;
-justify-content: space-between;
-align-items: flex-start;
-}
-.violator-info h4 {
-font-size: 16px;
-color: #222;
-margin-bottom: 4px;
-}
-.violator-info p {
-font-size: 13px;
-color: #555;
-margin-bottom: 2px;
-}
-</style>
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .tab-content {
+            display: none;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 25px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #2a2a2a;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        button.btn-yellow {
+            background-color: var(--accent-color);
+            color: #121212;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button.btn-yellow:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        /* Alert Notification Popup */
+        #alert-popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2a2a2a;
+            border-left: 4px solid var(--accent-color);
+            color: var(--text-color);
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+            font-size: 14px;
+            max-width: 350px;
+        }
+
+        #alert-popup.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Dispatch Card */
+        .dispatch-card {
+            background-color: #252525;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--danger-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .dispatch-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            color: var(--danger-color);
+        }
+
+        .dispatch-card p {
+            margin: 4px 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .dispatch-card p strong {
+            color: var(--text-color);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        th {
+            color: var(--text-muted);
+            background-color: #252525;
+        }
+
+        .badge-bolo {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge-violator {
+            background-color: #f0ad4e;
+            color: #121212;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-<!-- VRIENDELIJKER GELUIDJE VOOR ALERTS -->
-<audio id="alert-sound" src="https://actions.google.com/sounds/v1/ui/notification_positive.ogg" preload="auto"></audio>
-
-<!-- TEAM SELECTIE MODAL -->
-<div id="team-modal">
-<div class="modal-box">
-<h2>Select Role & Team</h2>
-<p>Choose your department or role and enter your Username to access CAD.</p>
-<div class="form-group">
-<label>Username *</label>
-<input type="text" id="modal-username-input" placeholder="e.g. JohnDoe" required>
-<span id="username-error" style="color: #d9534f; font-size: 12px; display: none;">Please enter a username.</span>
-</div>
-<div class="form-group">
-<label>Select Team</label>
-<select id="modal-team-select" onchange="handleTeamChange()">
-<option value="Civilian">Civilian</option>
-<option value="Police">Police</option>
-<option value="EMS">EMS</option>
-<option value="Firefighters">Firefighters</option>
-<option value="DOT">DOT</option>
-<option value="Staff">Staff</option>
-</select>
-</div>
-<div class="form-group" id="callsign-group" style="display: none;">
-<label>Callsign (3-6 chars, max 3 letters)</label>
-<input type="text" id="modal-callsign-input" placeholder="e.g. T3ST">
-<span id="callsign-error" style="color: #d9534f; font-size: 12px; display: none;">Invalid callsign format.</span>
-</div>
-<button type="button" onclick="submitTeamSelection()" style="width: 100%; padding: 10px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Confirm Team</button>
-</div>
-</div>
-
-<!-- UPDATE LOGS MODAL -->
-<div id="update-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999;">
-<div style="background:#ffffff; color:#333333; padding:25px; border-radius:8px; width:450px; max-height:80vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-<h3>📜 Update Logs & Version Control</h3>
-<div id="update-logs-container" style="margin-top: 15px;">
-<p>Loading updates...</p>
-</div>
-<button type="button" onclick="closeUpdateModal()" style="margin-top: 15px; width: 100%; padding: 10px; background: #d4a017; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">Close</button>
-</div>
-</div>
-
-<!-- HEADER -->
-<header style="display: flex; justify-content: space-between; align-items: center;">
-    <div class="brand-container">
-        <img src="Lemon's LemonCAD_2.png" alt="LemonCAD Logo" class="brand-logo">
-        <h1 class="brand-title">LemonCAD</h1>
+    <!-- Team Selection Modal (Shown on Start) -->
+    <div id="team-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Select Your Team</h2>
+            <div class="form-group">
+                <label for="modal-team-select">Choose Role / Department:</label>
+                <select id="modal-team-select" onchange="handleTeamChange()">
+                    <option value="Civilian">Civilian</option>
+                    <option value="Police">Police</option>
+                    <option value="EMS">EMS / Fire</option>
+                    <option value="Staff">Staff / Moderation</option>
+                </select>
+            </div>
+            <div class="form-group" id="callsign-group" style="display: none;">
+                <label for="modal-callsign-input">Enter Callsign (3-6 chars, max 3 letters):</label>
+                <input type="text" id="modal-callsign-input" placeholder="e.g. 101">
+                <small id="callsign-error" style="color: var(--danger-color); display: none; margin-top: 4px;">Invalid callsign format!</small>
+            </div>
+            <button class="btn-yellow" style="width: 100%; margin-top: 10px;" onclick="submitTeamSelection()">Confirm & Enter CAD</option>
+        </div>
     </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <span id="display-team-info" style="background: #f1f0ee; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">Team: Civilian</span>
-        <div id="civ-points-display" style="background: #f1f0ee; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">CVP Points: 0 | Status: no profile</div>
-        <button type="button" onclick="openTeamModal()" style="background: #e0e0e0; border: none; padding: 6px 12px; border-radius: 4px; font-weight: 600; cursor: pointer;">Change Team</button>
-        <button type="button" onclick="openUpdateModal()" style="background: #d4a017; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">Updates (<span id="version-label">v1.4.0</span>)</button>
-    </div>
-</header>
 
-<!-- LIVE MELDINGEN CONTAINER -->
-<div id="live-alerts-container"></div>
+    <!-- Header -->
+    <header>
+        <h1>LemonCAD</h1>
+        <div class="header-right">
+            <div id="display-team-info" class="badge">Team: Civilian</div>
+            <div id="civ-points-display" class="badge">CVP Points: 0 | Status: Violator</div>
+            <button class="btn-yellow" onclick="openTeamModal()" style="padding: 6px 12px; font-size: 13px;">Switch Team</button>
+            <button class="btn-yellow" onclick="openUpdateModal()" style="padding: 6px 12px; font-size: 13px; background-color: #3498db; color: #fff;">Updates</button>
+        </div>
+    </header>
 
-<!-- NAVIGATIE TABBLADEN -->
-<nav style="display: flex; gap: 10px; margin-bottom: 20px;">
-<div class="nav-tab active hidden-for-civ" id="tab-btn-cad" onclick="switchTab('cad', this)">Violators / BOLO's</div>
-<div class="nav-tab hidden-for-civ" id="tab-btn-dispatch" onclick="switchTab('dispatch', this)">Dispatch</div>
-<div class="nav-tab" id="tab-btn-caller" onclick="switchTab('caller', this)">Emergency Caller (911)</div>
-<div class="nav-tab" id="tab-btn-staff-caller" onclick="switchTab('staff-caller', this)">Staff Caller</div>
-<div class="nav-tab" id="tab-btn-staff-dashboard" onclick="switchTab('staff-dashboard', this)" style="display: none;">Staff Dashboard</div>
-<div class="nav-tab" id="tab-btn-map" onclick="switchTab('map', this)">Interactive Map</div>
-</nav>
+    <!-- Navigation Tabs -->
+    <nav>
+        <button id="tab-btn-caller" class="nav-tab active" onclick="switchTab('caller', this)">Emergency Caller</button>
+        <button id="tab-btn-cad" class="nav-tab hidden-for-civ" onclick="switchTab('cad', this)">CAD / DMV Database</button>
+        <button id="tab-btn-dispatch" class="nav-tab hidden-for-civ" onclick="switchTab('dispatch', this)">Active Dispatches</button>
+        <button id="tab-btn-staff-caller" class="nav-tab" onclick="switchTab('staff-caller', this)">Staff Report</button>
+        <button id="tab-btn-staff-dashboard" class="nav-tab" style="display: none;" onclick="switchTab('staff-dashboard', this)">Staff Dashboard</button>
+    </nav>
 
-<!-- INHOUD TABBLADEN -->
-<main>
-<!-- 1. VIOLATORS / BOLO'S (CAD) -->
-<div id="cad" class="tab-content active">
-<div class="map-container-wrapper" style="margin-bottom: 20px;">
-<div class="section-header-title">🔍 CVP Lookup & Quick Actions</div>
-<div style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px;">
-<div class="form-group" style="flex: 1; margin-bottom: 0;">
-<label>Search Username or License Plate</label>
-<input type="text" id="lookup-query" placeholder="Enter username or license plate...">
-</div>
-<button type="button" onclick="searchCVP()" style="padding: 10px 16px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; height: 41px;">Search</button>
-</div>
-<div id="lookup-result-container" style="background: #f9f9f9; border: 1px solid #e0e0e0; padding: 12px; border-radius: 6px; font-size: 13px; color: #555;">
-Use the search box above to lookup a profile.
-</div>
-</div>
+    <!-- Main Container -->
+    <div class="container">
 
-<div class="map-container-wrapper" style="margin-bottom: 20px;">
-<div class="section-header-title">✏️ Update License Plate by Username</div>
-<div style="display: flex; gap: 10px; align-items: flex-end;">
-<div class="form-group" style="flex: 1; margin-bottom: 0;">
-<label>Username</label>
-<input type="text" id="update-plate-username" placeholder="Target Username">
-</div>
-<div class="form-group" style="flex: 1; margin-bottom: 0;">
-<label>New License Plate</label>
-<input type="text" id="update-plate-new" placeholder="New Plate Number">
-</div>
-<button type="button" onclick="updateLicensePlateByUsername()" style="padding: 10px 16px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; height: 41px;">Update Plate</button>
-</div>
-</div>
-
-<div class="map-container-wrapper">
-<div class="section-header-title">Police CAD & Civilian Violations Profile (CVP) Management</div>
-<p style="margin-bottom: 15px; font-size: 13px; color: #666;">Create or update a Civilian Violations Profile (0 pts = no profile | 1-3 pts = Violator | 4+ pts = BOLO).</p>
-
-<div style="background: #f9f9f9; border: 1px solid #e0e0e0; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-<h4 style="margin-bottom: 10px; font-size: 15px;">Create / Update CVP Profile</h4>
-<div class="form-group">
-<label>Username</label>
-<input type="text" id="cvp-username" placeholder="e.g. JohnDoe">
-</div>
-<div class="form-group">
-<label>License Plate</label>
-<input type="text" id="cvp-license" placeholder="e.g. 34XYZ9">
-</div>
-<div class="form-group">
-<label>Offense / Infraction</label>
-<select id="cvp-offense-select">
-<option value="Robbery">Robbery (1 point)</option>
-<option value="Bank robbery">Bank robbery (2 points)</option>
-<option value="RDM/VDM/Killing another Civilian">RDM/VDM/Killing another Civilian (3 points)</option>
-<option value="RDM/VDM/Killing a LEO, Staff, EMS, Firefighter or DOT">RDM/VDM/Killing a LEO, Staff, EMS, Firefighter or DOT (4 points / direct BOLO)</option>
-</select>
-</div>
-<button type="button" onclick="submitCVP()" style="padding: 8px 14px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px;">Save CVP Profile</button>
-</div>
-
-<div id="violator-list-container">
-<p style="color: #777; margin: 0;">No active violators or BOLO's registered.</p>
-</div>
-</div>
-</div>
-
-<!-- 2. DISPATCH -->
-<div id="dispatch" class="tab-content">
-<div class="map-container-wrapper">
-<div class="section-header-title">Active Dispatches</div>
-<div id="dispatch-feed-container">
-<p style="color: #777; margin: 0;">No active dispatches right now.</p>
-</div>
-</div>
-</div>
-
-<!-- 3. EMERGENCY CALLER (911) -->
-<div id="caller" class="tab-content">
-<div class="map-container-wrapper">
-<div class="section-header-title">Emergency 911 Caller</div>
-<div class="form-group">
-<label>Incident Title</label>
-<input type="text" id="call-title" placeholder="e.g. Armed Robbery">
-</div>
-<div class="form-group">
-<label>Location</label>
-<input type="text" id="call-location" placeholder="e.g. Vinewood Blvd">
-</div>
-<div class="form-group">
-<label>Description</label>
-<textarea id="call-description" rows="3" placeholder="Provide extra information..."></textarea>
-</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-<div class="form-group">
-<label>Dispatch Unit 1</label>
-<select id="dispatch-unit-1">
-<option value="Police">Police</option>
-<option value="EMS">EMS</option>
-<option value="Firefighters">Firefighters</option>
-<option value="DOT">DOT</option>
-</select>
-</div>
-<div class="form-group">
-<label>Dispatch Unit 2</label>
-<select id="dispatch-unit-2">
-<option value="N/A" selected>N/A</option>
-<option value="Police">Police</option>
-<option value="EMS">EMS</option>
-<option value="Firefighters">Firefighters</option>
-<option value="DOT">DOT</option>
-</select>
-</div>
-<div class="form-group">
-<label>Dispatch Unit 3</label>
-<select id="dispatch-unit-3">
-<option value="N/A" selected>N/A</option>
-<option value="Police">Police</option>
-<option value="EMS">EMS</option>
-<option value="Firefighters">Firefighters</option>
-<option value="DOT">DOT</option>
-</select>
-</div>
-<div class="form-group">
-<label>Dispatch Unit 4</label>
-<select id="dispatch-unit-4">
-<option value="N/A" selected>N/A</option>
-<option value="Police">Police</option>
-<option value="EMS">EMS</option>
-<option value="Firefighters">Firefighters</option>
-<option value="DOT">DOT</option>
-</select>
-</div>
-</div>
-<button type="button" onclick="submitEmergencyCall()" style="padding: 10px 15px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px;">Dispatch 911 Call</button>
-</div>
-</div>
-
-<!-- 4. STAFF CALLER -->
-<div id="staff-caller" class="tab-content">
-<div class="map-container-wrapper">
-<div class="section-header-title">Staff Report Submission</div>
-<div class="form-group">
-<label>Roblox Username *</label>
-<input type="text" id="staff-call-username" placeholder="e.g. YourRobloxName" required>
-</div>
-<div class="form-group">
-<label>Reason</label>
-<select id="staff-call-reason" onchange="handleStaffReasonChange()">
-<option value="RDM (Random Deathmatch)">RDM (Random Deathmatch)</option>
-<option value="VDM (Vehicle Deathmatch)">VDM (Vehicle Deathmatch)</option>
-<option value="FailRP">FailRP</option>
-<option value="New Life Rule Violation">New Life Rule Violation</option>
-<option value="Other">Other</option>
-</select>
-</div>
-<div class="form-group" id="proof-container">
-<label>Upload Video/Screenshot Proof (Required for RDM/VDM)</label>
-<input type="file" id="staff-call-proof">
-</div>
-<div class="form-group">
-<label>Description</label>
-<textarea id="staff-call-description" rows="3" placeholder="Explain what happened..."></textarea>
-</div>
-<button type="button" onclick="submitStaffCall()" style="padding: 10px 15px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Submit Report</button>
-</div>
-</div>
-
-<!-- 5. STAFF DASHBOARD -->
-<div id="staff-dashboard" class="tab-content">
-<div class="map-container-wrapper">
-<div class="section-header-title">Staff Reports & Moderation Feed</div>
-<div id="staff-call-list">
-<p style="color: #777; margin: 0;">No active staff calls.</p>
-</div>
-</div>
-</div>
-
-<!-- 6. INTERACTIVE MAP TAB -->
-<div id="map" class="tab-content map-container-wrapper">
-<div class="section-header-title">Interactive Map</div>
-<div style="width: 100%; height: 700px; border: none; overflow: hidden; border-radius: 4px;">
-<iframe src="https://erlc-hub.pages.dev" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
-</div>
-</main>
-
-<!-- JAVASCRIPT LOGICA -->
-<script>
-let currentActiveTeam = 'Civilian';
-let currentUsername = 'CivilianUser';
-let lastKnownStaffCallCount = 0;
-let lastKnownDispatchCount = 0;
-
-function openTeamModal() {
-    document.getElementById('team-modal').style.display = 'flex';
-    document.getElementById('modal-username-input').value = currentUsername !== 'CivilianUser' ? currentUsername : '';
-}
-
-function handleTeamChange() {
-    const team = document.getElementById('modal-team-select').value;
-    const callsignGroup = document.getElementById('callsign-group');
-    if (team === 'Civilian' || team === 'Staff') {
-        callsignGroup.style.display = 'none';
-    } else {
-        callsignGroup.style.display = 'block';
-    }
-}
-
-function submitTeamSelection() {
-    const usernameInput = document.getElementById('modal-username-input').value.trim();
-    const errorUsername = document.getElementById('username-error');
-    if (!usernameInput) {
-        errorUsername.style.display = 'block';
-        return;
-    }
-    errorUsername.style.display = 'none';
-    currentUsername = usernameInput;
-
-    const team = document.getElementById('modal-team-select').value;
-    const callsign = document.getElementById('modal-callsign-input').value.trim();
-    const errorDiv = document.getElementById('callsign-error');
-
-    currentActiveTeam = team;
-    const pointsBadge = document.getElementById('civ-points-display');
-    const staffCallerTab = document.getElementById('tab-btn-staff-caller');
-    const staffDashboardTab = document.getElementById('tab-btn-staff-dashboard');
-
-    if (team === 'Civilian') {
-        errorDiv.style.display = 'none';
-        document.getElementById('display-team-info').innerText = `Team: Civilian | ${currentUsername}`;
-        document.getElementById('team-modal').style.display = 'none';
-        pointsBadge.style.display = 'block';
-        updateCivPointsDisplay();
-
-        document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
-        if(staffCallerTab) staffCallerTab.classList.remove('hidden-for-staff');
-        if(staffDashboardTab) staffDashboardTab.style.display = 'none';
-        switchTab('caller', document.getElementById('tab-btn-caller'));
-        return;
-    }
-
-    if (team === 'Staff') {
-        errorDiv.style.display = 'none';
-        document.getElementById('display-team-info').innerText = `Team: Staff | ${currentUsername}`;
-        document.getElementById('team-modal').style.display = 'none';
-        pointsBadge.style.display = 'none';
-
-        document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
-        if(staffCallerTab) staffCallerTab.classList.add('hidden-for-staff');
-        if(staffDashboardTab) staffDashboardTab.style.display = 'block';
-        switchTab('staff-dashboard', staffDashboardTab);
-        renderStaffCalls();
-        return;
-    }
-
-    const letterCount = (callsign.match(/[a-zA-Z]/g) || []).length;
-    const isValidLength = callsign.length >= 3 && callsign.length <= 6;
-    const isValidLetters = letterCount <= 3;
-
-    if (!isValidLength || !isValidLetters) {
-        errorDiv.style.display = 'block';
-        return;
-    }
-
-    errorDiv.style.display = 'none';
-    document.getElementById('display-team-info').innerText = `Team: ${team} | ${callsign} (${currentUsername})`;
-    document.getElementById('team-modal').style.display = 'none';
-    pointsBadge.style.display = 'none';
-
-    document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
-    if(staffCallerTab) staffCallerTab.classList.remove('hidden-for-staff');
-    if(staffDashboardTab) staffDashboardTab.style.display = 'none';
-    switchTab('dispatch', document.getElementById('tab-btn-dispatch'));
-}
-
-function switchTab(tabId, element) {
-    if (currentActiveTeam === 'Civilian' && (tabId === 'cad' || tabId === 'dispatch')) {
-        return;
-    }
-    if (currentActiveTeam === 'Staff' && tabId === 'staff-caller') {
-        return;
-    }
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-
-    const targetTab = document.getElementById(tabId);
-    if(targetTab) targetTab.classList.add('active');
-    if(element) element.classList.add('active');
-
-    if (tabId === 'staff-dashboard') {
-        renderStaffCalls();
-    }
-    if (tabId === 'cad') {
-        renderViolators();
-    }
-    if (tabId === 'dispatch') {
-        renderDispatches();
-    }
-}
-
-/* --- CVP & BOLO MANAGEMENT LOGICA --- */
-function getCvpStatus(points) {
-    if (points === 0) return 'no profile';
-    if (points >= 1 && points <= 3) return 'Violator';
-    return 'BOLO';
-}
-
-function updateCivPointsDisplay() {
-    const pointsBadge = document.getElementById('civ-points-display');
-    if (!pointsBadge) return;
-    const profiles = JSON.parse(localStorage.getItem('lemoncad_cvp_profiles') || '{}');
-    const userProfile = profiles[currentUsername];
-    const points = userProfile ? userProfile.points : 0;
-    const status = getCvpStatus(points);
-    pointsBadge.innerText = `CVP Points: ${points} | Status: ${status}`;
-}
-
-function submitCVP() {
-    const username = document.getElementById('cvp-username').value.trim();
-    const license = document.getElementById('cvp-license').value.trim();
-    const offenseSelect = document.getElementById('cvp-offense-select').value;
-
-    if (!username || !license) {
-        alert('Please fill in both Username and License Plate.');
-        return;
-    }
-
-    let pointsToAdd = 1;
-    if (offenseSelect === 'Robbery') pointsToAdd = 1;
-    else if (offenseSelect === 'Bank robbery') pointsToAdd = 2;
-    else if (offenseSelect.startsWith('RDM/VDM/Killing another Civilian')) pointsToAdd = 3;
-    else if (offenseSelect.startsWith('RDM/VDM/Killing a LEO')) pointsToAdd = 4;
-
-    let profiles = JSON.parse(localStorage.getItem('lemoncad_cvp_profiles') || '{}');
-    let currentPoints = profiles[username] ? profiles[username].points : 0;
-    let newPoints = currentPoints + pointsToAdd;
-
-    profiles[username] = {
-        username: username,
-        license: license,
-        points: newPoints,
-        offense: offenseSelect,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    localStorage.setItem('lemoncad_cvp_profiles', JSON.stringify(profiles));
-
-    document.getElementById('cvp-username').value = '';
-    document.getElementById('cvp-license').value = '';
-
-    updateCivPointsDisplay();
-    renderViolators();
-    triggerAlert(`CVP Updated for ${username}: +${pointsToAdd} pts (Total: ${newPoints})`, false);
-}
-
-function arrestBOLO(username) {
-    let profiles = JSON.parse(localStorage.getItem('lemoncad_cvp_profiles') || '{}');
-    if (profiles[username]) {
-        profiles[username].points = 0;
-        profiles[username].offense = 'Arrested / Cleared';
-        localStorage.setItem('lemoncad_cvp_profiles', JSON.stringify(profiles));
-    }
-    updateCivPointsDisplay();
-    renderViolators();
-    triggerAlert(`BOLO Arrested & CVP Cleared for ${username}`, true);
-}
-
-function searchCVP() {
-    const query = document.getElementById('lookup-query').value.trim().toLowerCase();
-    const resultContainer = document.getElementById('lookup-result-container');
-    if (!query) {
-        resultContainer.innerHTML = 'Please enter a username or license plate to search.';
-        return;
-    }
-
-    const profiles = JSON.parse(localStorage.getItem('lemoncad_cvp_profiles') || '{}');
-    let foundUser = null;
-
-    for (let user in profiles) {
-        const p = profiles[user];
-        if (p.username.toLowerCase() === query || p.license.toLowerCase() === query) {
-            foundUser = p;
-            break;
-        }
-    }
-
-    if (foundUser) {
-        const status = getCvpStatus(foundUser.points);
-        resultContainer.innerHTML = `
-            <p style="color: #28a745; font-weight: bold; margin-bottom: 4px;">✅ Profile Found!</p>
-            <p><strong>Username:</strong> ${foundUser.username}</p>
-            <p><strong>License Plate:</strong> ${foundUser.license}</p>
-            <p><strong>CVP Points:</strong> ${foundUser.points} (${status})</p>
-            <p><strong>Latest Offense:</strong> ${foundUser.offense}</p>
-        `;
-    } else {
-        resultContainer.innerHTML = `
-            <p style="color: #d9534f; font-weight: bold; margin-bottom: 6px;">❌ No profile found for "${query}".</p>
-            <button type="button" onclick="autofillCVPForm('${query}')" style="padding: 6px 12px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Auto-fill into CVP Registration</button>
-        `;
-    }
-}
-
-function autofillCVPForm(query) {
-    document.getElementById('cvp-username').value = query;
-    triggerAlert(`Auto-filled query into CVP registration form.`, false);
-}
-
-function updateLicensePlateByUsername() {
-    const username = document.getElementById('update-plate-username').value.trim();
-    const newPlate = document.getElementById('update-plate-new').value.trim();
-
-    if (!username || !newPlate) {
-        alert('Please fill in both Username and New License Plate.');
-        return;
-    }
-
-    let profiles = JSON.parse(localStorage.getItem('lemoncad_cvp_profiles') || '{}');
-    if (profiles[username]) {
-        profiles[username].license = newPlate;
-        localStorage.setItem('lemoncad_cvp_profiles', JSON.stringify(profiles));
-        document.getElementById('update-plate-username').value = '';
-        document.getElementById('update-plate-new').value = '';
-        renderViolators();
-        triggerAlert(`License plate successfully updated for ${username} to ${newPlate}`, false);
-    } else {
-        alert(`No profile found with username "${username}".`);
-    }
-}
-
-function renderViolators() {
-    const container = document.getElementById('violator-list-container');
-    if (!container) return;
-
-    const profiles = JSON.parse(localStorage.getItem('lemoncad_cvp_profiles') || '{}');
-    let activeProfiles = [];
-
-    for (let user in profiles) {
-        if (profiles[user].points > 0) {
-            activeProfiles.push(profiles[user]);
-        }
-    }
-
-    if (activeProfiles.length === 0) {
-        container.innerHTML = `<p style="color: #777; margin: 0;">No active violators or BOLO's registered.</p>`;
-        return;
-    }
-
-    let html = '';
-    activeProfiles.forEach(v => {
-        const status = getCvpStatus(v.points);
-        html += `
-            <div class="violator-card">
-                <div class="violator-info">
-                    <h4>🚨 [${status.toUpperCase()}] ${v.username} (Points: ${v.points})</h4>
-                    <p><strong>License Plate:</strong> ${v.license}</p>
-                    <p><strong>Offense:</strong> ${v.offense}</p>
-                    <p style="font-size: 11px; color: #888; margin-top: 4px;">Last Updated: ${v.time}</p>
+        <!-- 1. Emergency Caller Tab -->
+        <div id="caller" class="tab-content active">
+            <h2>911 Emergency Caller</h2>
+            <div class="form-group">
+                <label for="call-title">Emergency Title</label>
+                <input type="text" id="call-title" placeholder="e.g. Armed Robbery at Bank">
+            </div>
+            <div class="form-group">
+                <label for="call-location">Location</label>
+                <input type="text" id="call-location" placeholder="e.g. Vinewood Blvd">
+            </div>
+            <div class="form-group">
+                <label for="call-description">Description / Details</label>
+                <textarea id="call-description" placeholder="Describe the emergency situation..."></textarea>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">
+                <div class="form-group" style="margin: 0;">
+                    <label style="font-size: 12px;">Service 1</label>
+                    <select id="service-1">
+                        <option value="Police">Police</option>
+                        <option value="EMS">EMS</option>
+                        <option value="Fire">Fire</option>
+                        <option value="DOT">DOT</option>
+                        <option value="N/A" selected>N/A</option>
+                    </select>
                 </div>
-                <div style="display: flex; gap: 6px;">
-                    <button type="button" onclick="arrestBOLO('${v.username}')" style="background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">BOLO Arrested</button>
+                <div class="form-group" style="margin: 0;">
+                    <label style="font-size: 12px;">Service 2</label>
+                    <select id="service-2">
+                        <option value="Police">Police</option>
+                        <option value="EMS">EMS</option>
+                        <option value="Fire">Fire</option>
+                        <option value="DOT">DOT</option>
+                        <option value="N/A" selected>N/A</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin: 0;">
+                    <label style="font-size: 12px;">Service 3</label>
+                    <select id="service-3">
+                        <option value="Police">Police</option>
+                        <option value="EMS">EMS</option>
+                        <option value="Fire">Fire</option>
+                        <option value="DOT">DOT</option>
+                        <option value="N/A" selected>N/A</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin: 0;">
+                    <label style="font-size: 12px;">Service 4</label>
+                    <select id="service-4">
+                        <option value="Police">Police</option>
+                        <option value="EMS">EMS</option>
+                        <option value="Fire">Fire</option>
+                        <option value="DOT">DOT</option>
+                        <option value="N/A" selected>N/A</option>
+                    </select>
                 </div>
             </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-/* ------------------------------------------- */
+            <button class="btn-yellow" onclick="submitEmergencyCall()">Dispatch Emergency Call</button>
+        </div>
 
-function triggerAlert(customText, playSound = true) {
-    if (playSound) {
-        const sound = document.getElementById('alert-sound');
-        if (sound) {
-            sound.currentTime = 0;
-            sound.play().catch(e => console.log('Autoplay blocked:', e));
-        }
-    }
-
-    const container = document.getElementById('live-alerts-container');
-    if (!container) return;
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert-banner';
-    alertDiv.innerHTML = `
-        <span>🚨 <strong>ALERT:</strong> ${customText}</span>
-        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; font-weight:bold; cursor:pointer; color:#856404;">&times;</button>
-    `;
-    container.prepend(alertDiv);
-
-    setTimeout(() => {
-        if (alertDiv.parentElement) {
-            alertDiv.remove();
-        }
-    }, 8000);
-}
-
-function submitEmergencyCall() {
-    const title = document.getElementById('call-title').value.trim();
-    const location = document.getElementById('call-location').value.trim();
-    const description = document.getElementById('call-description').value.trim();
-    
-    const u1 = document.getElementById('dispatch-unit-1').value;
-    const u2 = document.getElementById('dispatch-unit-2').value;
-    const u3 = document.getElementById('dispatch-unit-3').value;
-    const u4 = document.getElementById('dispatch-unit-4').value;
-
-    if (!title || !location) {
-        alert('Please fill in at least the Incident Title and Location.');
-        return;
-    }
-
-    let assignedUnits = [u1];
-    [u2, u3, u4].forEach(u => {
-        if (u !== 'N/A' && !assignedUnits.includes(u)) {
-            assignedUnits.push(u);
-        }
-    });
-
-    const newDispatch = {
-        id: Date.now().toString(),
-        title: title,
-        location: location,
-        description: description || 'No details provided.',
-        units: assignedUnits,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    let existingDispatches = JSON.parse(localStorage.getItem('lemoncad_dispatches') || '[]');
-    existingDispatches.unshift(newDispatch);
-    localStorage.setItem('lemoncad_dispatches', JSON.stringify(existingDispatches));
-
-    lastKnownDispatchCount = existingDispatches.length;
-    renderDispatches();
-
-    triggerAlert(`911 Call Dispatched successfully to: ${assignedUnits.join(', ')}`);
-
-    document.getElementById('call-title').value = '';
-    document.getElementById('call-location').value = '';
-    document.getElementById('call-description').value = '';
-    document.getElementById('dispatch-unit-2').value = 'N/A';
-    document.getElementById('dispatch-unit-3').value = 'N/A';
-    document.getElementById('dispatch-unit-4').value = 'N/A';
-}
-
-function resolveDispatch(dispatchId) {
-    let dispatches = JSON.parse(localStorage.getItem('lemoncad_dispatches') || '[]');
-    dispatches = dispatches.filter(d => d.id !== dispatchId);
-    localStorage.setItem('lemoncad_dispatches', JSON.stringify(dispatches));
-    lastKnownDispatchCount = dispatches.length;
-    renderDispatches();
-}
-
-function renderDispatches() {
-    const container = document.getElementById('dispatch-feed-container');
-    if (!container) return;
-
-    const dispatches = JSON.parse(localStorage.getItem('lemoncad_dispatches') || '[]');
-
-    if (dispatches.length === 0) {
-        container.innerHTML = `<p style="color: #777; margin: 0;">No active dispatches right now.</p>`;
-        return;
-    }
-
-    let html = '';
-    dispatches.forEach(d => {
-        html += `
-            <div style="background: #fcfbfa; border: 1px solid #e0e0e0; border-left: 4px solid #d4a017; padding: 15px; border-radius: 6px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start;">
-                <div>
-                    <h4 style="font-size: 16px; color: #222; margin-bottom: 4px;">🚨 [DISPATCH] ${d.title}</h4>
-                    <p><strong>Location:</strong> ${d.location}</p>
-                    <p><strong>Assigned Units:</strong> <span style="color: #d4a017; font-weight: bold;">${d.units.join(', ')}</span></p>
-                    <p><strong>Description:</strong> ${d.description}</p>
-                    <p style="font-size: 11px; color: #888; margin-top: 4px;">Time: ${d.time}</p>
+        <!-- 2. CAD / DMV Database Tab -->
+        <div id="cad" class="tab-content">
+            <h2>CAD & DMV Search / Registration</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Register / Update CVP -->
+                <div style="background-color: #252525; padding: 15px; border-radius: 4px; border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; font-size: 16px; color: var(--accent-color);">Register / Update Civilian Profile</h3>
+                    <div class="form-group">
+                        <label for="civ-name">Full Name</label>
+                        <input type="text" id="civ-name" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="civ-age">Age</label>
+                        <input type="number" id="civ-age" value="25">
+                    </div>
+                    <div class="form-group">
+                        <label>Height (<span id="height-feet">5</span>'<span id="height-inches">7</span>")</label>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn-yellow" style="padding: 4px 10px; font-size: 12px;" onclick="adjustHeight('feet', -1)">- Ft</button>
+                            <button type="button" class="btn-yellow" style="padding: 4px 10px; font-size: 12px;" onclick="adjustHeight('feet', 1)">+ Ft</button>
+                            <button type="button" class="btn-yellow" style="padding: 4px 10px; font-size: 12px;" onclick="adjustHeight('inches', -1)">- In</button>
+                            <button type="button" class="btn-yellow" style="padding: 4px 10px; font-size: 12px;" onclick="adjustHeight('inches', 1)">+ In</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="civ-gender">Gender</label>
+                        <select id="civ-gender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="civ-plate">License Plate</label>
+                        <input type="text" id="civ-plate" placeholder="ABC1234">
+                    </div>
+                    <div class="form-group">
+                        <label for="civ-violation-type">Infraction / Violation Type</label>
+                        <select id="civ-violation-type">
+                            <option value="1">Traffic Stop (+1 Point)</option>
+                            <option value="2">Robbery / Heist (+2 Points)</option>
+                            <option value="3">Killing another Civilian (+3 Points)</option>
+                            <option value="4">Killing LEO, DOT, Medic, or Firefighter (+4 Points)</option>
+                        </select>
+                    </div>
+                    <button class="btn-yellow" onclick="registerCivilianProfile()">Save Profile & Add Points</button>
                 </div>
+
+                <!-- Lookups & Database -->
                 <div>
-                    <button type="button" onclick="resolveDispatch('${d.id}')" style="background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Close / Handled</button>
+                    <div style="background-color: #252525; padding: 15px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                        <h3 style="margin-top: 0; font-size: 16px; color: var(--accent-color);">Person Lookup</h3>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <input type="text" id="search-person-input" placeholder="Search by name...">
+                        </div>
+                        <button class="btn-yellow" style="padding: 6px 14px; font-size: 13px;" onclick="searchPerson()">Search Person</button>
+                    </div>
+
+                    <div style="background-color: #252525; padding: 15px; border-radius: 4px; border: 1px solid var(--border-color);">
+                        <h3 style="margin-top: 0; font-size: 16px; color: var(--accent-color);">DMV Plate Lookup</h3>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <input type="text" id="search-plate-input" placeholder="Search by license plate...">
+                        </div>
+                        <button class="btn-yellow" style="padding: 6px 14px; font-size: 13px;" onclick="searchPlate()">Search Plate</button>
+                        <div id="dmv-lookup-result" style="margin-top: 12px; display: none; background: #1a1a1a; padding: 10px; border-radius: 4px; font-size: 13px;"></div>
+                    </div>
                 </div>
             </div>
-        `;
-    });
-    container.innerHTML = html;
-}
 
-function handleStaffReasonChange() {
-    const reasonSelect = document.getElementById('staff-call-reason');
-    if (!reasonSelect) return;
-    const reason = reasonSelect.value;
-    const proofContainer = document.getElementById('proof-container');
-    const proofInput = document.getElementById('staff-call-proof');
-
-    if (reason.startsWith('RDM') || reason.startsWith('VDM')) {
-        proofContainer.style.display = 'block';
-        proofInput.required = true;
-    } else {
-        proofContainer.style.display = 'none';
-        proofInput.required = false;
-        proofInput.value = '';
-    }
-}
-
-function submitStaffCall() {
-    const robloxUser = document.getElementById('staff-call-username').value.trim();
-    const reason = document.getElementById('staff-call-reason').value;
-    const description = document.getElementById('staff-call-description').value.trim();
-    const proofInput = document.getElementById('staff-call-proof');
-    const isRdmVdm = reason.startsWith('RDM') || reason.startsWith('VDM');
-
-    if (!robloxUser) {
-        alert('⚠️ Error: Please fill in your Roblox Username.');
-        return;
-    }
-
-    if (isRdmVdm && proofInput.files.length === 0) {
-        alert('⚠️ Error: Proof is required for RDM/VDM reports.');
-        return;
-    }
-
-    const hasProof = proofInput.files.length > 0 ? 'Yes (File attached)' : 'None required/provided';
-
-    const newStaffCall = {
-        id: Date.now().toString(),
-        robloxUser: robloxUser,
-        title: reason,
-        description: description || 'No details provided.',
-        hasProof: hasProof,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        team: currentActiveTeam
-    };
-
-    let existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-    existingCalls.unshift(newStaffCall);
-    localStorage.setItem('lemoncad_staff_calls', JSON.stringify(existingCalls));
-
-    lastKnownStaffCallCount = existingCalls.length;
-    renderStaffCalls();
-
-    triggerAlert(`Your staff report has been successfully submitted!`, false);
-
-    document.getElementById('staff-call-username').value = '';
-    document.getElementById('staff-call-description').value = '';
-    proofInput.value = '';
-}
-
-function resolveStaffCall(callId) {
-    const actionContainer = document.getElementById(`action-container-${callId}`);
-    if (!actionContainer) return;
-
-    actionContainer.innerHTML = `
-        <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 4px; text-align: right;">
-            <p style="font-size: 13px; font-weight: bold; color: #856404; margin-bottom: 6px;">Are you sure?</p>
-            <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                <button type="button" onclick="confirmResolveStaffCall('${callId}')" style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Yes</button>
-                <button type="button" onclick="renderStaffCalls()" style="background-color: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">No</button>
+            <div style="margin-top: 30px;">
+                <h3>Active CVP Leaderboard & Registry</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Plate</th>
+                            <th>Points</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <tr><td colspan="4" style="text-align: center; color: #777;">No records found.</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-    `;
-}
 
-function confirmResolveStaffCall(callId) {
-    let existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-    existingCalls = existingCalls.filter(call => call.id !== callId);
-    localStorage.setItem('lemoncad_staff_calls', JSON.stringify(existingCalls));
-    lastKnownStaffCallCount = existingCalls.length;
-    renderStaffCalls();
-}
-
-function dismissForMe(callId) {
-    let hiddenCalls = JSON.parse(localStorage.getItem('lemoncad_hidden_calls') || '[]');
-    if (!hiddenCalls.includes(callId)) {
-        hiddenCalls.push(callId);
-        localStorage.setItem('lemoncad_hidden_calls', JSON.stringify(hiddenCalls));
-    }
-    renderStaffCalls();
-}
-
-function renderStaffCalls() {
-    const listContainer = document.getElementById('staff-call-list');
-    if (!listContainer) return;
-
-    const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-    const hiddenCalls = JSON.parse(localStorage.getItem('lemoncad_hidden_calls') || '[]');
-
-    const visibleCalls = existingCalls.filter(call => !hiddenCalls.includes(call.id));
-
-    if (visibleCalls.length === 0) {
-        listContainer.innerHTML = `<p style="color: #777; margin: 0;">No active staff calls.</p>`;
-        return;
-    }
-
-    let html = '';
-    visibleCalls.forEach((call) => {
-        html += `
-            <div id="staff-call-card-${call.id}" style="background: #fcfbfa; border-left: 4px solid #d4a017; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: flex-start;">
-                <div>
-                    <h3>⚠️ [STAFF CALL] ${call.title}</h3>
-                    <p><strong>Roblox Username:</strong> <span style="color: #d4a017; font-weight: bold;">${call.robloxUser}</span></p>
-                    <p><strong>Submitted by Team:</strong> ${call.team}</p>
-                    <p><strong>Details:</strong> ${call.description}</p>
-                    <p><strong>Proof Uploaded:</strong> ${call.hasProof}</p>
-                    <p><strong>Time:</strong> ${call.time}</p>
-                </div>
-                <div id="action-container-${call.id}" style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
-                    <button type="button" onclick="resolveStaffCall('${call.id}')" style="background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; white-space: nowrap;">Mark as Handled</button>
-                    <button type="button" onclick="dismissForMe('${call.id}')" style="background-color: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; white-space: nowrap;">Dismiss for me</button>
-                </div>
+        <!-- 3. Active Dispatches Tab -->
+        <div id="dispatch" class="tab-content">
+            <h2>Active Dispatches & BOLO Feed</h2>
+            <div id="dispatch-list">
+                <p style="color: var(--text-muted);">No active dispatches right now.</p>
             </div>
-        `;
-    });
-    listContainer.innerHTML = html;
-}
+        </div>
 
-function pollForUpdates() {
-    // Poll staff calls
-    const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-    if (existingCalls.length > lastKnownStaffCallCount) {
-        if (lastKnownStaffCallCount !== 0) {
-            const latest = existingCalls[0];
-            triggerAlert(`New Staff Report by ${latest.robloxUser}: ${latest.title}`, true);
-        }
-        lastKnownStaffCallCount = existingCalls.length;
-
-        const staffDashboardTab = document.getElementById('staff-dashboard');
-        if (staffDashboardTab && staffDashboardTab.classList.contains('active')) {
-            renderStaffCalls();
-        }
-    } else if (existingCalls.length < lastKnownStaffCallCount) {
-        lastKnownStaffCallCount = existingCalls.length;
-        const staffDashboardTab = document.getElementById('staff-dashboard');
-        if (staffDashboardTab && staffDashboardTab.classList.contains('active')) {
-            renderStaffCalls();
-        }
-    }
-
-    // Poll Dispatches to notify designated departments (Police, EMS, Firefighters, DOT)
-    const existingDispatches = JSON.parse(localStorage.getItem('lemoncad_dispatches') || '[]');
-    if (existingDispatches.length > lastKnownDispatchCount) {
-        if (lastKnownDispatchCount !== 0) {
-            const latestDispatch = existingDispatches[0];
-            if (latestDispatch.units.includes(currentActiveTeam)) {
-                triggerAlert(`🚨 PRIORITY DISPATCH FOR YOUR TEAM (${currentActiveTeam.toUpperCase()}): ${latestDispatch.title} at ${latestDispatch.location}`, true);
-            }
-        }
-        lastKnownDispatchCount = existingDispatches.length;
-        if (document.getElementById('dispatch').classList.contains('active')) {
-            renderDispatches();
-        }
-    }
-}
-
-async function openUpdateModal() {
-    const modal = document.getElementById('update-modal');
-    const container = document.getElementById('update-logs-container');
-    if(!modal) return;
-    modal.style.display = 'flex';
-
-    container.innerHTML = '<p>Loading updates...</p>';
-
-    try {
-        const response = await fetch('updates.json');
-        if (!response.ok) throw new Error('Not found');
-        const data = await response.json();
-
-        document.getElementById('version-label').innerText = data.currentVersion;
-
-        let html = '';
-        data.logs.forEach(log => {
-            html += `
-                <div style="border-bottom: 1px solid #eee; margin-bottom: 12px; padding-bottom: 8px;">
-                    <strong>${log.version}</strong> <span style="font-size: 12px; color: #666;">(${log.date})</span>
-                    <ul style="margin: 5px 0 0 15px; padding: 0; font-size: 14px;">
-                        ${log.changes.map(change => `<li>${change}</li>`).join('')}
-                    </ul>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    } catch (error) {
-        container.innerHTML = `
-            <div style="border-bottom: 1px solid #eee; margin-bottom: 12px; padding-bottom: 8px;">
-                <strong>v1.4.0</strong> <span style="font-size: 12px; color: #666;">(2026-06-01)</span>
-                <ul style="margin: 5px 0 0 15px; padding: 0; font-size: 14px;">
-                    <li>Added Firefighters team.</li>
-                    <li>Integrated 4 selectable unit dropdowns on 911 caller panel with default N/A states.</li>
-                    <li>Added automated department alert dispatch notifications matching the staff alert system.</li>
-                </ul>
+        <!-- 4. Staff Report Tab -->
+        <div id="staff-caller" class="tab-content">
+            <h2>Submit Staff Report</h2>
+            <div class="form-group">
+                <label for="staff-call-reason">Reason</label>
+                <select id="staff-call-reason" onchange="handleStaffReasonChange()">
+                    <option value="RDM (Random Deathmatch)">RDM (Random Deathmatch)</option>
+                    <option value="VDM (Vehicle Deathmatch)">VDM (Vehicle Deathmatch)</option>
+                    <option value="FailRP">FailRP</option>
+                    <option value="Exploiting">Exploiting</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
-        `;
-    }
-}
+            <div class="form-group">
+                <label for="staff-call-description">Description</label>
+                <textarea id="staff-call-description" placeholder="Provide details regarding the report..."></textarea>
+            </div>
+            <div class="form-group" id="proof-container">
+                <label for="staff-call-proof">Upload Video/Image Proof (Required for RDM/VDM)</label>
+                <input type="file" id="staff-call-proof" accept="image/*,video/*">
+            </div>
+            <button class="btn-yellow" onclick="submitStaffCall()">Submit Report to Staff</button>
+        </div>
 
-function closeUpdateModal() {
-    document.getElementById('update-modal').style.display = 'none';
-}
+        <!-- 5. Staff Dashboard Tab -->
+        <div id="staff-dashboard" class="tab-content">
+            <h2>Staff Dashboard - Incoming Reports</h2>
+            <div id="staff-call-list">
+                <p style="color: var(--text-muted);">No active staff calls.</p>
+            </div>
+        </div>
 
-async function initVersionCheck() {
-    try {
-        const response = await fetch('updates.json');
-        const data = await response.json();
-        const label = document.getElementById('version-label');
-        if(label) label.innerText = data.currentVersion;
-    } catch (e) {
-        console.log('Using default version number');
-    }
-}
+    </div>
 
-window.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
-    const civPoints = document.getElementById('civ-points-display');
-    if(civPoints) civPoints.style.display = 'block';
-    handleStaffReasonChange();
-    initVersionCheck();
+    <!-- Update Log Modal -->
+    <div id="update-modal" class="modal-overlay" style="display: none;">
+        <div class="modal" style="width: 500px;">
+            <h2>System Updates & Logs</h2>
+            <p>Current Version: <strong id="version-label" style="color: var(--accent-color);">v1.0.0</strong></p>
+            <div id="update-logs-container" style="max-height: 250px; overflow-y: auto; margin: 15px 0; background: #151515; padding: 10px; border-radius: 4px;">
+                <p>Loading updates...</p>
+            </div>
+            <button class="btn-yellow" style="width: 100%;" onclick="closeUpdateModal()">Close</button>
+        </div>
+    </div>
 
-    const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-    lastKnownStaffCallCount = existingCalls.length;
+    <!-- Alert Popup Element -->
+    <div id="alert-popup">Notification message goes here...</div>
 
-    const existingDispatches = JSON.parse(localStorage.getItem('lemoncad_dispatches') || '[]');
-    lastKnownDispatchCount = existingDispatches.length;
+    <!-- Hidden audio element for alerts -->
+    <audio id="alert-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
-    renderStaffCalls();
-    renderViolators();
-    renderDispatches();
-    updateCivPointsDisplay();
-
-    setInterval(pollForUpdates, 3000);
-});
-</script>
+    <!-- Connect your client-side JavaScript -->
+    <script src="/index.js"></script>
 </body>
 </html>
