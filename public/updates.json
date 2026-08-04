@@ -1,19 +1,18 @@
 {
-  "currentVersion": "v1.2.0",
+  "currentVersion": "v0.1.0",
   "logs": [
     {
-      "version": "v1.2.0",
+      "version": "v0.1.0",
       "date": "2026-06-06",
       "changes": [
-        "Added version tracker and changelog modal",
-        "Improved server route configuration for static files"
+        "Currently, this website is still in beta stage, and this will be the first open testing release. Expect bugs!",
       ]
     },
     {
-      "version": "v1.1.0",
+      "version": "v0.0.1",
       "date": "2026-05-20",
       "changes": [
-        "Initial release of the CAD and Dispatch system"
+        "Initial release of the CAD and Dispatch system, for dev testing"
       ]
     }
   ]
