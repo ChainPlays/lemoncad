@@ -154,8 +154,8 @@ header {
 </head>
 <body>
 
-    <!-- AUDIO VOOR ALERTS -->
-    <audio id="alert-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+    <!-- VRIENDELIJKER GELUIDJE VOOR ALERTS -->
+    <audio id="alert-sound" src="https://actions.google.com/sounds/v1/ui/notification_positive.ogg" preload="auto"></audio>
 
     <!-- TEAM SELECTIE MODAL -->
     <div id="team-modal">
@@ -398,11 +398,13 @@ header {
             }
         }
 
-        function triggerAlert(customText) {
-            const sound = document.getElementById('alert-sound');
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log('Autoplay blocked:', e));
+        function triggerAlert(customText, playSound = true) {
+            if (playSound) {
+                const sound = document.getElementById('alert-sound');
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.log('Autoplay blocked:', e));
+                }
             }
 
             const container = document.getElementById('live-alerts-container');
@@ -473,6 +475,7 @@ header {
             const hasProof = proofInput.files.length > 0 ? 'Yes (File attached)' : 'None required/provided';
 
             const newStaffCall = {
+                id: Date.now().toString(),
                 robloxUser: robloxUser,
                 title: reason,
                 description: description || 'No details provided.',
@@ -485,12 +488,48 @@ header {
             existingCalls.unshift(newStaffCall);
             localStorage.setItem('lemoncad_staff_calls', JSON.stringify(existingCalls));
 
+            lastKnownStaffCallCount = existingCalls.length;
             renderStaffCalls();
-            triggerAlert(`New Staff Report by ${robloxUser}: ${reason}`);
+
+            triggerAlert(`Your staff report has been successfully submitted!`, false);
 
             document.getElementById('staff-call-username').value = '';
             document.getElementById('staff-call-description').value = '';
             proofInput.value = '';
+        }
+
+        // Functie om de melding voor iedereen te verwijderen
+        function resolveStaffCall(callId) {
+            const actionContainer = document.getElementById(`action-container-${callId}`);
+            if (!actionContainer) return;
+
+            actionContainer.innerHTML = `
+                <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 4px; text-align: right;">
+                    <p style="font-size: 13px; font-weight: bold; color: #856404; margin-bottom: 6px;">Are you sure?</p>
+                    <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                        <button onclick="confirmResolveStaffCall('${callId}')" style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Yes</button>
+                        <button onclick="renderStaffCalls()" style="background-color: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">No</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function confirmResolveStaffCall(callId) {
+            let existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
+            existingCalls = existingCalls.filter(call => call.id !== callId);
+            localStorage.setItem('lemoncad_staff_calls', JSON.stringify(existingCalls));
+            lastKnownStaffCallCount = existingCalls.length;
+            renderStaffCalls();
+        }
+
+        // Functie om de melding alleen voor jezelf (jouw browser) weg te klikken
+        function dismissForMe(callId) {
+            let hiddenCalls = JSON.parse(localStorage.getItem('lemoncad_hidden_calls') || '[]');
+            if (!hiddenCalls.includes(callId)) {
+                hiddenCalls.push(callId);
+                localStorage.setItem('lemoncad_hidden_calls', JSON.stringify(hiddenCalls));
+            }
+            renderStaffCalls();
         }
 
         function renderStaffCalls() {
@@ -498,42 +537,48 @@ header {
             if (!listContainer) return;
 
             const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
+            const hiddenCalls = JSON.parse(localStorage.getItem('lemoncad_hidden_calls') || '[]');
 
-            if (existingCalls.length === 0) {
+            // Filter de meldingen zodat degene die jij voor jezelf hebt weggeklikt niet zichtbaar zijn
+            const visibleCalls = existingCalls.filter(call => !hiddenCalls.includes(call.id));
+
+            if (visibleCalls.length === 0) {
                 listContainer.innerHTML = `<p style="color: #777; margin: 0;">No active staff calls.</p>`;
                 return;
             }
 
             let html = '';
-            existingCalls.forEach((call) => {
+            visibleCalls.forEach((call) => {
                 html += `
-                    <div style="background: #fcfbfa; border-left: 4px solid #d4a017; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
-                        <h3>⚠️ [STAFF CALL] ${call.title}</h3>
-                        <p><strong>Roblox Username:</strong> <span style="color: #d4a017; font-weight: bold;">${call.robloxUser}</span></p>
-                        <p><strong>Submitted by Team:</strong> ${call.team}</p>
-                        <p><strong>Details:</strong> ${call.description}</p>
-                        <p><strong>Proof Uploaded:</strong> ${call.hasProof}</p>
-                        <p><strong>Time:</strong> ${call.time}</p>
+                    <div id="staff-call-card-${call.id}" style="background: #fcfbfa; border-left: 4px solid #d4a017; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <h3>⚠️ [STAFF CALL] ${call.title}</h3>
+                            <p><strong>Roblox Username:</strong> <span style="color: #d4a017; font-weight: bold;">${call.robloxUser}</span></p>
+                            <p><strong>Submitted by Team:</strong> ${call.team}</p>
+                            <p><strong>Details:</strong> ${call.description}</p>
+                            <p><strong>Proof Uploaded:</strong> ${call.hasProof}</p>
+                            <p><strong>Time:</strong> ${call.time}</p>
+                        </div>
+                        <div id="action-container-${call.id}" style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
+                            <button onclick="resolveStaffCall('${call.id}')" style="background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; white-space: nowrap;">Mark as Handled</button>
+                            <button onclick="dismissForMe('${call.id}')" style="background-color: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; white-space: nowrap;">Dismiss for me</button>
+                        </div>
                     </div>
                 `;
             });
             listContainer.innerHTML = html;
         }
 
-        // Automatische achtergrondcheck voor nieuwe staff calls (elke 3 seconden)
         function pollForNewStaffCalls() {
             const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
             
-            // Als er opeens meer meldingen zijn dan we kenden, en we zijn staff (of ongeacht tabblad)
             if (existingCalls.length > lastKnownStaffCallCount) {
                 if (lastKnownStaffCallCount !== 0) {
-                    // Pak de nieuwste melding en triggert alert/geluid
                     const latest = existingCalls[0];
-                    triggerAlert(`New Staff Report by ${latest.robloxUser}: ${latest.title}`);
+                    triggerAlert(`New Staff Report by ${latest.robloxUser}: ${latest.title}`, true);
                 }
                 lastKnownStaffCallCount = existingCalls.length;
                 
-                // Als het staff dashboard open staat, direct hernoemen/updaten
                 const staffDashboardTab = document.getElementById('staff-dashboard');
                 if (staffDashboardTab && staffDashboardTab.classList.contains('active')) {
                     renderStaffCalls();
@@ -603,7 +648,6 @@ header {
             lastKnownStaffCallCount = existingCalls.length;
             renderStaffCalls();
 
-            // Start polling elke 3 seconden
             setInterval(pollForNewStaffCalls, 3000);
         });
     </script>
