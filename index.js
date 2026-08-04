@@ -1,3 +1,34 @@
+const express = require('express');
+const path = require('path');
+const app = express();
+
+const PORT = process.env.PORT || 3000;
+
+// Middleware om JSON te parsen indien nodig
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Als je een index.html hebt in dezelfde map, kun je die direct serveren via Express:
+// app.use(express.static(path.join(__dirname, '/')));
+
+// API / Server status endpoint om te voorkomen dat de app crasht
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
+// Start de server op de poort die Render toewijst
+app.listen(PORT, () => {
+    console.log(`Server is running successfully on port ${PORT}`);
+});
+
+// --- CLIENT-SIDE LOGICA (wordt normaal gesproken in de browser uitgevoerd) ---
+
+/*
+Hieronder staat de logica voor je applicatie. Als je dit als een losse API-server gebruikt, 
+kun je de frontend logica (zoals hieronder) het beste in een apart JavaScript-bestand voor de browser zetten 
+of direct in je HTML-bestand binnen een <script>-tag plaatsen.
+*/
+
 let currentActiveTeam = 'Civilian';
 let registeredCivilians = [];
 let alertTimeout = null;
