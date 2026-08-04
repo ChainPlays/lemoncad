@@ -4,11 +4,11 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// Middleware om JSON en url-encoded data te parsen
+// Middleware to parse JSON and url-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serveer alle statische bestanden (HTML, CSS, Client-JS) vanuit de 'public' map
+// Serve all static files (HTML, CSS, Client-JS, updates.json) from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Server status endpoint
@@ -16,13 +16,12 @@ app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
-// Start de server op de toegewezen poort van Render
+// Start the server on Render's assigned port
 app.listen(PORT, () => {
     console.log(`Server is running successfully on port ${PORT}`);
 });
 
-// --- CLIENT-SIDE LOGICA ---
-// (Deze logica hoort eigenlijk in een apart bestand in de 'public'-map, maar staat hier compleet samengevoegd)
+// --- CLIENT-SIDE LOGIC ---
 
 let currentActiveTeam = 'Civilian';
 let registeredCivilians = [];
@@ -517,10 +516,57 @@ function triggerAlert(customText) {
     }, 6000);
 }
 
+// Update Modal Client Logic
+async function openUpdateModal() {
+    const modal = document.getElementById('update-modal');
+    const container = document.getElementById('update-logs-container');
+    modal.style.display = 'flex';
+    
+    container.innerHTML = '<p>Loading updates...</p>';
+
+    try {
+        const response = await fetch('/updates.json');
+        const data = await response.json();
+        
+        document.getElementById('version-label').innerText = data.currentVersion;
+
+        let html = '';
+        data.logs.forEach(log => {
+            html += `
+                <div style="border-bottom: 1px solid #444; margin-bottom: 10px; padding-bottom: 8px;">
+                    <strong>${log.version}</strong> <span style="font-size: 12px; color: #aaa;">(${log.date})</span>
+                    <ul style="margin: 5px 0 0 15px; padding: 0; font-size: 14px;">
+                        ${log.changes.map(change => `<li>${change}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<p style="color: red;">Could not load update logs.</p>';
+    }
+}
+
+function closeUpdateModal() {
+    document.getElementById('update-modal').style.display = 'none';
+}
+
+async function initVersionCheck() {
+    try {
+        const response = await fetch('/updates.json');
+        const data = await response.json();
+        const label = document.getElementById('version-label');
+        if(label) label.innerText = data.currentVersion;
+    } catch (e) {
+        console.log('Could not fetch version number');
+    }
+}
+
 if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
         document.getElementById('civ-points-display').style.display = 'block';
         handleStaffReasonChange();
+        initVersionCheck();
     });
 }
