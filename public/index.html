@@ -204,7 +204,7 @@ header {
         </div>
     </header>
 
-    <!-- LIVE MELDINGEN CONTAINER (Zichtbaar op de website) -->
+    <!-- LIVE MELDINGEN CONTAINER -->
     <div id="live-alerts-container"></div>
 
     <!-- NAVIGATIE TABBLADEN -->
@@ -303,8 +303,10 @@ header {
     <!-- JAVASCRIPT LOGICA -->
     <script>
         let currentActiveTeam = 'Civilian';
-        let registeredCivilians = [];
-        let globalStaffCalls = [];
+
+        function openTeamModal() {
+            document.getElementById('team-modal').style.display = 'flex';
+        }
 
         function handleTeamChange() {
             const team = document.getElementById('modal-team-select').value;
@@ -349,6 +351,7 @@ header {
                 staffCallerTab.classList.add('hidden-for-staff');
                 staffDashboardTab.style.display = 'block';
                 switchTab('staff-dashboard', staffDashboardTab);
+                renderStaffCalls(); // Direct inladen voor staff
                 return;
             }
 
@@ -384,6 +387,10 @@ header {
 
             document.getElementById(tabId).classList.add('active');
             if(element) element.classList.add('active');
+
+            if (tabId === 'staff-dashboard') {
+                renderStaffCalls();
+            }
         }
 
         function triggerAlert(customText) {
@@ -402,7 +409,6 @@ header {
             `;
             container.prepend(alertDiv);
 
-            // Automatisch weghalen na 8 seconden
             setTimeout(() => {
                 if (alertDiv.parentElement) {
                     alertDiv.remove();
@@ -463,9 +469,12 @@ header {
                 team: currentActiveTeam
             };
 
-            globalStaffCalls.push(newStaffCall);
-            renderStaffCalls();
+            // Opslaan in localStorage zodat het behouden blijft
+            let existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
+            existingCalls.unshift(newStaffCall);
+            localStorage.setItem('lemoncad_staff_calls', JSON.stringify(existingCalls));
 
+            renderStaffCalls();
             triggerAlert(`New Staff Report: ${reason}`);
 
             document.getElementById('staff-call-description').value = '';
@@ -476,13 +485,15 @@ header {
             const listContainer = document.getElementById('staff-call-list');
             if (!listContainer) return;
 
-            if (globalStaffCalls.length === 0) {
+            const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
+
+            if (existingCalls.length === 0) {
                 listContainer.innerHTML = `<p style="color: #777; margin: 0;">No active staff calls.</p>`;
                 return;
             }
 
             let html = '';
-            globalStaffCalls.forEach((call) => {
+            existingCalls.forEach((call) => {
                 html += `
                     <div style="background: #fcfbfa; border-left: 4px solid #d4a017; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
                         <h3>⚠️ [STAFF CALL] ${call.title}</h3>
@@ -547,6 +558,7 @@ header {
             if(civPoints) civPoints.style.display = 'block';
             handleStaffReasonChange();
             initVersionCheck();
+            renderStaffCalls();
         });
     </script>
 </body>
