@@ -1,653 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LemonCAD - Computer-Aided Dispatch (CAD)</title>
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-body {
-    background-color: #fcfbfa;
-    color: #333333;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-/* Team Modal Overlay */
-#team-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.75);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-}
-.modal-box {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    padding: 30px;
-    border-radius: 8px;
-    width: 400px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-.modal-box h2 {
-    margin-bottom: 8px;
-    color: #222;
-    font-size: 20px;
-}
-.modal-box p {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 20px;
-}
-.form-group {
-    margin-bottom: 15px;
-}
-.form-group label {
-    display: block;
-    font-size: 13px;
-    color: #444;
-    margin-bottom: 5px;
-    font-weight: 600;
-}
-.form-group select, .form-group input, .form-group textarea {
-    width: 100%;
-    padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    color: #333;
-    border-radius: 4px;
-    font-size: 14px;
-}
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    border-color: #d4a017;
-    outline: none;
-}
-
-.nav-tab.hidden-for-civ {
-    display: none !important;
-}
-
-.hidden-for-staff {
-    display: none !important;
-}
-
-/* Content Sections */
-.tab-content {
-    display: none;
-}
-.tab-content.active {
-    display: block;
-}
-
-/* Header & Nav Styling */
-header {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    padding: 15px 25px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-.nav-tab {
-    cursor: pointer;
-    padding: 8px 16px;
-    background: #f1f0ee;
-    border-radius: 4px;
-    font-weight: 600;
-    font-size: 14px;
-}
-.nav-tab.active {
-    background-color: #d4a017;
-    color: #fff;
-}
-
-.map-container-wrapper {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.section-header-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-/* Live Meldingen / Alerts Banner */
-#live-alerts-container {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.alert-banner {
-    background-color: #fff3cd;
-    border: 1px solid #ffeeba;
-    color: #856404;
-    padding: 12px 15px;
-    border-radius: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    animation: fadeIn 0.3s ease-in-out;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actieve Alarmeringen & Teams</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #ffffff;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+        }
+        .alert-box {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .status-pending {
+            color: orange;
+            font-weight: bold;
+        }
+        .status-enroute {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .btn {
+            padding: 8px 16px;
+            margin-right: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-enroute {
+            background-color: #ff9800;
+            color: #fff;
+        }
+        .btn-enroute:hover {
+            background-color: #f57c00;
+        }
+        .btn-dismiss {
+            background-color: #f44336;
+            color: #fff;
+        }
+        .btn-dismiss:hover {
+            background-color: #d32f2f;
+        }
+        .btn:disabled {
+            background-color: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+        .enroute-section {
+            background-color: #1a2634;
+            border: 1px solid #2a4365;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 30px;
+        }
+        code {
+            background-color: #2d3748;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #63b3ed;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- VRIENDELIJKER GELUIDJE VOOR ALERTS -->
-    <audio id="alert-sound" src="https://actions.google.com/sounds/v1/ui/notification_positive.ogg" preload="auto"></audio>
+    <h1>🚨 Actieve Alarmeringen & Teams</h1>
+    <p><em>Systeem actief — Wachtend op meldingen of selectie.</em></p>
 
-    <!-- TEAM SELECTIE MODAL -->
-    <div id="team-modal">
-        <div class="modal-box">
-            <h2>Select Role & Team</h2>
-            <p>Choose your department or role to access the correct CAD tools.</p>
-            <div class="form-group">
-                <label>Select Team</label>
-                <select id="modal-team-select" onchange="handleTeamChange()">
-                    <option value="Civilian">Civilian</option>
-                    <option value="Police">Police</option>
-                    <option value="EMS">EMS</option>
-                    <option value="Staff">Staff</option>
-                </select>
-            </div>
-            <div class="form-group" id="callsign-group" style="display: none;">
-                <label>Callsign (3-6 chars, max 3 letters)</label>
-                <input type="text" id="modal-callsign-input" placeholder="e.g. T3ST">
-                <span id="callsign-error" style="color: #d9534f; font-size: 12px; display: none;">Invalid callsign format.</span>
-            </div>
-            <button onclick="submitTeamSelection()" style="width: 100%; padding: 10px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Confirm Team</button>
-        </div>
+    <!-- Melding 1 -->
+    <div class="alert-box" id="melding-1">
+        <h3>Brand in utiliteitsbouw (Prio 1)</h3>
+        <p><strong>Locatie:</strong> Industrieweg 14, Landgraaf<br>
+           <strong>Tijd:</strong> 16:42 uur<br>
+           <strong>Status:</strong> <span class="status-badge status-pending">In afwachting</span></p>
+        <button class="btn btn-enroute" onclick="goEnroute(1, 'Brand in utiliteitsbouw (Industrieweg 14)', ['TS 13-41 (Tankautospuit)', 'HV 13-81 (Hulpverleningsvoertuig)'])">Enroute</button>
+        <button class="btn btn-dismiss" onclick="dismissAlert(1)">Dismiss</button>
     </div>
 
-    <!-- UPDATE LOGS MODAL -->
-    <div id="update-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999;">
-        <div style="background:#ffffff; color:#333333; padding:25px; border-radius:8px; width:450px; max-height:80vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-            <h3>📜 Update Logs & Version Control</h3>
-            <div id="update-logs-container" style="margin-top: 15px;">
-                <p>Loading updates...</p>
-            </div>
-            <button onclick="closeUpdateModal()" style="margin-top: 15px; width: 100%; padding: 10px; background: #d4a017; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">Close</button>
-        </div>
+    <!-- Melding 2 -->
+    <div class="alert-box" id="melding-2">
+        <h3>Reanimatie (Prio 1)</h3>
+        <p><strong>Locatie:</strong> Heistraat 88, Heerlen<br>
+           <strong>Tijd:</strong> 16:45 uur<br>
+           <strong>Status:</strong> <span class="status-badge status-pending">In afwachting</span></p>
+        <button class="btn btn-enroute" onclick="goEnroute(2, 'Reanimatie (Heistraat 88)', ['AMBU 13-182', 'TS 13-31'])">Enroute</button>
+        <button class="btn btn-dismiss" onclick="dismissAlert(2)">Dismiss</button>
     </div>
 
-    <!-- HEADER -->
-    <header style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="Lemon's LemonCAD.png" alt="LemonCAD Logo" style="height: 40px; width: auto; object-fit: contain;">
-            <h1 style="font-size: 22px; font-weight: bold; color: #333;">LemonCAD</h1>
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <span id="display-team-info" style="background: #f1f0ee; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">Team: Civilian</span>
-            <div id="civ-points-display" style="background: #f1f0ee; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">CVP Points: 0 | Status: Violator</div>
-            <button onclick="openTeamModal()" style="background: #e0e0e0; border: none; padding: 6px 12px; border-radius: 4px; font-weight: 600; cursor: pointer;">Change Team</button>
-            <button onclick="openUpdateModal()" style="background: #d4a017; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">Updates (<span id="version-label">...</span>)</button>
-        </div>
-    </header>
+    <!-- Melding 3 -->
+    <div class="alert-box" id="melding-3">
+        <h3>Ongeval letsel (Prio 2)</h3>
+        <p><strong>Locatie:</strong> N281 - KM 4.2, Kerkrade<br>
+           <strong>Tijd:</strong> 16:50 uur<br>
+           <strong>Status:</strong> <span class="status-badge status-pending">In afwachting</span></p>
+        <button class="btn btn-enroute" onclick="goEnroute(3, 'Ongeval letsel (N281 - KM 4.2)', ['TS 13-51', 'HV 13-82'])">Enroute</button>
+        <button class="btn btn-dismiss" onclick="dismissAlert(3)">Dismiss</button>
+    </div>
 
-    <!-- LIVE MELDINGEN CONTAINER -->
-    <div id="live-alerts-container"></div>
+    <!-- Sectie Eenheden Onderweg -->
+    <div class="enroute-section" id="enroute-container" style="display: none;">
+        <h2>🚒 Eenheden Onderweg (Enroute)</h2>
+        <p>Hieronder staat het eenheidsteam dat momenteel naar de actieve melding onderweg is:</p>
+        <p><strong>Actieve Melding:</strong> <span id="active-title">-</span></p>
+        <ul id="unit-list"></ul>
+    </div>
 
-    <!-- NAVIGATIE TABBLADEN -->
-    <nav style="display: flex; gap: 10px; margin-bottom: 20px;">
-        <div class="nav-tab active hidden-for-civ" id="tab-btn-cad" onclick="switchTab('cad', this)">Violators / BOLO's</div>
-        <div class="nav-tab hidden-for-civ" id="tab-btn-dispatch" onclick="switchTab('dispatch', this)">Dispatch</div>
-        <div class="nav-tab" id="tab-btn-caller" onclick="switchTab('caller', this)">Emergency Caller (911)</div>
-        <div class="nav-tab" id="tab-btn-staff-caller" onclick="switchTab('staff-caller', this)">Staff Caller</div>
-        <div class="nav-tab" id="tab-btn-staff-dashboard" onclick="switchTab('staff-dashboard', this)" style="display: none;">Staff Dashboard</div>
-        <div class="nav-tab" id="tab-btn-map" onclick="switchTab('map', this)">Interactive Map</div>
-    </nav>
-
-    <!-- INHOUD TABBLADEN -->
-    <main>
-        <!-- 1. VIOLATORS / BOLO'S (CAD) -->
-        <div id="cad" class="tab-content">
-            <div class="map-container-wrapper">
-                <div class="section-header-title">Police CAD & Violators Dashboard</div>
-                <p>Welcome to the police database and management system.</p>
-            </div>
-        </div>
-
-        <!-- 2. DISPATCH -->
-        <div id="dispatch" class="tab-content">
-            <div class="map-container-wrapper">
-                <div class="section-header-title">Active Dispatches</div>
-                <p>No active dispatches right now.</p>
-            </div>
-        </div>
-
-        <!-- 3. EMERGENCY CALLER (911) -->
-        <div id="caller" class="tab-content active">
-            <div class="map-container-wrapper">
-                <div class="section-header-title">Emergency 911 Caller</div>
-                <div class="form-group">
-                    <label>Incident Title</label>
-                    <input type="text" id="call-title" placeholder="e.g. Armed Robbery">
-                </div>
-                <div class="form-group">
-                    <label>Location</label>
-                    <input type="text" id="call-location" placeholder="e.g. Vinewood Blvd">
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="call-description" rows="3" placeholder="Provide extra information..."></textarea>
-                </div>
-                <button onclick="submitEmergencyCall()" style="padding: 10px 15px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Dispatch 911 Call</button>
-            </div>
-        </div>
-
-        <!-- 4. STAFF CALLER -->
-        <div id="staff-caller" class="tab-content">
-            <div class="map-container-wrapper">
-                <div class="section-header-title">Staff Report Submission</div>
-                <div class="form-group">
-                    <label>Roblox Username *</label>
-                    <input type="text" id="staff-call-username" placeholder="e.g. YourRobloxName" required>
-                </div>
-                <div class="form-group">
-                    <label>Reason</label>
-                    <select id="staff-call-reason" onchange="handleStaffReasonChange()">
-                        <option value="RDM (Random Deathmatch)">RDM (Random Deathmatch)</option>
-                        <option value="VDM (Vehicle Deathmatch)">VDM (Vehicle Deathmatch)</option>
-                        <option value="FailRP">FailRP</option>
-                        <option value="New Life Rule Violation">New Life Rule Violation</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group" id="proof-container">
-                    <label>Upload Video/Screenshot Proof (Required for RDM/VDM)</label>
-                    <input type="file" id="staff-call-proof">
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="staff-call-description" rows="3" placeholder="Explain what happened..."></textarea>
-                </div>
-                <button onclick="submitStaffCall()" style="padding: 10px 15px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Submit Report</button>
-            </div>
-        </div>
-
-        <!-- 5. STAFF DASHBOARD -->
-        <div id="staff-dashboard" class="tab-content">
-            <div class="map-container-wrapper">
-                <div class="section-header-title">Staff Reports & Moderation Feed</div>
-                <div id="staff-call-list">
-                    <p style="color: #777; margin: 0;">No active staff calls.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 6. INTERACTIVE MAP TAB -->
-        <div id="map" class="tab-content map-container-wrapper">
-            <div class="section-header-title">Interactive Map</div>
-            <div style="width: 100%; height: 700px; border: none; overflow: hidden; border-radius: 4px;">
-                <iframe src="https://erlc-hub.pages.dev" style="width: 100%; height: 100%; border: none;"></iframe>
-            </div>
-        </div>
-    </main>
-
-    <!-- JAVASCRIPT LOGICA -->
     <script>
-        let currentActiveTeam = 'Civilian';
-        let lastKnownStaffCallCount = 0;
+        let currentEnrouteId = null;
 
-        function openTeamModal() {
-            document.getElementById('team-modal').style.display = 'flex';
-        }
-
-        function handleTeamChange() {
-            const team = document.getElementById('modal-team-select').value;
-            const callsignGroup = document.getElementById('callsign-group');
-            if (team === 'Civilian') {
-                callsignGroup.style.display = 'none';
-            } else {
-                callsignGroup.style.display = 'block';
-            }
-        }
-
-        function submitTeamSelection() {
-            const team = document.getElementById('modal-team-select').value;
-            const callsign = document.getElementById('modal-callsign-input').value.trim();
-            const errorDiv = document.getElementById('callsign-error');
-
-            currentActiveTeam = team;
-            const pointsBadge = document.getElementById('civ-points-display');
-            const staffCallerTab = document.getElementById('tab-btn-staff-caller');
-            const staffDashboardTab = document.getElementById('tab-btn-staff-dashboard');
-
-            if (team === 'Civilian') {
-                errorDiv.style.display = 'none';
-                document.getElementById('display-team-info').innerText = `Team: Civilian`;
-                document.getElementById('team-modal').style.display = 'none';
-                pointsBadge.style.display = 'block';
-
-                document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
-                staffCallerTab.classList.remove('hidden-for-staff');
-                staffDashboardTab.style.display = 'none';
-                switchTab('caller', document.getElementById('tab-btn-caller'));
-                return;
+        function goEnroute(id, title, units) {
+            // Als er al een andere melding enroute is, reset die dan eerst
+            if (currentEnrouteId !== null && currentEnrouteId !== id) {
+                resetAlert(currentEnrouteId);
             }
 
-            if (team === 'Staff') {
-                errorDiv.style.display = 'none';
-                document.getElementById('display-team-info').innerText = `Team: Staff`;
-                document.getElementById('team-modal').style.display = 'none';
-                pointsBadge.style.display = 'none';
+            currentEnrouteId = id;
 
-                document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
-                staffCallerTab.classList.add('hidden-for-staff');
-                staffDashboardTab.style.display = 'block';
-                switchTab('staff-dashboard', staffDashboardTab);
-                renderStaffCalls();
-                return;
-            }
+            // Update status van de gekozen melding
+            const meldingBox = document.getElementById(`melding-${id}`);
+            meldingBox.querySelector('.status-badge').className = "status-badge status-enroute";
+            meldingBox.querySelector('.status-badge').innerText = "Onderweg";
+            meldingBox.querySelector('.btn-enroute').disabled = true;
 
-            const letterCount = (callsign.match(/[a-zA-Z]/g) || []).length;
-            const isValidLength = callsign.length >= 3 && callsign.length <= 6;
-            const isValidLetters = letterCount <= 3;
-
-            if (!isValidLength || !isValidLetters) {
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            errorDiv.style.display = 'none';
-            document.getElementById('display-team-info').innerText = `Team: ${team} | ${callsign}`;
-            document.getElementById('team-modal').style.display = 'none';
-            pointsBadge.style.display = 'none';
-
-            document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
-            staffCallerTab.classList.remove('hidden-for-staff');
-            staffDashboardTab.style.display = 'none';
-            switchTab('cad', document.getElementById('tab-btn-cad'));
-        }
-
-        function switchTab(tabId, element) {
-            if (currentActiveTeam === 'Civilian' && (tabId === 'cad' || tabId === 'dispatch')) {
-                return;
-            }
-            if (currentActiveTeam === 'Staff' && tabId === 'staff-caller') {
-                return;
-            }
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-
-            document.getElementById(tabId).classList.add('active');
-            if(element) element.classList.add('active');
-
-            if (tabId === 'staff-dashboard') {
-                renderStaffCalls();
-            }
-        }
-
-        function triggerAlert(customText, playSound = true) {
-            if (playSound) {
-                const sound = document.getElementById('alert-sound');
-                if (sound) {
-                    sound.currentTime = 0;
-                    sound.play().catch(e => console.log('Autoplay blocked:', e));
+            // Disable alle andere enroute knoppen (slechts 1 tegelijk)
+            const allEnrouteButtons = document.querySelectorAll('.btn-enroute');
+            allEnrouteButtons.forEach(btn => {
+                if(btn !== meldingBox.querySelector('.btn-enroute')) {
+                    btn.disabled = true;
                 }
-            }
-
-            const container = document.getElementById('live-alerts-container');
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert-banner';
-            alertDiv.innerHTML = `
-                <span>🚨 <strong>ALERT:</strong> ${customText}</span>
-                <button onclick="this.parentElement.remove()" style="background:none; border:none; font-weight:bold; cursor:pointer; color:#856404;">&times;</button>
-            `;
-            container.prepend(alertDiv);
-
-            setTimeout(() => {
-                if (alertDiv.parentElement) {
-                    alertDiv.remove();
-                }
-            }, 8000);
-        }
-
-        function submitEmergencyCall() {
-            const title = document.getElementById('call-title').value.trim();
-            const location = document.getElementById('call-location').value.trim();
-            const description = document.getElementById('call-description').value.trim();
-
-            if (!title || !location) {
-                alert('Please fill in at least the Incident Title and Location.');
-                return;
-            }
-
-            triggerAlert(`New 911 Call: ${title} at ${location}`);
-            
-            document.getElementById('call-title').value = '';
-            document.getElementById('call-location').value = '';
-            document.getElementById('call-description').value = '';
-        }
-
-        function handleStaffReasonChange() {
-            const reason = document.getElementById('staff-call-reason').value;
-            const proofContainer = document.getElementById('proof-container');
-            const proofInput = document.getElementById('staff-call-proof');
-            
-            if (reason.startsWith('RDM') || reason.startsWith('VDM')) {
-                proofContainer.style.display = 'block';
-                proofInput.required = true;
-            } else {
-                proofContainer.style.display = 'none';
-                proofInput.required = false;
-                proofInput.value = '';
-            }
-        }
-
-        function submitStaffCall() {
-            const robloxUser = document.getElementById('staff-call-username').value.trim();
-            const reason = document.getElementById('staff-call-reason').value;
-            const description = document.getElementById('staff-call-description').value.trim();
-            const proofInput = document.getElementById('staff-call-proof');
-            const isRdmVdm = reason.startsWith('RDM') || reason.startsWith('VDM');
-
-            if (!robloxUser) {
-                alert('⚠️ Error: Please fill in your Roblox Username.');
-                return;
-            }
-
-            if (isRdmVdm && proofInput.files.length === 0) {
-                alert('⚠️ Error: Proof is required for RDM/VDM reports.');
-                return;
-            }
-
-            const hasProof = proofInput.files.length > 0 ? 'Yes (File attached)' : 'None required/provided';
-
-            const newStaffCall = {
-                id: Date.now().toString(),
-                robloxUser: robloxUser,
-                title: reason,
-                description: description || 'No details provided.',
-                hasProof: hasProof,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                team: currentActiveTeam
-            };
-
-            let existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-            existingCalls.unshift(newStaffCall);
-            localStorage.setItem('lemoncad_staff_calls', JSON.stringify(existingCalls));
-
-            lastKnownStaffCallCount = existingCalls.length;
-            renderStaffCalls();
-
-            triggerAlert(`Your staff report has been successfully submitted!`, false);
-
-            document.getElementById('staff-call-username').value = '';
-            document.getElementById('staff-call-description').value = '';
-            proofInput.value = '';
-        }
-
-        function resolveStaffCall(callId) {
-            const actionContainer = document.getElementById(`action-container-${callId}`);
-            if (!actionContainer) return;
-
-            actionContainer.innerHTML = `
-                <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 4px; text-align: right;">
-                    <p style="font-size: 13px; font-weight: bold; color: #856404; margin-bottom: 6px;">Are you sure?</p>
-                    <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                        <button onclick="confirmResolveStaffCall('${callId}')" style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">Yes</button>
-                        <button onclick="renderStaffCalls()" style="background-color: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">No</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function confirmResolveStaffCall(callId) {
-            let existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-            existingCalls = existingCalls.filter(call => call.id !== callId);
-            localStorage.setItem('lemoncad_staff_calls', JSON.stringify(existingCalls));
-            lastKnownStaffCallCount = existingCalls.length;
-            renderStaffCalls();
-        }
-
-        function dismissForMe(callId) {
-            let hiddenCalls = JSON.parse(localStorage.getItem('lemoncad_hidden_calls') || '[]');
-            if (!hiddenCalls.includes(callId)) {
-                hiddenCalls.push(callId);
-                localStorage.setItem('lemoncad_hidden_calls', JSON.stringify(hiddenCalls));
-            }
-            renderStaffCalls();
-        }
-
-        function renderStaffCalls() {
-            const listContainer = document.getElementById('staff-call-list');
-            if (!listContainer) return;
-
-            const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-            const hiddenCalls = JSON.parse(localStorage.getItem('lemoncad_hidden_calls') || '[]');
-
-            const visibleCalls = existingCalls.filter(call => !hiddenCalls.includes(call.id));
-
-            if (visibleCalls.length === 0) {
-                listContainer.innerHTML = `<p style="color: #777; margin: 0;">No active staff calls.</p>`;
-                return;
-            }
-
-            let html = '';
-            visibleCalls.forEach((call) => {
-                html += `
-                    <div id="staff-call-card-${call.id}" style="background: #fcfbfa; border-left: 4px solid #d4a017; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <h3>⚠️ [STAFF CALL] ${call.title}</h3>
-                            <p><strong>Roblox Username:</strong> <span style="color: #d4a017; font-weight: bold;">${call.robloxUser}</span></p>
-                            <p><strong>Submitted by Team:</strong> ${call.team}</p>
-                            <p><strong>Details:</strong> ${call.description}</p>
-                            <p><strong>Proof Uploaded:</strong> ${call.hasProof}</p>
-                            <p><strong>Time:</strong> ${call.time}</p>
-                        </div>
-                        <div id="action-container-${call.id}" style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
-                            <button onclick="resolveStaffCall('${call.id}')" style="background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; white-space: nowrap;">Mark as Handled</button>
-                            <button onclick="dismissForMe('${call.id}')" style="background-color: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; white-space: nowrap;">Dismiss for me</button>
-                        </div>
-                    </div>
-                `;
             });
-            listContainer.innerHTML = html;
+
+            // Toon de eenheden onderweg sectie
+            document.getElementById('enroute-container').style.display = 'block';
+            document.getElementById('active-title').innerText = title;
+            
+            const unitList = document.getElementById('unit-list');
+            unitList.innerHTML = '';
+            units.forEach(unit => {
+                const li = document.createElement('li');
+                li.innerHTML = `<code>${unit}</code>`;
+                unitList.appendChild(li);
+            });
         }
 
-        function pollForNewStaffCalls() {
-            const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
+        function dismissAlert(id) {
+            const meldingBox = document.getElementById(`melding-${id}`);
             
-            if (existingCalls.length > lastKnownStaffCallCount) {
-                if (lastKnownStaffCallCount !== 0) {
-                    const latest = existingCalls[0];
-                    triggerAlert(`New Staff Report by ${latest.robloxUser}: ${latest.title}`, true);
-                }
-                lastKnownStaffCallCount = existingCalls.length;
-                
-                const staffDashboardTab = document.getElementById('staff-dashboard');
-                if (staffDashboardTab && staffDashboardTab.classList.contains('active')) {
-                    renderStaffCalls();
-                }
-            } else if (existingCalls.length < lastKnownStaffCallCount) {
-                lastKnownStaffCallCount = existingCalls.length;
-                const staffDashboardTab = document.getElementById('staff-dashboard');
-                if (staffDashboardTab && staffDashboardTab.classList.contains('active')) {
-                    renderStaffCalls();
-                }
+            // Als deze melding momenteel enroute was, reset de enroute sectie
+            if (currentEnrouteId === id) {
+                document.getElementById('enroute-container').style.display = 'none';
+                currentEnrouteId = null;
+                // Heractiveer alle enroute knoppen voor de overige meldingen
+                document.querySelectorAll('.btn-enroute').forEach(btn => btn.disabled = false);
+            }
+
+            // Verwijder de melding uit de lijst
+            meldingBox.remove();
+        }
+
+        function resetAlert(id) {
+            const meldingBox = document.getElementById(`melding-${id}`);
+            if (meldingBox) {
+                meldingBox.querySelector('.status-badge').className = "status-badge status-pending";
+                meldingBox.querySelector('.status-badge').innerText = "In afwachting";
+                meldingBox.querySelector('.btn-enroute').disabled = false;
             }
         }
-
-        async function openUpdateModal() {
-            const modal = document.getElementById('update-modal');
-            const container = document.getElementById('update-logs-container');
-            modal.style.display = 'flex';
-            
-            container.innerHTML = '<p>Loading updates...</p>';
-
-            try {
-                const response = await fetch('/updates.json');
-                const data = await response.json();
-                
-                document.getElementById('version-label').innerText = data.currentVersion;
-
-                let html = '';
-                data.logs.forEach(log => {
-                    html += `
-                        <div style="border-bottom: 1px solid #eee; margin-bottom: 12px; padding-bottom: 8px;">
-                            <strong>${log.version}</strong> <span style="font-size: 12px; color: #666;">(${log.date})</span>
-                            <ul style="margin: 5px 0 0 15px; padding: 0; font-size: 14px;">
-                                ${log.changes.map(change => `<li>${change}</li>`).join('')}
-                            </ul>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } catch (error) {
-                container.innerHTML = '<p style="color: red;">Could not load update logs.</p>';
-            }
-        }
-
-        function closeUpdateModal() {
-            document.getElementById('update-modal').style.display = 'none';
-        }
-
-        async function initVersionCheck() {
-            try {
-                const response = await fetch('/updates.json');
-                const data = await response.json();
-                const label = document.getElementById('version-label');
-                if(label) label.innerText = data.currentVersion;
-            } catch (e) {
-                console.log('Could not fetch version number');
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
-            const civPoints = document.getElementById('civ-points-display');
-            if(civPoints) civPoints.style.display = 'block';
-            handleStaffReasonChange();
-            initVersionCheck();
-            
-            const existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
-            lastKnownStaffCallCount = existingCalls.length;
-            renderStaffCalls();
-
-            setInterval(pollForNewStaffCalls, 3000);
-        });
     </script>
+
 </body>
 </html>
