@@ -11,6 +11,31 @@ app.use(express.urlencoded({ extended: true }));
 // Serve all static files (HTML, CSS, Client-JS, updates.json) from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Discord Webhook URL (using environment variable with fallback)
+const WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "https://discord.com/api/webhooks/1533927070810247461/GYeJqyh2D_gLR6J_CNI8zmWqLDYLULmrhKANvtsk2_YcnzRGx_zO2rjzMhHxlchzG-dy";
+
+/**
+ * Sends a notification message to the configured Discord webhook.
+ * @param {string} message - The text message to send to Discord.
+ */
+async function sendDiscordNotification(message) {
+  try {
+    const response = await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: message }),
+    });
+
+    if (!response.ok) {
+      console.error(`Failed to send Discord notification. Status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("An error occurred while sending the Discord webhook:", error);
+  }
+}
+
 // Server status endpoint
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
@@ -19,6 +44,7 @@ app.get('/health', (req, res) => {
 // Start the server on Render's assigned port
 app.listen(PORT, () => {
     console.log(`Server is running successfully on port ${PORT}`);
+    sendDiscordNotification("🟢 LemonCAD server has successfully started up!");
 });
 
 // --- CLIENT-SIDE LOGIC ---
@@ -255,6 +281,7 @@ function dispatchBoloAlert(civName, plate, points) {
     listContainer.prepend(card);
 
     triggerAlert('🚨 BOLO ALERT: ' + civName + ' (' + plate + ') is now a BOLO!');
+    sendDiscordNotification(`🚨 **BOLO ALERT:** Civilian **${civName}** (Plate: \`${plate}\`) has reached **${points} points** and is now designated as a BOLO!`);
 }
 
 function updateCivPointsBadge() {
@@ -441,6 +468,8 @@ async function submitEmergencyCall() {
 
     triggerAlert('🚨 New 911 Emergency Dispatch Sent Successfully!');
     
+    sendDiscordNotification(`🚨 **911 Emergency Call**\n**Title:** ${title}\n**Location:** ${location}\n**Services:** ${targetServices.join(', ')}\n**Details:** ${newDispatch.description}`);
+
     document.getElementById('call-title').value = '';
     document.getElementById('call-location').value = '';
     document.getElementById('call-description').value = '';
@@ -492,6 +521,8 @@ function submitStaffCall() {
     } else {
         triggerAlert('✅ Staff call successfully submitted to moderation team.');
     }
+
+    sendDiscordNotification(`⚠️ **New Staff Call**\n**Reason:** ${reason}\n**Team:** ${currentActiveTeam}\n**Details:** ${newStaffCall.description}\n**Proof:** ${hasProof}`);
 
     document.getElementById('staff-call-description').value = '';
     proofInput.value = '';
