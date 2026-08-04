@@ -16,7 +16,7 @@
             max-width: 1000px;
             margin: 0 auto;
         }
-        /* Top Navigation / Header styling matching the screenshot */
+        /* Top Navigation / Header styling matching the example */
         .header {
             background-color: #fff;
             border: 1px solid #e2e8f0;
@@ -45,11 +45,11 @@
             align-items: center;
         }
         .badge-team {
-            background-color: #edf2f7;
+            background: #f1f0ee;
             padding: 6px 12px;
             border-radius: 4px;
             font-size: 13px;
-            font-weight: bold;
+            font-weight: 600;
         }
         .btn-header {
             background-color: #e2e8f0;
@@ -131,10 +131,6 @@
             color: #4a5568;
             line-height: 1.5;
         }
-        .report-details span {
-            color: #d69e2e;
-            font-weight: 500;
-        }
 
         /* Action Buttons aligned right inside report item */
         .report-actions {
@@ -209,16 +205,16 @@
 
 <div class="container">
     <!-- Header Layout -->
-    <div class="header">
+    <header class="header" style="display: flex; justify-content: space-between; align-items: center;">
         <div class="brand">
             🍋 Lemon<span>CAD</span>
         </div>
-        <div class="header-actions">
-            <div class="badge-team">Team: Dispatch</div>
+        <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
+            <span id="display-team-info" style="background: #f1f0ee; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">Team: Dispatch</span>
             <button class="btn-header">Change Team</button>
             <button class="btn-updates">Updates (v1.2.0)</button>
         </div>
-    </div>
+    </header>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
@@ -242,7 +238,7 @@
                 <strong>Details:</strong> Heavy smoke coming from commercial utility warehouse.<br>
                 <strong>Time:</strong> 16:42
             </div>
-            <div class="report-actions">
+            <div class="report-actions" id="action-container-1">
                 <button class="btn-enroute" onclick="goEnroute(1, 'Structure Fire - 14 Industrial Way', ['TS 13-41', 'HV 13-81'])">Enroute</button>
                 <button class="btn-dismiss" onclick="dismissDispatch(1)">Dismiss</button>
             </div>
@@ -257,7 +253,7 @@
                 <strong>Details:</strong> Patient unresponsive, CPR in progress by bystander.<br>
                 <strong>Time:</strong> 16:45
             </div>
-            <div class="report-actions">
+            <div class="report-actions" id="action-container-2">
                 <button class="btn-enroute" onclick="goEnroute(2, 'Cardiac Arrest - 88 Heath Street', ['AMBU 13-182', 'TS 13-31'])">Enroute</button>
                 <button class="btn-dismiss" onclick="dismissDispatch(2)">Dismiss</button>
             </div>
@@ -272,7 +268,7 @@
                 <strong>Details:</strong> Two-vehicle collision blocking right lane, minor injuries.<br>
                 <strong>Time:</strong> 16:50
             </div>
-            <div class="report-actions">
+            <div class="report-actions" id="action-container-3">
                 <button class="btn-enroute" onclick="goEnroute(3, 'Traffic Accident - N281 KM 4.2', ['TS 13-51', 'HV 13-82'])">Enroute</button>
                 <button class="btn-dismiss" onclick="dismissDispatch(3)">Dismiss</button>
             </div>
@@ -294,26 +290,23 @@
     let currentEnrouteId = null;
 
     function goEnroute(id, title, units) {
-        // If another dispatch was already enroute, reset it first
         if (currentEnrouteId !== null && currentEnrouteId !== id) {
             resetDispatch(currentEnrouteId);
         }
 
         currentEnrouteId = id;
 
-        // Disable the clicked enroute button and enable others back if needed
         const dispatchBox = document.getElementById(`dispatch-${id}`);
-        dispatchBox.querySelector('.btn-enroute').disabled = true;
-        dispatchBox.querySelector('.btn-enroute').innerText = "Enroute Active";
+        const enrouteBtn = dispatchBox.querySelector('.btn-enroute');
+        enrouteBtn.disabled = true;
+        enrouteBtn.innerText = "Enroute Active";
 
-        // Disable all other enroute buttons globally (only 1 enroute allowed at a time)
         document.querySelectorAll('.btn-enroute').forEach(btn => {
-            if (btn !== dispatchBox.querySelector('.btn-enroute')) {
+            if (btn !== enrouteBtn) {
                 btn.disabled = true;
             }
         });
 
-        // Show and populate the enroute units container block
         document.getElementById('enroute-container').style.display = 'block';
         document.getElementById('active-title').innerText = title;
 
@@ -330,19 +323,18 @@
     function dismissDispatch(id) {
         const dispatchBox = document.getElementById(`dispatch-${id}`);
 
-        // If the dismissed dispatch is currently enroute, hide the enroute container panel
         if (currentEnrouteId === id) {
             document.getElementById('enroute-container').style.display = 'none';
             currentEnrouteId = null;
-            // Re-enable remaining enroute buttons
             document.querySelectorAll('.btn-enroute').forEach(btn => {
                 btn.disabled = false;
                 btn.innerText = "Enroute";
             });
         }
 
-        // Remove the card item from layout
-        dispatchBox.remove();
+        if (dispatchBox) {
+            dispatchBox.remove();
+        }
     }
 
     function resetDispatch(id) {
