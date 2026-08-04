@@ -334,7 +334,9 @@ function searchPlate() {
 
 function autofillPlate(plate) {
     document.getElementById('civ-plate').value = plate;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     const resultBox = document.getElementById('dmv-lookup-result');
     resultBox.style.display = 'none';
@@ -489,8 +491,10 @@ function triggerAlert(customText) {
     }, 6000);
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
-    document.getElementById('civ-points-display').style.display = 'block';
-    handleStaffReasonChange();
-});
+if (typeof window !== 'undefined') {
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
+        document.getElementById('civ-points-display').style.display = 'block';
+        handleStaffReasonChange();
+    });
+}
