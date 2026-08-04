@@ -79,6 +79,10 @@ body {
     display: none !important;
 }
 
+.hidden-for-staff {
+    display: none !important;
+}
+
 /* Content Sections */
 .tab-content {
     display: none;
@@ -181,6 +185,8 @@ header {
         <div class="nav-tab active hidden-for-civ" id="tab-btn-cad" onclick="switchTab('cad', this)">Violators / BOLO's</div>
         <div class="nav-tab hidden-for-civ" id="tab-btn-dispatch" onclick="switchTab('dispatch', this)">Dispatch</div>
         <div class="nav-tab" id="tab-btn-caller" onclick="switchTab('caller', this)">Emergency Caller (911)</div>
+        <div class="nav-tab" id="tab-btn-staff-caller" onclick="switchTab('staff-caller', this)" style="display: block;">Staff Caller</div>
+        <div class="nav-tab hidden-for-civ" id="tab-btn-staff-dashboard" onclick="switchTab('staff-dashboard', this)" style="display: none;">Staff Dashboard</div>
         <div class="nav-tab" id="tab-btn-map" onclick="switchTab('map', this)">Interactive Map</div>
     </nav>
 
@@ -221,10 +227,48 @@ header {
             </div>
         </div>
 
-        <!-- 4. INTERACTIVE MAP TAB -->
+        <!-- 4. STAFF CALLER -->
+        <div id="staff-caller" class="tab-content">
+            <div class="map-container-wrapper">
+                <div class="section-header-title">Staff Report Submission</div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <select id="staff-call-reason" onchange="handleStaffReasonChange()">
+                        <option value="RDM (Random Deathmatch)">RDM (Random Deathmatch)</option>
+                        <option value="VDM (Vehicle Deathmatch)">VDM (Vehicle Deathmatch)</option>
+                        <option value="FailRP">FailRP</option>
+                        <option value="New Life Rule Violation">New Life Rule Violation</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" id="proof-container">
+                    <label>Upload Video/Screenshot Proof (Required for RDM/VDM)</label>
+                    <input type="file" id="staff-call-proof">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="staff-call-description" rows="3" placeholder="Explain what happened..."></textarea>
+                </div>
+                <button onclick="submitStaffCall()" style="padding: 10px 15px; background-color: #d4a017; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Submit Report</button>
+            </div>
+        </div>
+
+        <!-- 5. STAFF DASHBOARD -->
+        <div id="staff-dashboard" class="tab-content">
+            <div class="map-container-wrapper">
+                <div class="section-header-title">Staff Reports & Moderation Feed</div>
+                <div id="staff-call-list">
+                    <p style="color: #777; margin: 0;">No active staff calls.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. INTERACTIVE MAP TAB -->
         <div id="map" class="tab-content map-container-wrapper">
             <div class="section-header-title">Interactive Map</div>
-            <p>Live map view coming soon.</p>
+            <div style="width: 100%; height: 700px; border: none; overflow: hidden; border-radius: 4px;">
+                <iframe src="https://erlc-hub.pages.dev" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
         </div>
     </main>
 
@@ -233,70 +277,6 @@ header {
         let currentActiveTeam = 'Civilian';
         let registeredCivilians = [];
         let alertTimeout = null;
-        let currentFeet = 5;
-        let currentInches = 7;
-
-        function adjustHeight(type, amount) {
-            if (type === 'feet') {
-                currentFeet += amount;
-                if (currentFeet < 2) currentFeet = 2; 
-                if (currentFeet > 7) currentFeet = 7;
-
-                if (currentFeet === 2 && currentInches < 0) {
-                    currentInches = 0;
-                }
-
-                if (currentFeet === 7) {
-                    currentInches = 0;
-                    const hInches = document.getElementById('height-inches');
-                    if(hInches) hInches.innerText = currentInches;
-                }
-                const hFeet = document.getElementById('height-feet');
-                if(hFeet) hFeet.innerText = currentFeet;
-            } else if (type === 'inches') {
-                if (currentFeet === 7 && amount > 0) {
-                    currentInches = 0;
-                    const hInches = document.getElementById('height-inches');
-                    if(hInches) hInches.innerText = currentInches;
-                    return;
-                }
-                currentInches += amount;
-                if (currentInches < 0) {
-                    currentInches = 11;
-                    if (currentFeet > 2) { 
-                        currentFeet--;
-                        const hFeet = document.getElementById('height-feet');
-                        if(hFeet) hFeet.innerText = currentFeet;
-                    } else {
-                        currentFeet = 2;
-                        currentInches = 0;
-                    }
-                } else if (currentInches > 11) {
-                    currentInches = 0;
-                    if (currentFeet < 7) {
-                        currentFeet++;
-                        const hFeet = document.getElementById('height-feet');
-                        if(hFeet) hFeet.innerText = currentFeet;
-                        if (currentFeet === 7) {
-                            currentInches = 0;
-                        }
-                    } else {
-                        currentInches = 0;
-                    }
-                }
-
-                if (currentFeet === 7) {
-                    currentInches = 0;
-                }
-
-                const hInches = document.getElementById('height-inches');
-                if(hInches) hInches.innerText = currentInches;
-            }
-        }
-
-        function openTeamModal() {
-            document.getElementById('team-modal').style.display = 'flex';
-        }
 
         function handleTeamChange() {
             const team = document.getElementById('modal-team-select').value;
@@ -315,6 +295,8 @@ header {
 
             currentActiveTeam = team;
             const pointsBadge = document.getElementById('civ-points-display');
+            const staffCallerTab = document.getElementById('tab-btn-staff-caller');
+            const staffDashboardTab = document.getElementById('tab-btn-staff-dashboard');
 
             if (team === 'Civilian') {
                 errorDiv.style.display = 'none';
@@ -323,7 +305,22 @@ header {
                 pointsBadge.style.display = 'block';
 
                 document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
+                staffCallerTab.classList.remove('hidden-for-staff');
+                staffDashboardTab.style.display = 'none';
                 switchTab('caller', document.getElementById('tab-btn-caller'));
+                return;
+            }
+
+            if (team === 'Staff') {
+                errorDiv.style.display = 'none';
+                document.getElementById('display-team-info').innerText = `Team: Staff`;
+                document.getElementById('team-modal').style.display = 'none';
+                pointsBadge.style.display = 'none';
+
+                document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
+                staffCallerTab.classList.add('hidden-for-staff');
+                staffDashboardTab.style.display = 'block';
+                switchTab('staff-dashboard', staffDashboardTab);
                 return;
             }
 
@@ -342,11 +339,16 @@ header {
             pointsBadge.style.display = 'none';
 
             document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.remove('hidden-for-civ'));
+            staffCallerTab.classList.remove('hidden-for-staff');
+            staffDashboardTab.style.display = 'none';
             switchTab('cad', document.getElementById('tab-btn-cad'));
         }
 
         function switchTab(tabId, element) {
             if (currentActiveTeam === 'Civilian' && (tabId === 'cad' || tabId === 'dispatch')) {
+                return;
+            }
+            if (currentActiveTeam === 'Staff' && tabId === 'staff-caller') {
                 return;
             }
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -356,15 +358,68 @@ header {
             if(element) element.classList.add('active');
         }
 
-        function triggerAlert(customText) {
-            const sound = document.getElementById('alert-sound');
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log('Autoplay blocked:', e));
+        function handleStaffReasonChange() {
+            const reason = document.getElementById('staff-call-reason').value;
+            const proofContainer = document.getElementById('proof-container');
+            const proofInput = document.getElementById('staff-call-proof');
+            
+            if (reason.startsWith('RDM') || reason.startsWith('VDM')) {
+                proofContainer.style.display = 'block';
+                proofInput.required = true;
+            } else {
+                proofContainer.style.display = 'none';
+                proofInput.required = false;
+                proofInput.value = '';
             }
         }
 
-        /* Update Modal Logica */
+        function submitStaffCall() {
+            const reason = document.getElementById('staff-call-reason').value;
+            const description = document.getElementById('staff-call-description').value.trim();
+            const proofInput = document.getElementById('staff-call-proof');
+            const isRdmVdm = reason.startsWith('RDM') || reason.startsWith('VDM');
+
+            if (isRdmVdm && proofInput.files.length === 0) {
+                alert('⚠️ Error: Proof is required for RDM/VDM reports.');
+                return;
+            }
+
+            const hasProof = proofInput.files.length > 0 ? 'Yes (File attached)' : 'None required/provided';
+
+            const newStaffCall = {
+                title: reason,
+                description: description || 'No details provided.',
+                hasProof: hasProof,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                team: currentActiveTeam
+            };
+
+            const listContainer = document.getElementById('staff-call-list');
+            if (listContainer.innerHTML.includes('No active staff calls')) {
+                listContainer.innerHTML = '';
+            }
+
+            const card = document.createElement('div');
+            card.style.background = '#fcfbfa';
+            card.style.borderLeft = '4px solid #d4a017';
+            card.style.padding = '15px';
+            card.style.marginBottom = '10px';
+            card.style.borderRadius = '4px';
+            card.innerHTML = `
+                <h3>⚠️ [STAFF CALL] ${newStaffCall.title}</h3>
+                <p><strong>Submitted by Team:</strong> ${newStaffCall.team}</p>
+                <p><strong>Details:</strong> ${newStaffCall.description}</p>
+                <p><strong>Proof Uploaded:</strong> ${newStaffCall.hasProof}</p>
+                <p><strong>Time:</strong> ${newStaffCall.time}</p>
+            `;
+            listContainer.prepend(card);
+
+            alert('✅ Staff call successfully submitted.');
+
+            document.getElementById('staff-call-description').value = '';
+            proofInput.value = '';
+        }
+
         async function openUpdateModal() {
             const modal = document.getElementById('update-modal');
             const container = document.getElementById('update-logs-container');
@@ -414,6 +469,7 @@ header {
             document.querySelectorAll('.hidden-for-civ').forEach(el => el.classList.add('hidden-for-civ'));
             const civPoints = document.getElementById('civ-points-display');
             if(civPoints) civPoints.style.display = 'block';
+            handleStaffReasonChange();
             initVersionCheck();
         });
     </script>
