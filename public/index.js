@@ -1,9 +1,6 @@
 // ==========================================
-// 1. FIREBASE INITIALIZATION (Browser Module)
+// 1. FIREBASE INITIALIZATION (Compat mode)
 // ==========================================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-
 const firebaseConfig = {
     apiKey: "AIzaSyCJYx0fDIz-SoxIls66uE082aHKseKUMvw",
     authDomain: "lemoncad.firebaseapp.com",
@@ -15,8 +12,8 @@ const firebaseConfig = {
     measurementId: "G-R7F2Z723MG"
 };
 
-const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
 
 // ==========================================
 // 2. STATE & DATA MANAGEMENT
@@ -34,11 +31,11 @@ let civilians = [];
 // ==========================================
 // 3. UI & NAVIGATION FUNCTIONS
 // ==========================================
-window.openTeamModal = function() {
+function openTeamModal() {
     document.getElementById("team-modal").style.display = "flex";
-};
+}
 
-window.handleTeamChange = function() {
+function handleTeamChange() {
     const team = document.getElementById("modal-team-select").value;
     const callsignGroup = document.getElementById("callsign-group");
     if (team === "Police" || team === "EMS" || team === "Staff") {
@@ -46,9 +43,9 @@ window.handleTeamChange = function() {
     } else {
         callsignGroup.style.display = "none";
     }
-};
+}
 
-window.submitTeamSelection = function() {
+function submitTeamSelection() {
     const team = document.getElementById("modal-team-select").value;
     const callsignInput = document.getElementById("modal-callsign-input").value.trim();
     const errorElem = document.getElementById("callsign-error");
@@ -88,18 +85,18 @@ window.submitTeamSelection = function() {
         switchTab('cad', document.getElementById('tab-btn-cad'));
     }
     showAlert(`Successfully switched to ${currentTeam}!`);
-};
+}
 
-window.switchTab = function(tabId, btnElement) {
+function switchTab(tabId, btnElement) {
     document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
     document.querySelectorAll(".nav-tab").forEach(el => el.classList.remove("active"));
 
     const targetTab = document.getElementById(tabId);
     if (targetTab) targetTab.classList.add("active");
     if (btnElement) btnElement.classList.add("active");
-};
+}
 
-window.showAlert = function(message) {
+function showAlert(message) {
     const popup = document.getElementById("alert-popup");
     const audio = document.getElementById("alert-sound");
     popup.innerText = message;
@@ -112,12 +109,12 @@ window.showAlert = function(message) {
     setTimeout(() => {
         popup.classList.remove("show");
     }, 4000);
-};
+}
 
 // ==========================================
 // 4. EMERGENCY CALLER (911)
 // ==========================================
-window.submitEmergencyCall = function() {
+function submitEmergencyCall() {
     const title = document.getElementById("call-title").value.trim();
     const location = document.getElementById("call-location").value.trim();
     const description = document.getElementById("call-description").value.trim();
@@ -152,7 +149,7 @@ window.submitEmergencyCall = function() {
 
     showAlert("Emergency call successfully dispatched to units!");
     switchTab('dispatch', document.getElementById('tab-btn-dispatch'));
-};
+}
 
 function updateDispatchFeed() {
     const feedContainer = document.getElementById("dispatch-list");
@@ -177,29 +174,18 @@ function updateDispatchFeed() {
     feedContainer.innerHTML = html;
 }
 
-window.resolveDispatch = function(id) {
+function resolveDispatch(id) {
     dispatches = dispatches.filter(d => d.id !== id);
     updateDispatchFeed();
     showAlert("Dispatch marked as resolved.");
-};
+}
 
 // ==========================================
 // 5. CAD / DMV & CIVILIAN PROFILE
 // ==========================================
-window.adjustHeight = function(type, amount) {
-    if (type === 'feet') {
-        civHeightFeet = Math.max(3, Math.min(7, civHeightFeet + amount));
-        document.getElementById("height-feet").innerText = civHeightFeet;
-    } else {
-        civHeightInches = Math.max(0, Math.min(11, civHeightInches + amount));
-        document.getElementById("height-inches").innerText = civHeightInches;
-    }
-};
-
-window.registerCivilianProfile = function() {
+function registerCivilianProfile() {
     const name = document.getElementById("civ-name").value.trim();
     const age = document.getElementById("civ-age").value;
-    const gender = document.getElementById("civ-gender").value;
     const plate = document.getElementById("civ-plate").value.trim().toUpperCase();
     const violationPoints = parseInt(document.getElementById("civ-violation-type").value, 10);
 
@@ -217,8 +203,6 @@ window.registerCivilianProfile = function() {
     const profileData = {
         name,
         age,
-        gender,
-        height: `${civHeightFeet}'${civHeightInches}"`,
         plate: plate || "NONE",
         points: civPoints,
         status: statusText
@@ -232,33 +216,7 @@ window.registerCivilianProfile = function() {
 
     updateLeaderboard();
     showAlert("Civilian profile and points updated successfully!");
-};
-
-window.searchPerson = function() {
-    const query = document.getElementById("search-person-input").value.trim().toLowerCase();
-    if (!query) return;
-
-    const found = civilians.find(c => c.name.toLowerCase().includes(query));
-    if (found) {
-        showAlert(`Found: ${found.name} | Points: ${found.points} | Plate: ${found.plate}`);
-    } else {
-        showAlert("No civilian found with that name.");
-    }
-};
-
-window.searchPlate = function() {
-    const query = document.getElementById("search-plate-input").value.trim().toUpperCase();
-    const resultBox = document.getElementById("dmv-lookup-result");
-    if (!query) return;
-
-    const found = civilians.find(c => c.plate === query);
-    resultBox.style.display = "block";
-    if (found) {
-        resultBox.innerHTML = `<strong>Owner:</strong> ${escapeHtml(found.name)}<br><strong>Status:</strong> ${escapeHtml(found.status)}<br><strong>Plate:</strong> ${escapeHtml(found.plate)}`;
-    } else {
-        resultBox.innerHTML = `<span style="color: var(--danger-color);">No vehicle registered to plate: ${escapeHtml(query)}</span>`;
-    }
-};
+}
 
 function updateLeaderboard() {
     const tbody = document.getElementById("leaderboard-body");
@@ -284,7 +242,7 @@ function updateLeaderboard() {
 // ==========================================
 // 6. STAFF REPORTS WITH FIREBASE STORAGE
 // ==========================================
-window.handleStaffReasonChange = function() {
+function handleStaffReasonChange() {
     const reason = document.getElementById("staff-call-reason").value;
     const proofContainer = document.getElementById("proof-container");
     if (reason.includes("RDM") || reason.includes("VDM")) {
@@ -292,9 +250,9 @@ window.handleStaffReasonChange = function() {
     } else {
         proofContainer.style.display = "none";
     }
-};
+}
 
-window.submitStaffCall = async function() {
+async function submitStaffCall() {
     const reason = document.getElementById("staff-call-reason").value;
     const description = document.getElementById("staff-call-description").value.trim();
     const fileInput = document.getElementById("staff-call-proof");
@@ -305,9 +263,9 @@ window.submitStaffCall = async function() {
         const file = fileInput.files[0];
         try {
             showAlert("Uploading proof to Firebase Storage...");
-            const fileRef = storageRef(storage, `staff_proofs/${Date.now()}_${file.name}`);
-            const snapshot = await uploadBytes(fileRef, file);
-            proofUrl = await getDownloadURL(snapshot.ref);
+            const fileRef = storage.ref().child(`staff_proofs/${Date.now()}_${file.name}`);
+            const snapshot = await fileRef.put(file);
+            proofUrl = await snapshot.ref.getDownloadURL();
         } catch (error) {
             console.error("Error uploading file to Firebase Storage:", error);
             showAlert("Failed to upload proof file!");
@@ -331,7 +289,7 @@ window.submitStaffCall = async function() {
 
     showAlert("Staff report successfully submitted!");
     switchTab('caller', document.getElementById('tab-btn-caller'));
-};
+}
 
 function updateStaffDashboard() {
     const container = document.getElementById("staff-call-list");
@@ -357,32 +315,21 @@ function updateStaffDashboard() {
     container.innerHTML = html;
 }
 
-window.closeStaffReport = function(id) {
+function closeStaffReport(id) {
     staffCalls = staffCalls.filter(r => r.id !== id);
     updateStaffDashboard();
     showAlert("Staff report closed.");
-};
+}
 
-// ==========================================
-// 7. UPDATE MODAL
-// ==========================================
-window.openUpdateModal = function() {
+function openUpdateModal() {
     document.getElementById("update-modal").style.display = "flex";
-    document.getElementById("update-logs-container").innerHTML = `
-        <p><strong>v1.1.0</strong> - Integrated Firebase Storage for secure media uploads.</p>
-        <p><strong>v1.0.0</strong> - Initial LemonCAD Release.</p>
-    `;
-};
+}
 
-window.closeUpdateModal = function() {
+function closeUpdateModal() {
     document.getElementById("update-modal").style.display = "none";
-};
+}
 
 function escapeHtml(text) {
     if (!text) return "";
-    return text.replace(/&/g, "&amp;")
-               .replace(/</g, "&lt;")
-               .replace(/>/g, "&gt;")
-               .replace(/"/g, "&quot;")
-               .replace(/'/g, "&#039;");
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
