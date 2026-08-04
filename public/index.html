@@ -1,186 +1,359 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actieve Alarmeringen & Teams</title>
+    <title>LemonCAD - Active Dispatches</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #f4f6f9;
+            color: #333;
             margin: 0;
             padding: 20px;
         }
-        h1, h2 {
-            color: #ffffff;
-            border-bottom: 2px solid #333;
-            padding-bottom: 8px;
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
-        .alert-box {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
+        /* Top Navigation / Header styling matching the screenshot */
+        .header {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .status-pending {
-            color: orange;
+        .brand {
+            font-weight: bold;
+            font-size: 20px;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand span {
+            color: #d69e2e;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .badge-team {
+            background-color: #edf2f7;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
             font-weight: bold;
         }
-        .status-enroute {
-            color: #4CAF50;
-            font-weight: bold;
-        }
-        .btn {
-            padding: 8px 16px;
-            margin-right: 8px;
+        .btn-header {
+            background-color: #e2e8f0;
             border: none;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 13px;
+        }
+        .btn-updates {
+            background-color: #d69e2e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* Navigation tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            background-color: #e2e8f0;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .tab.active {
+            background-color: #d69e2e;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Main Content Card Box */
+        .content-card {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .content-card h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #1a202c;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Individual Dispatch Report Item */
+        .report-item {
+            border-left: 4px solid #d69e2e;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-left-width: 4px;
+            border-left-color: #d69e2e;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .report-title {
+            font-weight: bold;
+            font-size: 15px;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+        .report-details {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+        .report-details span {
+            color: #d69e2e;
+            font-weight: 500;
+        }
+
+        /* Action Buttons aligned right inside report item */
+        .report-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
         .btn-enroute {
-            background-color: #ff9800;
-            color: #fff;
+            background-color: #d69e2e;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
         }
         .btn-enroute:hover {
-            background-color: #f57c00;
+            background-color: #b7791f;
         }
-        .btn-dismiss {
-            background-color: #f44336;
-            color: #fff;
-        }
-        .btn-dismiss:hover {
-            background-color: #d32f2f;
-        }
-        .btn:disabled {
-            background-color: #555;
-            color: #888;
+        .btn-enroute:disabled {
+            background-color: #cbd5e0;
             cursor: not-allowed;
         }
-        .enroute-section {
-            background-color: #1a2634;
-            border: 1px solid #2a4365;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 30px;
+        .btn-dismiss {
+            background-color: #718096;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
         }
-        code {
-            background-color: #2d3748;
-            padding: 2px 6px;
+        .btn-dismiss:hover {
+            background-color: #4a5568;
+        }
+
+        /* Enroute units display section */
+        .enroute-section {
+            background-color: #fffaf0;
+            border: 1px solid #feebc8;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        .enroute-section h3 {
+            margin-top: 0;
+            color: #9c4221;
+            font-size: 16px;
+        }
+        .unit-badge {
+            background-color: #edf2f7;
+            border: 1px solid #cbd5e0;
+            padding: 4px 8px;
             border-radius: 4px;
             font-family: monospace;
-            color: #63b3ed;
+            font-weight: bold;
+            color: #2b6cb0;
+            display: inline-block;
+            margin-right: 6px;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
-    <h1>🚨 Actieve Alarmeringen & Teams</h1>
-    <p><em>Systeem actief — Wachtend op meldingen of selectie.</em></p>
-
-    <!-- Melding 1 -->
-    <div class="alert-box" id="melding-1">
-        <h3>Brand in utiliteitsbouw (Prio 1)</h3>
-        <p><strong>Locatie:</strong> Industrieweg 14, Landgraaf<br>
-           <strong>Tijd:</strong> 16:42 uur<br>
-           <strong>Status:</strong> <span class="status-badge status-pending">In afwachting</span></p>
-        <button class="btn btn-enroute" onclick="goEnroute(1, 'Brand in utiliteitsbouw (Industrieweg 14)', ['TS 13-41 (Tankautospuit)', 'HV 13-81 (Hulpverleningsvoertuig)'])">Enroute</button>
-        <button class="btn btn-dismiss" onclick="dismissAlert(1)">Dismiss</button>
+<div class="container">
+    <!-- Header Layout -->
+    <div class="header">
+        <div class="brand">
+            🍋 Lemon<span>CAD</span>
+        </div>
+        <div class="header-actions">
+            <div class="badge-team">Team: Dispatch</div>
+            <button class="btn-header">Change Team</button>
+            <button class="btn-updates">Updates (v1.2.0)</button>
+        </div>
     </div>
 
-    <!-- Melding 2 -->
-    <div class="alert-box" id="melding-2">
-        <h3>Reanimatie (Prio 1)</h3>
-        <p><strong>Locatie:</strong> Heistraat 88, Heerlen<br>
-           <strong>Tijd:</strong> 16:45 uur<br>
-           <strong>Status:</strong> <span class="status-badge status-pending">In afwachting</span></p>
-        <button class="btn btn-enroute" onclick="goEnroute(2, 'Reanimatie (Heistraat 88)', ['AMBU 13-182', 'TS 13-31'])">Enroute</button>
-        <button class="btn btn-dismiss" onclick="dismissAlert(2)">Dismiss</button>
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="tab">Violators / BOLO's</button>
+        <button class="tab active">Dispatch</button>
+        <button class="tab">Emergency Caller (911)</button>
+        <button class="tab">Staff Dashboard</button>
+        <button class="tab">Interactive Map</button>
     </div>
 
-    <!-- Melding 3 -->
-    <div class="alert-box" id="melding-3">
-        <h3>Ongeval letsel (Prio 2)</h3>
-        <p><strong>Locatie:</strong> N281 - KM 4.2, Kerkrade<br>
-           <strong>Tijd:</strong> 16:50 uur<br>
-           <strong>Status:</strong> <span class="status-badge status-pending">In afwachting</span></p>
-        <button class="btn btn-enroute" onclick="goEnroute(3, 'Ongeval letsel (N281 - KM 4.2)', ['TS 13-51', 'HV 13-82'])">Enroute</button>
-        <button class="btn btn-dismiss" onclick="dismissAlert(3)">Dismiss</button>
+    <!-- Main Content Panel -->
+    <div class="content-card">
+        <h2>Active Dispatches & Units Feed</h2>
+
+        <!-- Dispatch Item 1 -->
+        <div class="report-item" id="dispatch-1">
+            <div class="report-title">⚠️ [DISPATCH] Structure Fire - Priority 1</div>
+            <div class="report-details">
+                <strong>Location:</strong> 14 Industrial Way, Landgraaf<br>
+                <strong>Caller ID:</strong> Citizen_99<br>
+                <strong>Details:</strong> Heavy smoke coming from commercial utility warehouse.<br>
+                <strong>Time:</strong> 16:42
+            </div>
+            <div class="report-actions">
+                <button class="btn-enroute" onclick="goEnroute(1, 'Structure Fire - 14 Industrial Way', ['TS 13-41', 'HV 13-81'])">Enroute</button>
+                <button class="btn-dismiss" onclick="dismissDispatch(1)">Dismiss</button>
+            </div>
+        </div>
+
+        <!-- Dispatch Item 2 -->
+        <div class="report-item" id="dispatch-2">
+            <div class="report-title">⚠️ [DISPATCH] Cardiac Arrest - Priority 1</div>
+            <div class="report-details">
+                <strong>Location:</strong> 88 Heath Street, Heerlen<br>
+                <strong>Caller ID:</strong> Citizen_12<br>
+                <strong>Details:</strong> Patient unresponsive, CPR in progress by bystander.<br>
+                <strong>Time:</strong> 16:45
+            </div>
+            <div class="report-actions">
+                <button class="btn-enroute" onclick="goEnroute(2, 'Cardiac Arrest - 88 Heath Street', ['AMBU 13-182', 'TS 13-31'])">Enroute</button>
+                <button class="btn-dismiss" onclick="dismissDispatch(2)">Dismiss</button>
+            </div>
+        </div>
+
+        <!-- Dispatch Item 3 -->
+        <div class="report-item" id="dispatch-3">
+            <div class="report-title">⚠️ [DISPATCH] Traffic Accident w/ Injury - Priority 2</div>
+            <div class="report-details">
+                <strong>Location:</strong> N281 - KM 4.2, Kerkrade<br>
+                <strong>Caller ID:</strong> Driver_55<br>
+                <strong>Details:</strong> Two-vehicle collision blocking right lane, minor injuries.<br>
+                <strong>Time:</strong> 16:50
+            </div>
+            <div class="report-actions">
+                <button class="btn-enroute" onclick="goEnroute(3, 'Traffic Accident - N281 KM 4.2', ['TS 13-51', 'HV 13-82'])">Enroute</button>
+                <button class="btn-dismiss" onclick="dismissDispatch(3)">Dismiss</button>
+            </div>
+        </div>
+
+        <!-- Enroute Units Display Section -->
+        <div class="enroute-section" id="enroute-container" style="display: none;">
+            <h3>🚒 Assigned Units Enroute</h3>
+            <p style="font-size: 14px; color: #4a5568; margin-bottom: 8px;"><strong>Active Incident:</strong> <span id="active-title" style="color: #2d3748;">-</span></p>
+            <div>
+                <strong>Responding Unit Codes:</strong><br>
+                <div id="unit-list" style="margin-top: 5px;"></div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <!-- Sectie Eenheden Onderweg -->
-    <div class="enroute-section" id="enroute-container" style="display: none;">
-        <h2>🚒 Eenheden Onderweg (Enroute)</h2>
-        <p>Hieronder staat het eenheidsteam dat momenteel naar de actieve melding onderweg is:</p>
-        <p><strong>Actieve Melding:</strong> <span id="active-title">-</span></p>
-        <ul id="unit-list"></ul>
-    </div>
+<script>
+    let currentEnrouteId = null;
 
-    <script>
-        let currentEnrouteId = null;
+    function goEnroute(id, title, units) {
+        // If another dispatch was already enroute, reset it first
+        if (currentEnrouteId !== null && currentEnrouteId !== id) {
+            resetDispatch(currentEnrouteId);
+        }
 
-        function goEnroute(id, title, units) {
-            // Als er al een andere melding enroute is, reset die dan eerst
-            if (currentEnrouteId !== null && currentEnrouteId !== id) {
-                resetAlert(currentEnrouteId);
+        currentEnrouteId = id;
+
+        // Disable the clicked enroute button and enable others back if needed
+        const dispatchBox = document.getElementById(`dispatch-${id}`);
+        dispatchBox.querySelector('.btn-enroute').disabled = true;
+        dispatchBox.querySelector('.btn-enroute').innerText = "Enroute Active";
+
+        // Disable all other enroute buttons globally (only 1 enroute allowed at a time)
+        document.querySelectorAll('.btn-enroute').forEach(btn => {
+            if (btn !== dispatchBox.querySelector('.btn-enroute')) {
+                btn.disabled = true;
             }
+        });
 
-            currentEnrouteId = id;
+        // Show and populate the enroute units container block
+        document.getElementById('enroute-container').style.display = 'block';
+        document.getElementById('active-title').innerText = title;
 
-            // Update status van de gekozen melding
-            const meldingBox = document.getElementById(`melding-${id}`);
-            meldingBox.querySelector('.status-badge').className = "status-badge status-enroute";
-            meldingBox.querySelector('.status-badge').innerText = "Onderweg";
-            meldingBox.querySelector('.btn-enroute').disabled = true;
+        const unitList = document.getElementById('unit-list');
+        unitList.innerHTML = '';
+        units.forEach(unit => {
+            const span = document.createElement('span');
+            span.className = 'unit-badge';
+            span.innerText = unit;
+            unitList.appendChild(span);
+        });
+    }
 
-            // Disable alle andere enroute knoppen (slechts 1 tegelijk)
-            const allEnrouteButtons = document.querySelectorAll('.btn-enroute');
-            allEnrouteButtons.forEach(btn => {
-                if(btn !== meldingBox.querySelector('.btn-enroute')) {
-                    btn.disabled = true;
-                }
+    function dismissDispatch(id) {
+        const dispatchBox = document.getElementById(`dispatch-${id}`);
+
+        // If the dismissed dispatch is currently enroute, hide the enroute container panel
+        if (currentEnrouteId === id) {
+            document.getElementById('enroute-container').style.display = 'none';
+            currentEnrouteId = null;
+            // Re-enable remaining enroute buttons
+            document.querySelectorAll('.btn-enroute').forEach(btn => {
+                btn.disabled = false;
+                btn.innerText = "Enroute";
             });
-
-            // Toon de eenheden onderweg sectie
-            document.getElementById('enroute-container').style.display = 'block';
-            document.getElementById('active-title').innerText = title;
-            
-            const unitList = document.getElementById('unit-list');
-            unitList.innerHTML = '';
-            units.forEach(unit => {
-                const li = document.createElement('li');
-                li.innerHTML = `<code>${unit}</code>`;
-                unitList.appendChild(li);
-            });
         }
 
-        function dismissAlert(id) {
-            const meldingBox = document.getElementById(`melding-${id}`);
-            
-            // Als deze melding momenteel enroute was, reset de enroute sectie
-            if (currentEnrouteId === id) {
-                document.getElementById('enroute-container').style.display = 'none';
-                currentEnrouteId = null;
-                // Heractiveer alle enroute knoppen voor de overige meldingen
-                document.querySelectorAll('.btn-enroute').forEach(btn => btn.disabled = false);
-            }
+        // Remove the card item from layout
+        dispatchBox.remove();
+    }
 
-            // Verwijder de melding uit de lijst
-            meldingBox.remove();
+    function resetDispatch(id) {
+        const dispatchBox = document.getElementById(`dispatch-${id}`);
+        if (dispatchBox) {
+            const btn = dispatchBox.querySelector('.btn-enroute');
+            btn.disabled = false;
+            btn.innerText = "Enroute";
         }
-
-        function resetAlert(id) {
-            const meldingBox = document.getElementById(`melding-${id}`);
-            if (meldingBox) {
-                meldingBox.querySelector('.status-badge').className = "status-badge status-pending";
-                meldingBox.querySelector('.status-badge').innerText = "In afwachting";
-                meldingBox.querySelector('.btn-enroute').disabled = false;
-            }
-        }
-    </script>
+    }
+</script>
 
 </body>
 </html>
