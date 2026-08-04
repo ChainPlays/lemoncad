@@ -260,6 +260,10 @@ header {
             <div class="map-container-wrapper">
                 <div class="section-header-title">Staff Report Submission</div>
                 <div class="form-group">
+                    <label>Roblox Username *</label>
+                    <input type="text" id="staff-call-username" placeholder="e.g. YourRobloxName" required>
+                </div>
+                <div class="form-group">
                     <label>Reason</label>
                     <select id="staff-call-reason" onchange="handleStaffReasonChange()">
                         <option value="RDM (Random Deathmatch)">RDM (Random Deathmatch)</option>
@@ -351,7 +355,7 @@ header {
                 staffCallerTab.classList.add('hidden-for-staff');
                 staffDashboardTab.style.display = 'block';
                 switchTab('staff-dashboard', staffDashboardTab);
-                renderStaffCalls(); // Direct inladen voor staff
+                renderStaffCalls();
                 return;
             }
 
@@ -449,10 +453,16 @@ header {
         }
 
         function submitStaffCall() {
+            const robloxUser = document.getElementById('staff-call-username').value.trim();
             const reason = document.getElementById('staff-call-reason').value;
             const description = document.getElementById('staff-call-description').value.trim();
             const proofInput = document.getElementById('staff-call-proof');
             const isRdmVdm = reason.startsWith('RDM') || reason.startsWith('VDM');
+
+            if (!robloxUser) {
+                alert('⚠️ Error: Please fill in your Roblox Username.');
+                return;
+            }
 
             if (isRdmVdm && proofInput.files.length === 0) {
                 alert('⚠️ Error: Proof is required for RDM/VDM reports.');
@@ -462,6 +472,7 @@ header {
             const hasProof = proofInput.files.length > 0 ? 'Yes (File attached)' : 'None required/provided';
 
             const newStaffCall = {
+                robloxUser: robloxUser,
                 title: reason,
                 description: description || 'No details provided.',
                 hasProof: hasProof,
@@ -469,14 +480,14 @@ header {
                 team: currentActiveTeam
             };
 
-            // Opslaan in localStorage zodat het behouden blijft
             let existingCalls = JSON.parse(localStorage.getItem('lemoncad_staff_calls') || '[]');
             existingCalls.unshift(newStaffCall);
             localStorage.setItem('lemoncad_staff_calls', JSON.stringify(existingCalls));
 
             renderStaffCalls();
-            triggerAlert(`New Staff Report: ${reason}`);
+            triggerAlert(`New Staff Report by ${robloxUser}: ${reason}`);
 
+            document.getElementById('staff-call-username').value = '';
             document.getElementById('staff-call-description').value = '';
             proofInput.value = '';
         }
@@ -497,6 +508,7 @@ header {
                 html += `
                     <div style="background: #fcfbfa; border-left: 4px solid #d4a017; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
                         <h3>⚠️ [STAFF CALL] ${call.title}</h3>
+                        <p><strong>Roblox Username:</strong> <span style="color: #d4a017; font-weight: bold;">${call.robloxUser}</span></p>
                         <p><strong>Submitted by Team:</strong> ${call.team}</p>
                         <p><strong>Details:</strong> ${call.description}</p>
                         <p><strong>Proof Uploaded:</strong> ${call.hasProof}</p>
